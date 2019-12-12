@@ -53,6 +53,13 @@ namespace Day3
         int _maxY = 0;
 
         bool[,] _grid;
+        int[,] _distances;
+
+        Pos2 _center;
+        int _distance;
+
+        int _minManhattanDist = int.MaxValue;
+        int _minTotDist = int.MaxValue;
 
         public Wires(IEnumerable<string> wireStrings)
         {
@@ -118,15 +125,16 @@ namespace Day3
             //System.Console.WriteLine($"Min: {_minX},{_minY} max: {_maxX},{_maxY}");
         }
 
-        Pos2 _center;
         private void Trace()
         {
             _center = new Pos2(_minX < 0 ? -_minX : 0, _minY < 0 ? -_minY : 0); 
             var size = new Pos2(_maxX - _minX, _maxY - _minY);
-            _grid = new bool[size.X+1, size.Y+1];
+            _grid = new bool[size.X + 1, size.Y + 1];
+            _distances = new int[size.X + 1, size.Y + 1];
             //System.Console.WriteLine($"center {_center.X},{_center.Y}");
             //System.Console.WriteLine($"size {size.X},{size.Y}");
 
+            _distance = 0;
             var curPos = new Pos2(_center);
             foreach(var wire in _wireData[0])
             {
@@ -134,13 +142,15 @@ namespace Day3
             }
             var endPos = new Pos2(curPos);
 
+            _distance = 0;
             curPos = new Pos2(_center);
             foreach(var wire in _wireData[1])
             {
                 curPos = Check(curPos, wire);
             }
 
-            System.Console.WriteLine(_minDist);
+            System.Console.WriteLine("Manhattan: " + _minManhattanDist);
+            System.Console.WriteLine("Total: " + _minTotDist);
         }
 
         private Pos2 Draw(Pos2 from, Wire wirePart)
@@ -149,6 +159,7 @@ namespace Day3
 
             for(int i = 0; i < wirePart.pos; i++)
             {
+                _distance++;
                 switch (wirePart.direction)
                 {
                     case Direction.U:
@@ -169,11 +180,12 @@ namespace Day3
                     System.Console.WriteLine($"Out of bounds! {pos.X},{pos.Y}");
                 }
                 _grid[pos.X, pos.Y] = true;
+
+                if(_distances[pos.X, pos.Y] == 0)_distances[pos.X, pos.Y] = _distance;
             }
             return pos;
         }
 
-        int _minDist = int.MaxValue;
 
         private Pos2 Check(Pos2 from, Wire wirePart)
         {
@@ -181,6 +193,7 @@ namespace Day3
 
             for(int i = 0; i < wirePart.pos; i++)
             {
+                _distance++;
                 switch (wirePart.direction)
                 {
                     case Direction.U:
@@ -201,7 +214,10 @@ namespace Day3
                     var p = pos - _center;
                     //System.Console.WriteLine($"Cross! {p.X},{p.Y}");
                     var dist = Math.Abs(p.X) + Math.Abs(p.Y);
-                    if(dist < _minDist) _minDist = dist;
+                    if(dist < _minManhattanDist) _minManhattanDist = dist;
+
+                    var total = _distances[pos.X, pos.Y] + _distance;
+                    if(total < _minTotDist) _minTotDist = total;
                 }
             }
             return pos;

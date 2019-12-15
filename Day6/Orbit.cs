@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Day6
 {
@@ -24,6 +25,29 @@ namespace Day6
             }
 
             return currentSum;
+        }
+
+        public List<Orbit> PathTo(List<Orbit> current, string target)
+        {
+            var newList = new List<Orbit> (current);
+            newList.Add(this);
+
+            if(Name == target)
+            {
+                System.Console.WriteLine(string.Join(')', newList.Select(x => x.Name)));
+                return newList;
+            }
+
+            foreach(var child in Children)
+            {
+                var res = child.PathTo(newList, target);
+                if(res != null)
+                {
+                    return res;
+                }
+            }
+
+            return null;
         }
     }
 
@@ -73,6 +97,36 @@ namespace Day6
         {
             var start = CurrentOrbits["COM"];
             return start.Traverse(0);
+        }
+
+        public void GetPathTo(string target)
+        {
+            var start = CurrentOrbits["COM"];
+            start.PathTo(new List<Orbit> (), target);
+        }
+
+        public int GetPathBetween(string from, string to)
+        {
+            var start = CurrentOrbits["COM"];
+            var toFrom = start.PathTo(new List<Orbit> (), from);
+            var toTo = start.PathTo(new List<Orbit> (), to);
+
+            var min = Math.Min(toFrom.Count, toTo.Count);
+            Orbit last;
+            int lastCount = 0;
+            for(int i = 0; i < min; i++)
+            {
+                if(toFrom[i] == toTo[i])
+                {
+                    last = toFrom[i];
+                    lastCount = i;
+                }
+            }
+
+            var fromLastCount = toFrom.Count - 2 - lastCount;
+            var toLastCount = toTo.Count - 2 - lastCount;
+            var total = fromLastCount + toLastCount;
+            return total;
         }
     }
 }

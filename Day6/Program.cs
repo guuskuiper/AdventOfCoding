@@ -12,6 +12,9 @@ namespace Day6
             var orbits = new Orbits(text);
             var result = orbits.GetOrbitCount();
             System.Console.WriteLine(result);
+
+            var count = orbits.GetPathBetween("YOU", "SAN");
+            System.Console.WriteLine(count);
         }
     }
 }

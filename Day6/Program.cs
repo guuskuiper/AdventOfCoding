@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Day6
 {
@@ -6,7 +7,11 @@ namespace Day6
     {
         static void Main(string[] args)
         {
-            var text = File.ReadAllText("input.txt");
+            var text = File.ReadAllLines("input.txt");
+
+            var orbits = new Orbits(text);
+            var result = orbits.GetOrbitCount();
+            System.Console.WriteLine(result);
         }
     }
 }

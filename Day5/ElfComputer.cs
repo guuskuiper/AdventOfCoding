@@ -30,8 +30,13 @@ namespace Day5
         private List<int> Instructions;
         private int IPtr;
 
-        public ElfComputer(IEnumerable<int> instructions)
+        public Func<int> InputFunction;
+        public Action<int> OutputAction;
+
+        public ElfComputer(IEnumerable<int> instructions, Func<int> input, Action<int> output)
         {
+            InputFunction = input;
+            OutputAction = output;
             Instructions = new List<int>(instructions);
             IPtr = 0;
         }
@@ -62,14 +67,13 @@ namespace Day5
                         IPtr += 4;
                         break;
                     case Opcodes.Input:
-                        System.Console.WriteLine("Enter input: ");
-                        var input = int.Parse(Console.ReadLine());
+                        var input = InputFunction();
                         SetValue(IPtr + 1, input);
                         IPtr += 2;
                         break;
                     case Opcodes.Output:
                         var output = GetValue(C, IPtr + 1);
-                        System.Console.WriteLine("Output: " + output);
+                        OutputAction(output);
                         IPtr += 2;
                         break;
                     case Opcodes.JumpIfTrue:

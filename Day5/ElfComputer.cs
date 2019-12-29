@@ -29,43 +29,43 @@ namespace Day5
             Relative = 2,
         }
 
-        private List<int> Instructions;
+        private List<long> Instructions;
         private int IPtr;
         private int RelativeBase;
 
-        public Func<int> InputFunction;
-        public Action<int> OutputAction;
+        public Func<long> InputFunction;
+        public Action<long> OutputAction;
 
-        public ElfComputer(IEnumerable<int> instructions, Func<int> input, Action<int> output)
+        public ElfComputer(IEnumerable<long> instructions, Func<long> input, Action<long> output)
         {
             InputFunction = input;
             OutputAction = output;
-            Instructions = new List<int>(instructions);
+            Instructions = new List<long>(instructions);
             IPtr = 0;
             RelativeBase = 0;
         }
 
-        public int GetData(int id)
+        public long GetData(int id)
         {
             if(id < 0) throw new Exception("Negative adress accessed");
             if(id >= Instructions.Count)
             {
                 while(id >= Instructions.Count)
                 {
-                    Instructions.Add(default(int));
+                    Instructions.Add(default(long));
                 }
             }
             return Instructions[id];
         }
 
-        public void SetData(int id, int value)
+        public void SetData(int id, long value)
         {
             if(id < 0) throw new Exception("Negative adress accessed");
             if(id >= Instructions.Count)
             {
                 while(id >= Instructions.Count)
                 {
-                    Instructions.Add(default(int));
+                    Instructions.Add(default(long));
                 }
             }
             Instructions[id] = value;
@@ -84,16 +84,16 @@ namespace Day5
                 switch (instruction)
                 {
                     case Opcodes.Add:
-                        SetValue(IPtr + 3, GetValue(C, IPtr + 1) + GetValue(B, IPtr + 2));
+                        SetValue(A, IPtr + 3, GetValue(C, IPtr + 1) + GetValue(B, IPtr + 2));
                         IPtr += 4;
                         break;
                     case Opcodes.Multiply:
-                        SetValue(IPtr + 3, GetValue(C, IPtr + 1) * GetValue(B, IPtr + 2));
+                        SetValue(A, IPtr + 3, GetValue(C, IPtr + 1) * GetValue(B, IPtr + 2));
                         IPtr += 4;
                         break;
                     case Opcodes.Input:
                         var input = InputFunction();
-                        SetValue(IPtr + 1, input);
+                        SetValue(C, IPtr + 1, input);
                         IPtr += 2;
                         break;
                     case Opcodes.Output:
@@ -104,7 +104,7 @@ namespace Day5
                     case Opcodes.JumpIfTrue:
                         if(GetValue(C, IPtr + 1) != 0)
                         {
-                            IPtr = GetValue(B, IPtr + 2);
+                            IPtr = (int)GetValue(B, IPtr + 2);
                         }
                         else
                         {
@@ -114,7 +114,7 @@ namespace Day5
                     case Opcodes.JumpIfFalse:
                         if(GetValue(C, IPtr + 1) == 0)
                         {
-                            IPtr = GetValue(B, IPtr + 2);
+                            IPtr = (int)GetValue(B, IPtr + 2);
                         }
                         else
                         {
@@ -123,16 +123,16 @@ namespace Day5
                         break;
                     case Opcodes.LessThan:
                         int result = GetValue(C, IPtr + 1) < GetValue(B, IPtr + 2) ? 1 : 0;
-                        SetValue(IPtr + 3, result);
+                        SetValue(A, IPtr + 3, result);
                         IPtr += 4;
                         break;
                     case Opcodes.Equals:
                         result = GetValue(C, IPtr + 1) == GetValue(B, IPtr + 2) ? 1 : 0;
-                        SetValue(IPtr + 3, result);
+                        SetValue(A, IPtr + 3, result);
                         IPtr += 4;
                         break;
                     case Opcodes.RelativeBase:
-                        RelativeBase = GetValue(C, IPtr + 1);
+                        RelativeBase += (int)GetValue(C, IPtr + 1);
                         IPtr += 2;
                         break;
                     case Opcodes.Halt:
@@ -146,49 +146,40 @@ namespace Day5
             //Console.WriteLine(string.Join(',', Instructions));
         }
 
-        private int GetValue(ParameterModes mode, int address)
+        private long GetValue(ParameterModes mode, int address)
         {
             var param = Instructions[address];
             switch(mode)
             {
                 default:
                 case ParameterModes.Position:
-                    return Instructions[param];
+                    return GetData((int)param);
                     break;
                 case ParameterModes.Immediate:
                     return param;
                     break;
                 case ParameterModes.Relative:
-                    return Instructions[RelativeBase + param];
+                    return GetData(RelativeBase + (int)param);
                     break;
             }
         }
 
-        private void SetValue(int address, int value)
+        private void SetValue(ParameterModes mode, int address, long value)
         {
             var param = Instructions[address];
-            SetData(param, value);
-        }
-
-        private bool ProcessInstruction(Opcodes instruction, int param0, int param1, int param2)
-        {
-            switch (instruction)
+            switch(mode)
             {
-                case Opcodes.Add:
-                    Instructions[param2] = Instructions[param0] + Instructions[param1];
-                    break;
-                case Opcodes.Multiply:
-                    Instructions[param2] = Instructions[param0] * Instructions[param1];
-                    break;
-                case Opcodes.Halt:
-                    return true;
-                    break;
                 default:
-                    throw new Exception("Unknown instruction: " + instruction);
+                case ParameterModes.Position:
+                    SetData((int)param, value);
+                    break;
+                case ParameterModes.Immediate:
+                    throw new Exception("Invalid instruction, using immediate mode");
+                    break;
+                case ParameterModes.Relative:
+                    SetData(RelativeBase + (int)param, value);
                     break;
             }
-
-            return false;
         }
     }
 }

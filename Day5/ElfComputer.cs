@@ -17,6 +17,7 @@ namespace Day5
             JumpIfFalse = 6,
             LessThan = 7,
             Equals = 8,
+            RelativeBase = 9,
 
             Halt = 99,
         }
@@ -25,10 +26,12 @@ namespace Day5
         {
             Position = 0,
             Immediate = 1,
+            Relative = 2,
         }
 
         private List<int> Instructions;
         private int IPtr;
+        private int RelativeBase;
 
         public Func<int> InputFunction;
         public Action<int> OutputAction;
@@ -39,11 +42,33 @@ namespace Day5
             OutputAction = output;
             Instructions = new List<int>(instructions);
             IPtr = 0;
+            RelativeBase = 0;
         }
 
         public int GetData(int id)
         {
+            if(id < 0) throw new Exception("Negative adress accessed");
+            if(id >= Instructions.Count)
+            {
+                while(id >= Instructions.Count)
+                {
+                    Instructions.Add(default(int));
+                }
+            }
             return Instructions[id];
+        }
+
+        public void SetData(int id, int value)
+        {
+            if(id < 0) throw new Exception("Negative adress accessed");
+            if(id >= Instructions.Count)
+            {
+                while(id >= Instructions.Count)
+                {
+                    Instructions.Add(default(int));
+                }
+            }
+            Instructions[id] = value;
         }
 
         public void ProcessInstructions()
@@ -106,6 +131,10 @@ namespace Day5
                         SetValue(IPtr + 3, result);
                         IPtr += 4;
                         break;
+                    case Opcodes.RelativeBase:
+                        RelativeBase = GetValue(C, IPtr + 1);
+                        IPtr += 2;
+                        break;
                     case Opcodes.Halt:
                         IPtr += 1;
                         return;
@@ -129,13 +158,16 @@ namespace Day5
                 case ParameterModes.Immediate:
                     return param;
                     break;
+                case ParameterModes.Relative:
+                    return Instructions[RelativeBase + param];
+                    break;
             }
         }
 
         private void SetValue(int address, int value)
         {
             var param = Instructions[address];
-            Instructions[param] = value;
+            SetData(param, value);
         }
 
         private bool ProcessInstruction(Opcodes instruction, int param0, int param1, int param2)

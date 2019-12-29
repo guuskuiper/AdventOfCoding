@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Day5;
 
 namespace Day7
@@ -38,6 +39,8 @@ namespace Day7
 
             System.Console.WriteLine(maxOutput);
             System.Console.WriteLine(string.Join(' ', bestSequence));
+
+            Assert(maxOutput == 844468);
 
             //text = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5";
             //instructions = text.Split(',').Select(int.Parse).ToArray();
@@ -97,6 +100,8 @@ namespace Day7
 
             System.Console.WriteLine(maxOutput2);
             System.Console.WriteLine(string.Join(' ', bestSequence2));
+
+            Assert(maxOutput2 == 4215746);
         }
 
         static int Input()

@@ -10,11 +10,11 @@ namespace Day12
     {
         static void Main(string[] args)
         {
-            //var text = File.ReadAllText("input.txt");
-            var text = File.ReadAllText("example2.txt");
+            var text = File.ReadAllText("input.txt");
+            //var text = File.ReadAllText("example2.txt");
             string pattern = @"<x=(?'x'.+), y=(?'y'.+), z=(?'z'.+)>";
 
-            List<Vector3> bodies = new List<Vector3>();
+            List<IVector3> bodies = new List<IVector3>();
 
             RegexOptions options = RegexOptions.Multiline;
         
@@ -23,7 +23,7 @@ namespace Day12
                 var x = int.Parse(m.Groups["x"].Value);
                 var y = int.Parse(m.Groups["y"].Value);
                 var z = int.Parse(m.Groups["z"].Value);
-                var body = new Vector3(x, y, z);
+                var body = new IVector3(x, y, z);
                 bodies.Add(body);
             }
 

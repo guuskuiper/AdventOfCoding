@@ -7,18 +7,18 @@ namespace Day12
 {
     public class NBody
     {
-        readonly Vector3[] initalPositions;
+        readonly IVector3[] initalPositions;
         readonly int initialEnergy;
 
-        Vector3[] postions;
-        Vector3[] velocities;
+        IVector3[] postions;
+        IVector3[] velocities;
 
-        public NBody(IEnumerable<Vector3> bodiesPositions)
+        public NBody(IEnumerable<IVector3> bodiesPositions)
         {
             postions = bodiesPositions.ToArray();
             initalPositions = bodiesPositions.ToArray();
 
-            velocities = new Vector3[postions.Length];
+            velocities = new IVector3[postions.Length];
 
             initialEnergy = CalcEnergy();
         }
@@ -109,38 +109,6 @@ namespace Day12
             }
         }
 
-        private List<long> SimulatePeriod(int body)
-        {
-            var periods = new List<long> ();
-            for (int i = 0; i < 3; i++)
-            {
-                periods.Add(SimulateBodyAxis(body, i));
-            }
-
-            var lcm = LCM(periods);
-            var lcm2 = MathUtils.LCM(periods);
-            System.Console.WriteLine($"Body {body} lcm {lcm} lcm2 {lcm2} periods: {string.Join(',', periods)}");
-
-            // lcm
-            return periods;
-        }
-
-        private long SimulateAxis(int axis)
-        {
-            var periods = new List<long> ();
-            for (int i = 0; i < postions.Length; i++)
-            {
-                periods.Add(SimulateBodyAxis(i, axis));
-            }
-
-            var lcm = LCM(periods);
-            var lcm2 = MathUtils.LCM(periods);
-            System.Console.WriteLine($"Axis {axis} lcm {lcm} lcm2 {lcm2} periods: {string.Join(',', periods)}");
-
-            // lcm
-            return lcm2;
-        }
-
         static long LCM(IEnumerable<long> numbers)
         {
             return numbers.Aggregate(lcm);
@@ -154,12 +122,13 @@ namespace Day12
             return b == 0 ? a : GCD(b, a % b);
         }
 
-        private long SimulateBodyAxis(int body, int axis)
+        private long SimulateEntireAxis(int axis)
         {
             // reset
             Array.Copy(initalPositions, postions, initalPositions.Length);
-            velocities = new Vector3[postions.Length];
+            velocities = new IVector3[postions.Length];
 
+            // TODO: all axis at the same time
             int step = 0;
             do{
                 step++;
@@ -171,51 +140,24 @@ namespace Day12
 
             bool Same()
             {
-                return (velocities[body].GetAxisValue(axis) == 0) && 
-                    (postions[body].GetAxisValue(axis) == initalPositions[body].GetAxisValue(axis));
+                return velocities.All(x => x.GetAxisValue(axis) == 0) && 
+                    postions.Select(x => x.GetAxisValue(axis)).SequenceEqual(initalPositions.Select(x => x.GetAxisValue(axis)));
             }
         }
 
         public void SimulateUntillRepeat()
         {
-            // calculate all periods of all bodies and X,Y,Z
+            // calculate all periods the axis X,Y,Z for all the bodies
             var periods = new List<long> ();
-            for (int i = 0; i < postions.Length; i++)
-            {
-                periods.AddRange(SimulatePeriod(i));
-            }
-
-            var periods2 = new List<long> ();
             for (int i = 0; i < 3; i++)
             {
-                periods2.Add(SimulateAxis(i));
+                //periods2.Add(SimulateAxis(i));
+                periods.Add(SimulateEntireAxis(i));
             }
 
             // least common multiple is anwser
             var totalPeriod = LCM(periods);
-            var totalPeriod2 = MathUtils.LCM(periods);
-            System.Console.WriteLine($"Total period {totalPeriod} or {totalPeriod2}");
-        }
-    }
-
-    public static class Vector3Extentions
-    {
-        public static float GetAxisValue(this Vector3 v, int axis)
-        {
-            switch(axis)
-            {
-                default:
-                    throw new Exception("Invalid axis");
-                case 0:
-                    return v.X;
-                    break;
-                case 1:
-                    return v.Y;
-                    break;
-                case 2:
-                    return v.Z;
-                    break;
-            }
+            System.Console.WriteLine($"Total period {totalPeriod}: {string.Join(',' , periods)}");
         }
     }
 }

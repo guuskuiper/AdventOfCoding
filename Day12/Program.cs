@@ -10,8 +10,8 @@ namespace Day12
     {
         static void Main(string[] args)
         {
-            var text = File.ReadAllText("input.txt");
-            //var text = File.ReadAllText("example2.txt");
+            //var text = File.ReadAllText("input.txt");
+            var text = File.ReadAllText("example2.txt");
             string pattern = @"<x=(?'x'.+), y=(?'y'.+), z=(?'z'.+)>";
 
             List<Vector3> bodies = new List<Vector3>();
@@ -29,6 +29,9 @@ namespace Day12
 
             var nbody = new NBody(bodies);
             nbody.Simulate(1000);
+
+            var nbody2 = new NBody(bodies);
+            nbody2.SimulateUntillRepeat();
         }
     }
 }

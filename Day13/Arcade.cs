@@ -18,17 +18,25 @@ namespace Day13
         private int X;
         private int Y;
         private int TileId;
+        private int Score;
+        private int Step;
 
         public Arcade(IEnumerable<long> instructions)
         {
             computer = new ElfComputer(instructions, Input, Output);
+            computer.SetData(0, 2);
 
             Grid = new int[WIDTH, HEIGHT];
+
+            commands = File.ReadAllLines("commands.txt").Select(x => int.Parse(x)).ToList();
+            //File.WriteAllLines("commands.txt", commands.Select(x => x.ToString()));
         }
 
         public int Start()
         {
             computer.ProcessInstructions();
+
+            System.Console.WriteLine($"Final core: {Score}");
 
             return CountBlockTiles();
         }
@@ -46,9 +54,36 @@ namespace Day13
             return blockCount;
         }
 
+        List<int> commands = new List<int>();
+
         public long Input()
         {
-            return 0;
+            Draw();
+
+            var command = 0;
+            if(Step < commands.Count)
+            {
+                command = commands[Step];
+            }
+            else
+            {
+                var input = Console.ReadKey();
+ 
+                if(input.Key == ConsoleKey.LeftArrow) command =  -1;
+                else if(input.Key == ConsoleKey.RightArrow) command = 1;
+                else if(input.Key == ConsoleKey.S) 
+                {
+                    File.WriteAllLines("commands.txt", commands.Select(x => x.ToString()));
+                    return Input();
+                }
+                else command = 0;
+
+                commands.Add(command);
+            }
+
+            Step++;
+
+            return command;
         }
 
         public void Output(long output)
@@ -62,11 +97,60 @@ namespace Day13
                     Y = (int)output;
                     break;
                 case 2:
-                    TileId = (int)output;
-                    Grid[X, Y] = TileId;
+                    if(X == -1 && Y == 0) SetScore((int)output);
+                    else SetTile((int)output);
                     break;
             }
             outputCount++;
+        }
+
+        private void SetTile(int tileId)
+        {
+            TileId = tileId;
+            Grid[X, Y] = tileId;
+        }
+
+        private void SetScore(int score)
+        {
+            if(score < Score)
+            {
+                System.Console.WriteLine($"Highscore {Score}");
+            }
+
+            Score = score;
+        }
+
+        private void Draw()
+        {
+            Console.Clear();
+            for(int y = 0; y < HEIGHT; y++)
+            {
+                Console.SetCursorPosition (0, y);
+                for(int x = 0; x < WIDTH; x++)
+                {
+                    Console.Write(DrawTile(Grid[x,y]));
+                }
+            }
+            Console.SetCursorPosition (0, HEIGHT);
+            Console.WriteLine($"                              Score {Score}");
+        }
+
+        private char DrawTile(int tileId)
+        {
+            switch(tileId)
+            {
+                default:
+                case 0:
+                    return ' ';
+                case 1:
+                    return '|';
+                case 2:
+                    return '=';
+                case 3:
+                    return '-';
+                case 4:
+                    return 'O'; 
+            }
         }
     }
 }

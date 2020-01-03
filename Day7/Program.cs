@@ -17,10 +17,10 @@ namespace Day7
             var text = File.ReadAllText("input.txt");
             //string text = "1,9,10,3,2,3,11,0,99,30,40,50";
             //string text = "3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0";
-            var instructions = text.Split(',').Select(int.Parse).ToArray();
+            var instructions = text.Split(',').Select(long.Parse).ToArray();
 
             var sequences = GenerateSequence();
-            int maxOutput = 0;
+            long maxOutput = 0;
             List<int> bestSequence = null;
             foreach(var sequence in sequences)
             {
@@ -40,28 +40,28 @@ namespace Day7
             System.Console.WriteLine(maxOutput);
             System.Console.WriteLine(string.Join(' ', bestSequence));
 
-            Assert(maxOutput == 844468);
+            Debug.Assert(maxOutput == 844468);
 
             //text = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5";
             //instructions = text.Split(',').Select(int.Parse).ToArray();
 
             var sequences2 = GenerateSequence2();
-            int maxOutput2 = 0;
+            long maxOutput2 = 0;
             List<int> bestSequence2 = null;
             //sequences2 = new List<List<int>> () { new List<int> {9, 8, 7, 6, 5}};
             foreach(var sequence in sequences2)
             {
-                int [] outputs = new int[5];
+                long [] outputs = new long[5];
                 bool[] outputValid = {false, false, false, false, false}; 
                 bool[] firsts = {true, true, true, true, true};
 
-                Action<int, int> outputIdFunc = (id, x) => 
+                Action<int, long> outputIdFunc = (id, x) => 
                 {
                     outputs[id] = x;
                     outputValid[id] = true;
                 };
 
-                Func<int, int> inputIdFunc = (id) =>
+                Func<int, long> inputIdFunc = (id) =>
                 {
                     if(firsts[id])
                     {
@@ -101,7 +101,7 @@ namespace Day7
             System.Console.WriteLine(maxOutput2);
             System.Console.WriteLine(string.Join(' ', bestSequence2));
 
-            Assert(maxOutput2 == 4215746);
+            Debug.Assert(maxOutput2 == 4215746);
         }
 
         static int Input()
@@ -115,15 +115,15 @@ namespace Day7
             System.Console.WriteLine("Output: " + output);
         }
 
-        static int OutputAmp(IEnumerable<int> instructions, int phase, int input)
+        static long OutputAmp(IEnumerable<long> instructions, int phase, long input)
         {
-            int output = -1;
+            long output = -1;
 
-            int currentInput = phase;
+            long currentInput = phase;
 
-            Func<int> inputFunc = () => 
+            Func<long> inputFunc = () => 
             {
-                int inp = currentInput;
+                long inp = currentInput;
                 currentInput = input;
                 return inp;
             };
@@ -166,7 +166,7 @@ namespace Day7
         }
 
         
-        static async Task<int> AmpAsync(IEnumerable<int> instructions, int phase, Func<int> inputFunc2, Action<int> outputFunc2)
+        static async Task<long> AmpAsync(IEnumerable<long> instructions, int phase, Func<long> inputFunc2, Action<long> outputFunc2)
         {
             return await Task.Run( 
             () => 

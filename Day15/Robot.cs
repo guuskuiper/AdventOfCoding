@@ -110,6 +110,11 @@ namespace Day15
                 System.Console.WriteLine("Length: " + dist);
                 Display();
                 System.Console.WriteLine("Length: " + dist);
+
+                var fillSteps = CalcFill();
+
+                System.Console.WriteLine("Fill steps: " + fillSteps);
+
                 throw new Exception("Done");
             }
 
@@ -163,6 +168,7 @@ namespace Day15
                         visited[edge.X, edge.Y] = true;
                         queue.Enqueue(edge);
                         edge.Parent = currentEdge;
+
                     }
                 }
             }
@@ -173,7 +179,10 @@ namespace Day15
             {
                 while(currentEdge.Parent != null)
                 {
-                    grid[currentEdge.X, currentEdge.Y] = Location.ShortestPath;
+                    if(grid[currentEdge.X, currentEdge.Y] == Location.Empty)
+                    {
+                        grid[currentEdge.X, currentEdge.Y] = Location.ShortestPath;
+                    }
                     currentEdge = currentEdge.Parent;
                     pathLength++;
                 }
@@ -182,19 +191,73 @@ namespace Day15
             return pathLength;
         }
 
-// 1      procedure BFS(G, start_v) is
-// 2      let Q be a queue
-// 3      label start_v as discovered
-// 4      Q.enqueue(start_v)
-// 5      while Q is not empty do
-// 6          v := Q.dequeue()
-// 7          if v is the goal then
-// 8              return v
-// 9          for all edges from v to w in G.adjacentEdges(v) do
-// 10             if w is not labeled as discovered then
-// 11                 label w as discovered
-// 12                 w.parent := v
-// 13                 Q.enqueue(w) 
+        private int CalcFill()
+        {
+            visited = new bool[WIDTH, HEIGHT];
+
+            int destX = -1;
+            int destY = -1;
+            for(int y = 0; y < HEIGHT; y++)
+            {
+                bool doBreak = false;
+                for (int x = 0; x < WIDTH; x++)
+                {
+                    if(grid[x,y] == Location.Target)
+                    {
+                        destX = x;
+                        destY = y;
+                        doBreak = true;
+                        break;
+                    }
+                }
+                if(doBreak)
+                {
+                    break;
+                }
+            }
+            visited[destX,destY] = true;
+
+            Queue<Edge> queue = new Queue<Edge>();
+            queue.Enqueue(new Edge(destX, destY));
+
+            Edge currentEdge = null;
+            while(queue.Count > 0)
+            {
+                currentEdge = queue.Dequeue();
+
+
+                var edges = new Edge[4] {
+                    new Edge(currentEdge.X + 1, currentEdge.Y), 
+                    new Edge(currentEdge.X - 1, currentEdge.Y), 
+                    new Edge(currentEdge.X    , currentEdge.Y + 1), 
+                    new Edge(currentEdge.X    , currentEdge.Y - 1)
+                };
+
+
+                foreach(var edge in edges)
+                {
+                    if(grid[edge.X, edge.Y] != Location.Wall && !visited[edge.X, edge.Y])
+                    {
+                        visited[edge.X, edge.Y] = true;
+                        queue.Enqueue(edge);
+                        edge.Parent = currentEdge;
+                    }
+                }
+            }
+
+            var pathLength = 0;
+            if(currentEdge != null)
+            {
+                while(currentEdge.Parent != null)
+                {
+                    //grid[currentEdge.X, currentEdge.Y] = Location.ShortestPath;
+                    currentEdge = currentEdge.Parent;
+                    pathLength++;
+                }
+            }
+
+            return pathLength;
+        }
 
         private Movement TurnRight(Movement move)
         {
@@ -285,16 +348,17 @@ namespace Day15
 
         private void Display()
         {
-            Console.Clear();
+            //Console.Clear();
             for(int y = 0; y < HEIGHT; y++)
             {
-                Console.SetCursorPosition (0, y);
+                //Console.SetCursorPosition (0, y);
                 for(int x = 0; x < WIDTH; x++)
                 {
                     Console.Write(Draw(grid[x,y]));
                 }
+                Console.WriteLine();
             }
-            Console.SetCursorPosition(0, HEIGHT);
+            //Console.SetCursorPosition(0, HEIGHT);
         }
 
         private char Draw(Location location)

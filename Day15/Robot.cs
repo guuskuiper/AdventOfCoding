@@ -9,8 +9,8 @@ namespace Day15
 {
     class Robot
     {
-        private const int WIDTH = 65;
-        private const int HEIGHT = 65;
+        private const int WIDTH = 45;
+        private const int HEIGHT = 55;
 
         public enum Movement
         {
@@ -26,6 +26,8 @@ namespace Day15
             Wall = 1,
             Target = 2,
             Empty = 3,
+            Start = 4,
+            ShortestPath = 5,
         }
 
         private ElfComputer computer;
@@ -41,6 +43,7 @@ namespace Day15
         private Bitmap bitmap;
         private Movement currentMove;
         private bool foundWall;
+        private bool [,] visited;
         
 
         public Robot(IEnumerable<long> instructions)
@@ -59,6 +62,7 @@ namespace Day15
 
             targetX = startX;
             targetY = startY;
+            grid[startX, startY] = Location.Start;
         }
 
         public int StartRobot()
@@ -73,8 +77,6 @@ namespace Day15
             var previousMove = currentMove;
             // previous hit a wall?
 
-            bool searchWall = false;
-
             if(!foundWall)
             {
                 currentMove = previousMove;
@@ -84,7 +86,7 @@ namespace Day15
             {
                 // no wall found from the previous target
                 // look for a wall by turning left
-                searchWall = true;
+                //currentMove = TurnLeft(previousMove);
                 currentMove = TurnLeft(previousMove);
                 UpdateTarget(currentMove);
 
@@ -102,15 +104,97 @@ namespace Day15
                 UpdateTarget(currentMove);
             }
 
-            //if(searchWall && grid[targetX, targetY] != Location.Unknown)
             if(targetX == startX && targetY == startY)
             {
+                var dist = CalcuteShortestPath();
+                System.Console.WriteLine("Length: " + dist);
                 Display();
+                System.Console.WriteLine("Length: " + dist);
                 throw new Exception("Done");
             }
 
             return (long)currentMove;
         }
+
+        private class Edge
+        {
+            public int X;
+            public int Y;
+            public Edge Parent;
+
+            public Edge(int x, int y)
+            {
+                X = x;
+                Y = y;
+                Parent = null;
+            }
+        }
+
+        private int CalcuteShortestPath()
+        {
+            visited = new bool[WIDTH, HEIGHT];
+
+            visited[startX,startY] = true;
+
+            Queue<Edge> queue = new Queue<Edge>();
+            queue.Enqueue(new Edge(startX, startY));
+
+            Edge currentEdge = null;
+            while(queue.Count > 0)
+            {
+                currentEdge = queue.Dequeue();
+
+                if(grid[currentEdge.X, currentEdge.Y] == Location.Target)
+                {
+                    break;
+                }
+
+                var edges = new Edge[4] {
+                    new Edge(currentEdge.X + 1, currentEdge.Y), 
+                    new Edge(currentEdge.X - 1, currentEdge.Y), 
+                    new Edge(currentEdge.X    , currentEdge.Y + 1), 
+                    new Edge(currentEdge.X    , currentEdge.Y - 1)
+                };
+
+                foreach(var edge in edges)
+                {
+                    if(grid[edge.X, edge.Y] != Location.Wall && !visited[edge.X, edge.Y])
+                    {
+                        visited[edge.X, edge.Y] = true;
+                        queue.Enqueue(edge);
+                        edge.Parent = currentEdge;
+                    }
+                }
+            }
+
+            // count
+            var pathLength = 0;
+            if(currentEdge != null)
+            {
+                while(currentEdge.Parent != null)
+                {
+                    grid[currentEdge.X, currentEdge.Y] = Location.ShortestPath;
+                    currentEdge = currentEdge.Parent;
+                    pathLength++;
+                }
+            }
+
+            return pathLength;
+        }
+
+// 1      procedure BFS(G, start_v) is
+// 2      let Q be a queue
+// 3      label start_v as discovered
+// 4      Q.enqueue(start_v)
+// 5      while Q is not empty do
+// 6          v := Q.dequeue()
+// 7          if v is the goal then
+// 8              return v
+// 9          for all edges from v to w in G.adjacentEdges(v) do
+// 10             if w is not labeled as discovered then
+// 11                 label w as discovered
+// 12                 w.parent := v
+// 13                 Q.enqueue(w) 
 
         private Movement TurnRight(Movement move)
         {
@@ -185,6 +269,8 @@ namespace Day15
                     break;
                 case 2:
                     grid[targetX, targetY] = Location.Target;
+                    // Display();
+                    // throw new Exception("Done");
                     break;
                 default:
                     throw new Exception("Unknow output");
@@ -208,9 +294,6 @@ namespace Day15
                     Console.Write(Draw(grid[x,y]));
                 }
             }
-
-            Console.SetCursorPosition(startX, startY);
-            Console.Write('S');
             Console.SetCursorPosition(0, HEIGHT);
         }
 
@@ -226,6 +309,10 @@ namespace Day15
                     return '?';
                 case Location.Wall:
                     return '#';
+                case Location.Start:
+                    return 'S';
+                case Location.ShortestPath:
+                    return '.';
                 default:
                     throw new Exception();
             }

@@ -73,7 +73,7 @@ namespace Day17
 
         public void Output(long output)
         {
-            if(output > 256)
+            if(output > 0x7F)
             {
                 System.Console.WriteLine("Output: " + output);
                 return;

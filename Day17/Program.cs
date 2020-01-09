@@ -30,7 +30,7 @@ namespace Day17
             sb.AppendLine("L,10,R,8,L,6,R,6"); // A
             sb.AppendLine("L,8,L,8,R,8"); // B
             sb.AppendLine("R,8,L,6,L,10,L,10"); // C
-            sb.AppendLine("n");// continues feed  y/ n
+            sb.AppendLine("y");// continues feed  y/ n
 
             var ascii2 = new ASCII(instructions);
             ascii2.Start2(sb.ToString());

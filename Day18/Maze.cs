@@ -41,28 +41,83 @@ namespace Day18
 
             FindAllSpecials();
 
-            foreach(var ch in Enumerable.Range('a', 'z' - 'a' + 1).Select(c => (char)c))
+            foreach(var ch in Enumerable.Range('a', specials.Count).Select(c => (char)c).Where(x => char.IsLower(x)))
             {
-                CalcuteShortestPath(START, ch);
+                System.Console.WriteLine(ch + CalcuteShortestPath(START, ch).ToString());
             }
-            CalcuteShortestPath(START, 'n', true);
+        }
+
+        public void Solve()
+        {
+            // Total length < 4252
+            System.Console.WriteLine(CalcuteShortestPath(START, 'n'));
             //CalcuteShortestPath('h', 'p', true);
+
+            //Display();
+
+            foreach(var q in Enumerable.Range(0, 4))
+            {
+                FindInQuarter(q);
+            }
+            // Q0: dlmr            (cp)
+            // Q1: cfqwx           (ghnr)
+            // Q2: abgijknstuvyz    (fx)
+            // Q3: ehop            (none)
+            System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q3
+
+            System.Console.WriteLine(SolveExact("ehop", START.ToString())); // Q3
+            // System.Console.WriteLine(SolveExact("nr", "e")); // Q3 -> Q2 / Q1
+            // System.Console.WriteLine(CalcuteShortestPath('n', 'f')); // Q2 -> Q1
+            // System.Console.WriteLine(CalcuteShortestPath('f', 'g')); // Q1 -> Q2
+            // System.Console.WriteLine(SolveExact("cqx", "g")); //Q2 -> Q1
+            System.Console.WriteLine(SolveExact("dlmr", "x")); // Q1 -> Q0
+            //System.Console.WriteLine(CalcuteShortestPath('d', 'z', true));
+            //System.Console.WriteLine(SolveExact("tvzs", "d"));
+            System.Console.WriteLine(CalcuteShortestPath('d', 's')); // Q0 -> Q2
+            System.Console.WriteLine(CalcuteShortestPath('s', 'v'));
+            System.Console.WriteLine(CalcuteShortestPath('v', 't'));
+            System.Console.WriteLine(CalcuteShortestPath('t', 'z'));
+
+            System.Console.WriteLine(CalcuteShortestPath('e', 'h', true));
 
             Display();
 
-            // foreach(var q in Enumerable.Range(0, 4))
-            // {
-            //     FindInQuarter(q);
-            // }
-            // Q0: dlmr
-            // Q1: fwqxc
-            // Q2: ubzytsjkavgni
-            // Q3: poeh
+            var res = CalcuteShortestPathSeries(START, 'e', 'h', 'o', 'p', START);
+            System.Console.WriteLine("Final: " + CalcuteShortestPathSeries(START, 'p', 'o', 'h', 'e', 'n', 'r', 'f', 'c', 'g', 'q', 'x', 'm', 'l', 'r', 'd', 's', 'v', 't', 'z').ToString());
+            System.Console.WriteLine(res);
 
-            // Top-left: d, l, m, r
+            // Top-left: d, l, m, r ( r before d)
+            //Combination('m', 'l', 'r', 'd');
+            // 448, multiple, requires: CP
+            // foreach(var word in permute("dlmr").Where(x => x.IndexOf('r') < x.IndexOf('d')))
+            // {
+            //     System.Console.WriteLine(word);
+            //     var word2 = START + word + START;
+            //     CalcuteShortestPathSeries(word2.ToCharArray());
+            // }
+            //CalcuteShortestPathSeries("@lrdm@".ToCharArray());
+            // CalcuteShortestPathSeries(START, 'm', 'l', 'r', 'd', START);
+            // CalcuteShortestPathSeries(START, 'l', 'm', 'r', 'd', START);
+            // CalcuteShortestPathSeries(START, 'l', 'r', 'd', 'm', START);
+            // CalcuteShortestPathSeries(START, 'r', 'd', 'm', 'l', START);
+            
 
             // Top-right: f, w, q, x, c
-            // requires: RHN
+            // requires: RHNG
+            //var count = 0;
+            // foreach(var word in permute("fwqxc"))
+            // {
+            //     count++;
+            //     System.Console.WriteLine(word);
+            //     var word2 = START + word + START;
+            //     CalcuteShortestPathSeries(word2.ToCharArray());
+            // }
+            // var G = FindChar('G');
+            // grid[G.x, G.y] = '#';
+            // CalcuteShortestPath(START, 'x');
+            // grid[G.x, G.y] = 'G';
+            // System.Console.WriteLine(count);
+            // CalcuteShortestPathSeries("@fwqxc@".ToCharArray());
 
             // Bot-right: p, e, o, h  ( h + e )
             // ALL 684, requires: none, provides: pheo
@@ -70,6 +125,12 @@ namespace Day18
             // CalcuteShortestPathSeries(START, 'p', 'e', 'h', 'o', START);
             // CalcuteShortestPathSeries(START, 'p', 'o', 'h', 'e', START);
             // CalcuteShortestPathSeries(START, 'p', 'o', 'e', 'h', START);
+            // foreach(var word in permute("peoh"))
+            // {
+            //     System.Console.WriteLine(word);
+            //     var word2 = START + word + START;
+            //     CalcuteShortestPathSeries(word2.ToCharArray());
+            // }
 
             // Bot-left:
             // end of path: .. -> t -> z.
@@ -116,8 +177,9 @@ namespace Day18
 
             //System.Console.WriteLine(string.Join(Environment.NewLine, specials.Select(kvp => kvp.Key + ": " + kvp.Value)));
 
-            foreach(var ch in Enumerable.Range('a', 'z' - 'a' + 1).Select(c => (char)c))
+            foreach(var ch in Enumerable.Range('a', specials.Count).Select(c => (char)c))
             {
+                if(!specials.ContainsKey(char.ToUpper(ch))) continue;
                 System.Console.WriteLine(ch + ": key " + specials[ch] + " door " + specials[char.ToUpper(ch)]);
             }
         }
@@ -178,7 +240,7 @@ namespace Day18
             }
         }
 
-        private int CalcuteShortestPath(char from, char to, bool display = false)
+        private (int l, string keys, string doors) CalcuteShortestPath(char from, char to, bool display = false)
         {
             var visited = new bool[width, height];
 
@@ -196,6 +258,8 @@ namespace Day18
 
                 if(grid[currentEdge.X, currentEdge.Y] == to)
                 {
+                    if(char.IsUpper(to)) currentEdge.Door = to;
+                    if(char.IsLower(to)) currentEdge.Key = to;
                     break;
                 }
 
@@ -235,7 +299,6 @@ namespace Day18
                             grid[currentEdge.X, currentEdge.Y] = ' ';
                         }
                     }
-                    currentEdge = currentEdge.Parent;
                     if(currentEdge.Door != '\0')
                     {
                         // wrong order :(
@@ -248,6 +311,7 @@ namespace Day18
                     {
                         keys.Append(currentEdge.Key);
                     }
+                    currentEdge = currentEdge.Parent;
                     pathLength++;
                 }
             }
@@ -255,9 +319,9 @@ namespace Day18
             var reverseDoors = new string(doors.ToString().Reverse().ToArray());
             var reverseKeys = new string(keys.ToString().Reverse().ToArray());
 
-            System.Console.WriteLine(from +"-" + to + " length " + pathLength.ToString("D3") + " door: " + string.Format("{0,-10}", reverseDoors) + " keys: " + string.Format("{0,-10}", reverseKeys));
+            //System.Console.WriteLine(from +"-" + to + " length " + pathLength.ToString("D3") + " door: " + string.Format("{0,-10}", reverseDoors) + " keys: " + string.Format("{0,-10}", reverseKeys));
 
-            return pathLength;
+            return (pathLength, reverseKeys, reverseDoors);
         }
 
         private int CalcuteShortestPathSeries(params char[] chs)
@@ -268,14 +332,120 @@ namespace Day18
             {
                 var currentCh = chs[i];
 
-                sum += CalcuteShortestPath(previous, currentCh);
-
+                (var length, _, _) = CalcuteShortestPath(previous, currentCh);
+                sum += length;
                 previous = currentCh;
             }
 
-            System.Console.WriteLine($"Path length {sum}: {string.Join('-', chs)}");
+            //System.Console.WriteLine($"Path length {sum}: {string.Join('-', chs)}");
 
             return sum;
+        }
+
+        private string[] Combination(params char[] chars)
+        {
+            var query = from a in chars
+                        from b in chars
+                        from c in chars
+                        where a != b && a != c && b != c
+                        select "" + a + b + c;
+            
+            foreach (var item in query)
+            {
+                Console.WriteLine(item);
+            }
+
+            return query.ToArray();
+        }
+
+        static public IEnumerable<string> permute(string word)
+        {
+            if (word.Length > 1)
+            {
+
+                char character = word[0];
+                foreach (string subPermute in permute(word.Substring(1)))
+                {
+
+                    for (int index = 0; index <= subPermute.Length; index++)
+                    {
+                        string pre = subPermute.Substring(0, index);
+                        string post = subPermute.Substring(index);
+
+                        if (post.Contains(character))
+                                continue;                       
+
+                        yield return pre + character + post;
+                    }
+
+                }
+            }
+            else
+            {
+                yield return word;
+            }
+        }
+
+        public IEnumerable<string> AddConstrainsts(IEnumerable<string> stream, string doors, char target)
+        {
+            IEnumerable<string> output = stream;
+            foreach(var key in doors.ToLower())
+            {
+                output = output.Where(x => x.IndexOf(key) <= x.IndexOf(target));
+            }
+            return output;
+        }
+
+        private (int length, string path) SolveExact(string chars, string start = "", string end = "")
+        {
+            var permutations = permute(chars);
+
+            //System.Console.WriteLine(permutations.Count());
+
+            //System.Console.WriteLine("Fact: " + Fact(chars.Length));
+
+            if(Fact(chars.Length) > 10000000) throw new Exception("Impossible to solve");
+
+            var improved = permutations;
+            //foreach(var ch in Enumerable.Range('a', chars.Count()).Select(c => (char)c))
+            foreach(var ch in chars)
+            {
+                var (l, keys, doors) = CalcuteShortestPath(START, ch);
+                improved = AddConstrainsts(improved, doors, ch);
+            }
+            //System.Console.WriteLine("Added constraints");
+            //System.Console.WriteLine("Auto: " + improved.Count());
+
+            int min = int.MaxValue;
+            string best = "";
+            foreach(var word in improved)
+            {
+                //System.Console.WriteLine(word);
+                var word2 = start + word + end;
+                var length = CalcuteShortestPathSeries(word2.ToCharArray());
+                if(length < min)
+                {
+                    min = length;
+                    best = word2;
+                }
+            }
+            return (min, best);
+        }
+
+        public int SolveAllCombinations()
+        {
+            var chars = new string(specials.Keys.Where(x => char.IsLower(x)).ToArray());
+            
+            var (best, min) = SolveExact(chars, START.ToString());
+            System.Console.WriteLine($"Best {best} length {min}");
+
+            return 0;
+        }
+
+        public static int Fact(int x)
+        {
+            if(x > 1) return x * Fact(x-1);
+            return x;
         }
     }
 }

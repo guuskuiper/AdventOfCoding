@@ -61,9 +61,12 @@ namespace Day18
             }
             // Q0: dlmr            (cp)
             // Q1: cfqwx           (ghnr)
-            // Q2: abgijknstuvyz    (fx)
+            // Q2: abgijknstuvyz   (fx)
             // Q3: ehop            (none)
-            System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q3
+            System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q3 + Q0
+            // Q2: ng ("many", svtz) requires: CP
+            // Q1: cqf (wx) requires: RHN
+            // Q0: r (dlm) requires: -
 
             System.Console.WriteLine(SolveExact("ehop", START.ToString())); // Q3
             // System.Console.WriteLine(SolveExact("nr", "e")); // Q3 -> Q2 / Q1
@@ -135,6 +138,74 @@ namespace Day18
             // Bot-left:
             // end of path: .. -> t -> z.
             //CalcuteShortestPathSeries(START, 't', 'z'); // requires: FX, provides: ugi
+        }
+
+        public void Solve2()
+        {
+            ModifyGrid();
+
+            System.Console.WriteLine(SolveExact("ehop", "3", startChar: '3')); // Q3
+
+            // Q0: dlmr            (cp)
+            // Q1: cfqwx           (ghnr)
+            // Q2: abgijknstuvyz   (fx)
+            // Q3: ehop            (none)
+            //System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q3 + Q0
+            // Q2: ng ("many", svtz) requires: CP
+            // Q1: cqf (wx) requires: RHN
+            // Q0: r (dlm) requires: -
+            System.Console.WriteLine(CalcuteShortestPath('0', 'r'));
+            System.Console.WriteLine(CalcuteShortestPath('2', 'n'));
+            //System.Console.WriteLine(CalcuteShortestPathSeries('0', 'r'));
+            //System.Console.WriteLine(SolveExact("r", "0", startChar: '0'));
+            //System.Console.WriteLine(SolveExact("n", "2", startChar: '2'));
+            System.Console.WriteLine(SolveExact("cqf", "1", startChar: '1'));
+            System.Console.WriteLine(SolveExact("dlm", "r", startChar: 'r')); // last in Q0
+            System.Console.WriteLine(CalcuteShortestPath('n', 'g'));
+            System.Console.WriteLine(SolveExact("wx", "f", startChar: 'f')); // last in Q1
+            System.Console.WriteLine(SolveExact("svtz", "g", startChar: 'g')); // last in Q2
+
+            var R0 = CalcuteShortestPathSeries('0', 'm', 'l', 'r', 'd');
+            var R1 = CalcuteShortestPathSeries('1', 'q', 'c', 'w', 'f', 'x');
+            var R2 = CalcuteShortestPathSeries('2', 'n', 's', 'g', 'v', 't', 'z');
+            var R3 = CalcuteShortestPathSeries('3', 'p', 'o', 'h', 'e');
+            System.Console.WriteLine("Final: " + R0.ToString());
+            System.Console.WriteLine("Final: " + R1.ToString());
+            System.Console.WriteLine("Final: " + R2.ToString());
+            System.Console.WriteLine("Final: " + R3.ToString());
+            System.Console.WriteLine("TOTAL + " + (R0 + R1 + R2 + R3).ToString()); // < 2118, != 1930
+
+            System.Console.WriteLine(SolveExact("cfqwx", "1", startChar: '1')); // Q1
+
+            //System.Console.WriteLine(SolveExact("gsvtz", "n", startChar: 'n')); // last in Q2
+            System.Console.WriteLine(SolveExact("gsvtz", "2n", startChar: '2')); // Q2
+
+            System.Console.WriteLine(SolveExact("dlmr", "0", startChar: '0')); // Q2
+
+            // 2: ng (g requires F)
+            // f requires N
+            // n -> f -> g
+            // 1: x requires G (not needed anywhere)
+        }
+
+        private void ModifyGrid()
+        {
+            var oldStart = specials[START];
+
+            grid[oldStart.x, oldStart.y] = WALL;
+            grid[oldStart.x + 1, oldStart.y] = WALL;
+            grid[oldStart.x - 1, oldStart.y] = WALL;
+            grid[oldStart.x, oldStart.y + 1] = WALL;
+            grid[oldStart.x, oldStart.y - 1] = WALL;
+
+            grid[oldStart.x - 1, oldStart.y - 1] = '0';
+            grid[oldStart.x + 1, oldStart.y - 1] = '1';
+            grid[oldStart.x - 1, oldStart.y + 1] = '2';
+            grid[oldStart.x + 1, oldStart.y + 1] = '3';
+
+            FindAllSpecials();// find new
+
+            Display();
         }
 
         private (int x, int y) FindChar(char ch)
@@ -396,7 +467,7 @@ namespace Day18
             return output;
         }
 
-        private (int length, string path) SolveExact(string chars, string start = "", string end = "")
+        private (int length, string path) SolveExact(string chars, string start = "", string end = "", char startChar = START)
         {
             var permutations = permute(chars);
 
@@ -410,7 +481,7 @@ namespace Day18
             //foreach(var ch in Enumerable.Range('a', chars.Count()).Select(c => (char)c))
             foreach(var ch in chars)
             {
-                var (l, keys, doors) = CalcuteShortestPath(START, ch);
+                var (l, keys, doors) = CalcuteShortestPath(startChar, ch);
                 improved = AddConstrainsts(improved, doors, ch);
             }
             //System.Console.WriteLine("Added constraints");

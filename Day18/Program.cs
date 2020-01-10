@@ -14,7 +14,8 @@ namespace Day18
 
             var maze = new Maze(text);
             //maze.SolveAllCombinations();
-            maze.Solve();
+            //maze.Solve();
+            maze.Solve2();
         }
     }
 }

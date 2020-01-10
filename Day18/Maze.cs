@@ -146,11 +146,11 @@ namespace Day18
 
             System.Console.WriteLine(SolveExact("ehop", "3", startChar: '3')); // Q3
 
-            // Q0: dlmr            (cp)
-            // Q1: cfqwx           (ghnr)
-            // Q2: abgijknstuvyz   (fx)
+            // Q0: dlmr            (cp)  Q1: c, Q3: p
+            // Q1: cfqwx           (ghnr) Q0: r Q2: gn Q3:h
+            // Q2: abgijknstuvyz   (fx) Q1: fx
             // Q3: ehop            (none)
-            //System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q3 + Q0
+            //System.Console.WriteLine(SolveExact("nrfgcqx", "e")); // Q1 + Q0
             // Q2: ng ("many", svtz) requires: CP
             // Q1: cqf (wx) requires: RHN
             // Q0: r (dlm) requires: -
@@ -165,10 +165,10 @@ namespace Day18
             System.Console.WriteLine(SolveExact("wx", "f", startChar: 'f')); // last in Q1
             System.Console.WriteLine(SolveExact("svtz", "g", startChar: 'g')); // last in Q2
 
-            var R0 = CalcuteShortestPathSeries('0', 'm', 'l', 'r', 'd');
+            var R0 = CalcuteShortestPathSeries('0', 'm', 'l', 'r', 'd'); // shortest!
             var R1 = CalcuteShortestPathSeries('1', 'q', 'c', 'w', 'f', 'x');
-            var R2 = CalcuteShortestPathSeries('2', 'n', 's', 'g', 'v', 't', 'z');
-            var R3 = CalcuteShortestPathSeries('3', 'p', 'o', 'h', 'e');
+            var R2 = CalcuteShortestPathSeries('2', 's', 'n', 'g', 'v', 't', 'z');
+            var R3 = CalcuteShortestPathSeries('3', 'p', 'o', 'h', 'e'); // shortest!
             System.Console.WriteLine("Final: " + R0.ToString());
             System.Console.WriteLine("Final: " + R1.ToString());
             System.Console.WriteLine("Final: " + R2.ToString());
@@ -184,8 +184,21 @@ namespace Day18
 
             // 2: ng (g requires F)
             // f requires N
-            // n -> f -> g
+            // n (2) -> f (1) -> g (2) -> x (1)
+            // 1 req n: fx
+            // 1 no  n: cqw
+            // 2 req f: abgijktuvyz
+            // 2 no  f: ns
+            // 1 req g: x
+            // 1 no  g: fcqw
+            // 2 req x: abjktuvyz
+            // 2 no  x: gins
+
             // 1: x requires G (not needed anywhere)
+            System.Console.WriteLine(CalcuteShortestPathSeries('2', 'n', 's', 'g', 'v', 't', 'z'));
+            System.Console.WriteLine(CalcuteShortestPathSeries('2', 's', 'n', 'g', 'v', 't', 'z'));
+            System.Console.WriteLine(SolveExact("ns", "2", "g", startChar: '2')); // Q2
+            Display();
         }
 
         private void ModifyGrid()
@@ -247,7 +260,7 @@ namespace Day18
             }
 
             //System.Console.WriteLine(string.Join(Environment.NewLine, specials.Select(kvp => kvp.Key + ": " + kvp.Value)));
-
+            return;
             foreach(var ch in Enumerable.Range('a', specials.Count).Select(c => (char)c))
             {
                 if(!specials.ContainsKey(char.ToUpper(ch))) continue;

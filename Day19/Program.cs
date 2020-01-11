@@ -12,7 +12,11 @@ namespace Day19
             var instructions = text.Split(',').Select(long.Parse).ToArray();
 
             var tractorBeam = new TractorBeam(instructions);
-            tractorBeam.Start();
+            tractorBeam.Follow(100);
+
+            // Part2:
+            // Follow 1 edge
+            // check if the point on the diagonal is also inside
         }
     }
 }

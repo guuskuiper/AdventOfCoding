@@ -12,42 +12,83 @@ namespace Day19
         private ElfComputer computer;
         private bool[,] grid;
 
-        private Queue<int> inputSequence;
-
-        private int outputCount;
-
         private List<long> inputCopy;
 
         public TractorBeam(IEnumerable<long> input)
         {
             inputCopy = new List<long> (input);
 
-            //computer = new ElfComputer(input, Input, Output);
-
             grid = new bool[WIDTH, HEIGHT];
-
-            inputSequence = new Queue<int> ();
 
             for(int x = 0; x < WIDTH; x++)
             {
                 for(int y = 0; y < HEIGHT; y++)
                 {
-                    inputSequence.Enqueue(x);
-                    inputSequence.Enqueue(y);
+                    grid[x,y] = CalcPosition(x, y);
                 }
+            }
+            Display();
+        }
+
+        public void Follow(int size)
+        {
+            int curX = 4;
+            int curY = 3;
+
+            int steps = 0;
+            while(true)
+            {
+                var beam = CalcPosition(curX, curY);
+                //System.Console.WriteLine($"({curX},{curY} = {beam})");
+                if(beam)
+                {
+                    if(curY > size)
+                    {
+                        var checkX = curX + size - 1;
+                        var checkY = curY - size + 1;
+                        var fit = CalcPosition(checkX, checkY);
+                        if(fit)
+                        {
+                            System.Console.WriteLine($"({curX},{checkY} = {fit}, size = {size}, steps = {steps})");
+                            System.Console.WriteLine($"Anwser={curX * 10000 + checkY}");
+                            if(curX < WIDTH && curY < HEIGHT)
+                            {
+                                grid[curX, checkY] = false;
+                                Display();
+                            }
+                            break;
+                        }
+                    }
+                    curY++;
+                }
+                else
+                {
+                    curX++;
+                }
+
+                steps++;
             }
         }
 
-        public void Start()
+        private bool CalcPosition(int x, int y)
         {
-            do
-            {
-                var pc = new ElfComputer(new List<long>(inputCopy), Input, Output);
-                pc.ProcessInstructions();
-            }
-            while( inputSequence.Count > 0 );
+            bool res = false;
+            bool first = true;
 
-            Display();
+            var pc = new ElfComputer(inputCopy, () => 
+            { 
+                if(first) 
+                {
+                    first = false; 
+                    return x; 
+                }
+                else 
+                {
+                    return y; 
+                }
+            }, (x) => res = x > 0);
+            pc.ProcessInstructions();
+            return res;
         }
 
         private void Display()
@@ -57,33 +98,12 @@ namespace Day19
             {
                 for(int x = 0; x < WIDTH; x++)
                 {
-                    if(!grid[x,y]) count++;
-                    System.Console.Write(grid[x,y] ? '.' : '#');
+                    if(grid[x,y]) count++;
+                    System.Console.Write(grid[x,y] ? '#' : '.');
                 }
                 System.Console.WriteLine();
             }
             System.Console.WriteLine("Count " + count);
-        }
-
-        private long Input()
-        {
-            if(inputSequence.Count() > 0)
-            {
-                return inputSequence.Dequeue();
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        private void Output(long output)
-        {
-            if(outputCount >= WIDTH * HEIGHT) return;
-            var x = outputCount % WIDTH;
-            var y = outputCount / WIDTH;
-            //System.Console.WriteLine($"({x},{y}) = {output}");
-            grid[x,y] = output > 0 ? false : true;
-            outputCount++;
         }
     }
 }

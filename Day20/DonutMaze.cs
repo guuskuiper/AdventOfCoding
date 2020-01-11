@@ -141,6 +141,16 @@ namespace Day20
             }
         }
 
+        private class EdgeLevel : Edge
+        {
+            public int L;
+
+            public EdgeLevel(int x, int y, int lvl) : base(x, y)
+            {
+                L = lvl;
+            }
+        }
+
         private int CalcuteShortestPath()
         {
             var visited = new bool[width, height];
@@ -220,6 +230,109 @@ namespace Day20
                         grid[currentEdge.X, currentEdge.Y] = ' ';
                     }
                     currentEdge = currentEdge.Parent;
+                    pathLength++;
+                }
+            }
+
+            return pathLength;
+        }
+
+        public void Solve2()
+        {
+            var pathLength = CalcuteShortestPathLevels();
+            //Display();
+            System.Console.WriteLine($"Path length: {pathLength}");
+        }
+
+        private int CalcuteShortestPathLevels()
+        {
+            var visited = new bool[width, height, 50];
+            var start = outsidePortals["AA"];
+            var target = outsidePortals["ZZ"];
+            visited[start.x,start.y, 0] = true;
+            visited[start.x,start.y + 1, 0] = true; // AA portal
+
+            Queue<EdgeLevel> queue = new Queue<EdgeLevel>();
+            queue.Enqueue(new EdgeLevel(start.x, start.y, 0));
+
+            EdgeLevel currentEdge = null;
+            while(queue.Count > 0)
+            {
+                currentEdge = queue.Dequeue();
+
+                if(currentEdge.X == target.x && currentEdge.Y == target.y && currentEdge.L == 0)
+                {
+                    break;
+                }
+
+                var edges = new EdgeLevel[4] {
+                    new EdgeLevel(currentEdge.X + 1, currentEdge.Y, currentEdge.L), 
+                    new EdgeLevel(currentEdge.X - 1, currentEdge.Y, currentEdge.L), 
+                    new EdgeLevel(currentEdge.X    , currentEdge.Y + 1, currentEdge.L), 
+                    new EdgeLevel(currentEdge.X    , currentEdge.Y - 1, currentEdge.L)
+                };
+
+                foreach(var edge in edges)
+                {
+                    var ch = grid[edge.X, edge.Y];
+
+                    if(edge.L > 0)
+                    {
+                        // skip AA and ZZ
+                        if(edge.X == start.x && edge.Y == start.y) continue;
+                        if(edge.X == target.x && edge.Y == target.y) continue;
+                    }
+
+                    // change the location for a portal
+                    if(char.IsUpper(ch) && !visited[edge.X, edge.Y, edge.L])
+                    {
+                        visited[edge.X, edge.Y, edge.L] = true;
+                        var dx = edge.X - currentEdge.X;
+                        var dy = edge.Y - currentEdge.Y;
+                        var ch2 = grid[edge.X + dx, edge.Y + dy];
+
+                        // protal
+                        string portal = dx > 0 || dy > 0 ? ch.ToString() + ch2.ToString() : ch2.ToString() + ch.ToString();
+
+                        (int x, int y) portalTo;
+                        if(IsOutide(edge.X, edge.Y))
+                        {
+                            if(currentEdge.L == 0) continue;
+                            // outside -> inside
+                            portalTo = insidePortals[portal];
+                            edge.L--;
+                        }
+                        else
+                        {
+                            // inside -> outside
+                            if(currentEdge.L > visited.GetLength(2) - 2) continue; // assume this is the max required dimention
+                            portalTo = outsidePortals[portal];
+                            edge.L++;
+                        }
+                        edge.X = portalTo.x;
+                        edge.Y = portalTo.y;
+                    }
+
+                    if(ch != WALL && !visited[edge.X, edge.Y, edge.L])
+                    {
+                        visited[edge.X, edge.Y, edge.L] = true;
+                        queue.Enqueue(edge);
+                        edge.Parent = currentEdge;
+                    }
+                }
+            }
+
+            // count
+            var pathLength = 0;
+            if(currentEdge != null)
+            {
+                while(currentEdge.Parent != null)
+                {
+                    if(grid[currentEdge.X, currentEdge.Y] == EMPTY)
+                    {
+                        grid[currentEdge.X, currentEdge.Y] = ' ';
+                    }
+                    currentEdge = (EdgeLevel)currentEdge.Parent;
                     pathLength++;
                 }
             }

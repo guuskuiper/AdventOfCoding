@@ -246,7 +246,7 @@ namespace Day20
 
         private int CalcuteShortestPathLevels()
         {
-            var visited = new bool[width, height, 50];
+            var visited = new bool[width, height, 30];
             var start = outsidePortals["AA"];
             var target = outsidePortals["ZZ"];
             visited[start.x,start.y, 0] = true;
@@ -324,6 +324,7 @@ namespace Day20
 
             // count
             var pathLength = 0;
+            int maxLevel = 0;
             if(currentEdge != null)
             {
                 while(currentEdge.Parent != null)
@@ -332,10 +333,13 @@ namespace Day20
                     {
                         grid[currentEdge.X, currentEdge.Y] = ' ';
                     }
+                    if(currentEdge.L > maxLevel) maxLevel = currentEdge.L;
                     currentEdge = (EdgeLevel)currentEdge.Parent;
                     pathLength++;
                 }
             }
+
+            System.Console.WriteLine("Max level: " + maxLevel);
 
             return pathLength;
         }

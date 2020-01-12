@@ -21,8 +21,6 @@ namespace Day21
 
         private long Input()
         {
-
-
             var ch = inputData[inputCount];
             System.Console.Write(ch);
             inputCount++;

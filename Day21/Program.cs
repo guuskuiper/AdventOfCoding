@@ -65,8 +65,16 @@ namespace Day21
             //    J   J   J     
             //#####.#.#...#.###
             //  J   J 
+            //   ABCDEFGHI
+            // D: also check if another jump is possible
+            // immediete rejump:
+            // D & !E -> only when H
+            // D & (!E & H) 
 
-
+            // delay jump if "possible" F, when !E & H (must rejump into space)
+            // AND T J
+            // where T: !E & H => NOT E T, AND H T, OR E T
+            // immediate when 
 
             var sprintDroid2 = new SpringDroid(instructions);
             var sb2 = new StringBuilder();
@@ -76,6 +84,10 @@ namespace Day21
             sb2.AppendLine("NOT C T"); // jump if hole in 3
             sb2.AppendLine("OR T J"); // !A | !B | !C
             sb2.AppendLine("AND D J"); // jump to ground J = D & J
+            sb2.AppendLine("NOT E T");
+            sb2.AppendLine("AND H T");// can rejump
+            sb2.AppendLine("OR E T");
+            sb2.AppendLine("AND T J");
             sb2.AppendLine("RUN"); // main
 
             sprintDroid2.Start(sb2.ToString());

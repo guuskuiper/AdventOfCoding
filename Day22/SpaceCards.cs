@@ -241,16 +241,9 @@ namespace Day22
         public long Inverse(long index, long length, long count, IEnumerable<string> shuffles)
         {
             long resultIndex = index;
-            long startDiff = 0;
-            long startOutput = 0;
 
             offsets = new Dictionary<long, long[]>();
             var operation = shuffles.Reverse();
-
-            var percent = count > 1000000 ? (long)(count / 1000000) : 1;
-
-
-            List<Action<long,long>> ops = new List<Action<long, long>>();
 
             List<(Operation op, int n)> ops2 = new List<(Operation, int)>();
 
@@ -258,7 +251,6 @@ namespace Day22
             {
                 if(s.StartsWith(DEALINTO))
                 {
-                    //ops.Add( InverseSingleDealIntoStack(resultIndex, length));
                     //resultIndex = InverseSingleDealIntoStack(resultIndex, length);
                     ops2.Add( (Operation.DEALINTO, 0) );
                 }
@@ -266,7 +258,6 @@ namespace Day22
                 {
                     var nStr = s.Substring(DEALINCREMENT.Length + 1);
                     var n = int.Parse(nStr);
-                    //ops.Add( InverseSingleDealWith(n, resultIndex, length));
                     //resultIndex = InverseSingleDealWith(n, resultIndex, length);
                     ops2.Add( (Operation.DEALINCREMENT, n) );
                 }
@@ -274,20 +265,17 @@ namespace Day22
                 {
                     var nStr = s.Substring(CUT.Length + 1);
                     var n = int.Parse(nStr);
-                    //ops.Add( InverseSingleCut(n, resultIndex, length));
                     //resultIndex = InverseSingleCut(n, resultIndex, length);
                     ops2.Add( (Operation.CUT, n) );
                 }
             }
 
-            System.Console.WriteLine(ops);
-
-            var write = File.CreateText("output.txt");
             for (long i = 0; i < count; i++)
             {
                 var startIndex = resultIndex;
                 foreach (var kvp in ops2)
                 {
+                    var currentIndex =resultIndex;
                     switch(kvp.op)
                     {
                         case Operation.CUT:
@@ -300,37 +288,23 @@ namespace Day22
                             resultIndex = InverseSingleDealIntoStack(resultIndex, length);
                             break;
                     }
+                    System.Console.WriteLine($"{currentIndex} => {resultIndex} n={kvp.n}, op={kvp.op}");
                 }
-                var endIndex = resultIndex;
-
-                var diff = (length + endIndex - startIndex) % length;
-
-                if(i == 0)
-                {
-                    startDiff = diff;
-                    startOutput = endIndex;
-                }
-                else
-                {
-                    if(endIndex == startOutput)
-                    {
-                        throw new Exception("Repeated output at " + i);
-                    }
-                    if(diff == startDiff)
-                    {
-                        throw new Exception("Repeated diff at " + i);
-                    }
-                }
-
-                if((i % percent) == 0) 
-                {
-                    System.Console.WriteLine($"i{i} => {resultIndex}");
-                }
-                write.WriteLine(endIndex);
             }
-            write.Close();
-
             return resultIndex;
+        }
+
+        public static (long,long,long) egcd(long a, long b)
+        {
+            if( b == 0) return (a, 1, 0);
+            var (gcd, x, y) = egcd(b, a % b);
+            return (gcd, y, x - (long)(a/b) * y); // or (long)Math.Floor(a/b)
+        }
+
+        public static long inv_0(long a, long n)
+        {
+            var (g, x, y) = egcd(n, a);
+            return (y + n) % n;
         }
     }
 }
@@ -343,3 +317,25 @@ namespace Day22
 
 //0123456789012345678901234567890123456789012345678901234567890123456789
 //0......1......2......3......4......5......6......7......8......9...... => 0, 3, 6, 9, 2, 5, 8 (1, 4, 7)
+
+//https://github.com/metalim/metalim.adventofcode.2019.python/blob/master/22_cards_shuffle.ipynb
+// python '%' != c# '%'!!!!
+// ## Returns gcd, x, y such that a*x + b*y = gcd
+// def ext_gcd(a, b):
+//     if b == 0:
+//         return a, 1, 0
+//     gcd, x, y = ext_gcd(b, a % b)
+//     return gcd, y, x - (a//b) * y
+
+// def inv_0(a, n):
+//   g, x, y = ext_gcd(n, a)
+//   assert g == 1  # n is prime
+//   # Now we know x*n + y*a == 1, and x*n mod n is 0, so y is what we want:
+//   # (Return % n to keep numbers small):
+//   return y % n
+
+// # modpow the polynomial: (ax+b)^m % n
+// # f(x) = ax+b
+// # g(x) = cx+d
+// # f^2(x) = a(ax+b)+b = aax + ab+b
+// # f(g(x)) = a(cx+d)+b = acx + ad+b

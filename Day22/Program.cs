@@ -61,32 +61,18 @@ namespace Day22
 
             var part1 = deck.Inverse(8502, 10007, 1, text);
             System.Console.WriteLine($"Part1: 8502 = {part1} (should be 2019)");
-            
+
+            var part12 = deck.InverseAB(8502, 10007, 1, text);
+            System.Console.WriteLine($"Part12: 8502 = {part12} (should be 2019)");
+
+            var part2 = deck.InverseAB(2020, 119315717514047, 101741582076661, text);
+            System.Console.WriteLine($"Part2: 2020 = {part2}");
+
             // System.Console.WriteLine($"2020: {deck.Inverse(2020, 119315717514047, 1, text)}");
             // System.Console.WriteLine($"2021: {deck.Inverse(2021, 119315717514047, 1, text)}");
             //var part2 = deck.Inverse(2020, 119315717514047, 5000, text);
             // var part2 = deck.Inverse(2020, 119315717514047, 101741582076661, text);
             // System.Console.WriteLine($"Part2: 2020 = {part2}");
-
-
-            // var offsets = deck.FindOffsets(64, 10007);
-            // System.Console.WriteLine(string.Join(',', offsets));
-
-            // System.Console.WriteLine(1 % 7);
-            // System.Console.WriteLine(11 % 7);
-            // System.Console.WriteLine(21 % 7); // 3; ( % == 0)
-            // System.Console.WriteLine(31 % 7);
-
-            // System.Console.WriteLine(2 % 7);
-            // System.Console.WriteLine(12 % 7);
-            // System.Console.WriteLine(22 % 7);
-            // System.Console.WriteLine(32 % 7);
-            // System.Console.WriteLine(42 % 7); // 6 ( % == 0)
-
-            var inv = SpaceCards.inv_0(3, 10);
-            var invRes = (inv*8)%10;
-            System.Console.WriteLine($"inv = {inv}, res = {invRes}");
-            
 
         }
     }

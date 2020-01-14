@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Numerics;
 
 namespace Day22
 {
@@ -237,17 +238,12 @@ namespace Day22
             DEALINTO = 2,
             DEALINCREMENT = 3,
         }
-
-        public long Inverse(long index, long length, long count, IEnumerable<string> shuffles)
+        
+        private List<(Operation op, int n)> Parse(IEnumerable<string> shuffles)
         {
-            long resultIndex = index;
-
-            offsets = new Dictionary<long, long[]>();
-            var operation = shuffles.Reverse();
-
             List<(Operation op, int n)> ops2 = new List<(Operation, int)>();
 
-            foreach(var s in operation)
+            foreach(var s in shuffles)
             {
                 if(s.StartsWith(DEALINTO))
                 {
@@ -270,12 +266,22 @@ namespace Day22
                 }
             }
 
+            return ops2;
+        }
+
+        public long Inverse(long index, long length, long count, IEnumerable<string> shuffles)
+        {
+            long resultIndex = index;
+
+            offsets = new Dictionary<long, long[]>();
+            var operation = shuffles.Reverse();
+
+            List<(Operation op, int n)> ops2 = Parse(operation);
+
             for (long i = 0; i < count; i++)
             {
-                var startIndex = resultIndex;
                 foreach (var kvp in ops2)
                 {
-                    var currentIndex =resultIndex;
                     switch(kvp.op)
                     {
                         case Operation.CUT:
@@ -288,22 +294,130 @@ namespace Day22
                             resultIndex = InverseSingleDealIntoStack(resultIndex, length);
                             break;
                     }
-                    System.Console.WriteLine($"{currentIndex} => {resultIndex} n={kvp.n}, op={kvp.op}");
                 }
             }
+
             return resultIndex;
         }
 
-        public static (long,long,long) egcd(long a, long b)
+        public long InverseAB(long index, long length, long count, IEnumerable<string> shuffles)
+        {
+            var operation = shuffles.Reverse();
+
+            List<(Operation op, int n)> ops2 = Parse(operation);
+
+            var ab = CalcCycleAB(length, ops2);
+
+            // TODO polypow
+            // modpow the polynomial: (ax+b)^m % n
+            // f(x) = ax+b
+            // g(x) = cx+d
+            // f^2(x) = a(ax+b)+b = aax + ab+b
+            // f(g(x)) = a(cx+d)+b = acx + ad+b
+
+            checked{
+                var abCount = PolyPow(ab.a, ab.b, length, count);
+
+                System.Console.WriteLine($"{ab},{abCount}");
+
+                var negative = (abCount.a * index + abCount.b) % length;
+
+                return (negative + length) % length;
+            }
+        }
+
+        public long BigMult(long a, long b, long length)
+        {
+            BigInteger bigA = new BigInteger(a);
+            BigInteger bigB = new BigInteger(b);
+
+            checked{
+                var ab = bigA * bigB;
+
+                BigInteger.DivRem(ab, length, out var abMod);
+                BigInteger.DivRem(abMod + length, length, out var abMod2);
+
+                return (long)abMod2;
+            }
+        }
+
+        public long BigMultAdd(long a, long b, long c, long length)
+        {
+            BigInteger bigA = new BigInteger(a);
+            BigInteger bigB = new BigInteger(b);
+            BigInteger bigC = new BigInteger(c);
+
+            checked{
+                var abc = bigA * bigB + bigC;
+
+                BigInteger.DivRem(abc, length, out var abMod);
+                BigInteger.DivRem(abMod + length, length, out var abMod2);
+
+                return (long)abMod2;
+            }
+        }
+
+        public (long a, long b) PolyPow(long a, long b, long length, long count)
+        {
+            checked {
+                if(count == 0) return (1, 0);
+                else if( (count % 2) == 0)
+                {
+                    return PolyPow(BigMult(a, a, length), BigMultAdd(a, a, b, length), length, count / 2);
+                }
+                else
+                {
+                    (long c, long d) = PolyPow(a, b, length, count - 1);
+                    return ( BigMult(a, c, length), BigMultAdd(a, d, b, length));
+                }
+            }
+        }
+
+        private (long a, long b) CalcCycleAB(long length, IEnumerable<(Operation op, int n)> operations)
+        {
+            // y = a*x + b % length
+            long a = 1;
+            long b = 0;
+            foreach (var kvp in operations)
+            {
+                switch(kvp.op)
+                {
+                    case Operation.CUT:
+                        //y = 1*x + length + n % length
+                        //a *= 1;
+                        b = (b + length + kvp.n) % length;
+                        break;
+                    case Operation.DEALINTO:
+                        //y = -1*x + length - 1 (% length)
+                        a = -a;
+                        b = (length - 1 - b) % length;
+                        break;
+                    case Operation.DEALINCREMENT:
+                        //y = invMod(n, length)*x % length (inverse)
+                        var z = InvMod(kvp.n, length);
+                        a = a * z % length;
+                        b = b * z % length;
+                        break;
+                }
+
+                a = (a + length) % length;
+                b = (b + length) % length;
+                //System.Console.WriteLine($"y = {a}*x + {b}");
+            }
+
+            return (a, b);
+        }
+
+        public static (long, long, long) EGCD(long a, long b)
         {
             if( b == 0) return (a, 1, 0);
-            var (gcd, x, y) = egcd(b, a % b);
+            var (gcd, x, y) = EGCD(b, a % b);
             return (gcd, y, x - (long)(a/b) * y); // or (long)Math.Floor(a/b)
         }
 
-        public static long inv_0(long a, long n)
+        public static long InvMod(long a, long n)
         {
-            var (g, x, y) = egcd(n, a);
+            var (g, x, y) = EGCD(n, a);
             return (y + n) % n;
         }
     }

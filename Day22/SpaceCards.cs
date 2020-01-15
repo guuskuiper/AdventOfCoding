@@ -320,10 +320,13 @@ namespace Day22
 
                 System.Console.WriteLine($"{ab},{abCount}");
 
-                var negative = (abCount.a * index + abCount.b) % length;
-
-                return (negative + length) % length;
+                return BigMultAdd(abCount.a, index, abCount.b, length);
             }
+        }
+
+        private static long Mod(long a, long length)
+        {
+            return ((a % length) + length) % length;  // always positive
         }
 
         public long BigMult(long a, long b, long length)
@@ -363,7 +366,7 @@ namespace Day22
                 if(count == 0) return (1, 0);
                 else if( (count % 2) == 0)
                 {
-                    return PolyPow(BigMult(a, a, length), BigMultAdd(a, a, b, length), length, count / 2);
+                    return PolyPow(BigMult(a, a, length), BigMultAdd(a, b, b, length), length, count / 2);
                 }
                 else
                 {
@@ -375,6 +378,7 @@ namespace Day22
 
         private (long a, long b) CalcCycleAB(long length, IEnumerable<(Operation op, int n)> operations)
         {
+            checked {
             // y = a*x + b % length
             long a = 1;
             long b = 0;
@@ -385,40 +389,41 @@ namespace Day22
                     case Operation.CUT:
                         //y = 1*x + length + n % length
                         //a *= 1;
-                        b = (b + length + kvp.n) % length;
+                        b = Mod(b + kvp.n, length);
                         break;
                     case Operation.DEALINTO:
                         //y = -1*x + length - 1 (% length)
                         a = -a;
-                        b = (length - 1 - b) % length;
+                        b = Mod(length - 1 - b, length);
                         break;
                     case Operation.DEALINCREMENT:
                         //y = invMod(n, length)*x % length (inverse)
                         var z = InvMod(kvp.n, length);
-                        a = a * z % length;
-                        b = b * z % length;
+                        a = BigMult(a, z, length);
+                        b = BigMult(b, z, length);
                         break;
                 }
 
-                a = (a + length) % length;
-                b = (b + length) % length;
-                //System.Console.WriteLine($"y = {a}*x + {b}");
+                //System.Console.WriteLine($"y = {a}*x + {b} ({kvp})");
             }
 
             return (a, b);
+            }
         }
 
         public static (long, long, long) EGCD(long a, long b)
         {
-            if( b == 0) return (a, 1, 0);
-            var (gcd, x, y) = EGCD(b, a % b);
-            return (gcd, y, x - (long)(a/b) * y); // or (long)Math.Floor(a/b)
+            checked{
+                if( b == 0) return (a, 1, 0);
+                var (gcd, x, y) = EGCD(b, Mod(a,b));
+                return (gcd, y, x - (long)(a/b) * y); // or (long)Math.Floor(a/b)
+            }
         }
 
         public static long InvMod(long a, long n)
         {
             var (g, x, y) = EGCD(n, a);
-            return (y + n) % n;
+            return Mod(y + n, n);
         }
     }
 }

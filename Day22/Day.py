@@ -39,16 +39,19 @@ def parse(L, rules):
         if s == 'deal into new stack':
             a = -a
             b = L-b-1
+            print('y = {}*x + {} DEALINTO'.format(a, b))
             continue
         if s.startswith('cut'):
             n = int(s.split(' ')[1])
             b = (b+n)%L
+            print('y = {}*x + {} CUT {}'.format(a, b, n))
             continue
         if s.startswith('deal with increment'):
             n = int(s.split(' ')[3])
             z = pow(n,L-2,L) # == modinv(n,L)
             a = a*z % L
             b = b*z % L
+            print('y = {}*x + {} DEALINCREMENT {} INVMOD {}'.format(a, b, n, z))
             continue
         raise Exception('unknown rule', s)
     return a,b
@@ -77,15 +80,17 @@ def shuffle2(L, N, pos, rules):
 #%%time
 
 # test it out
-pos = 2020
+pos = 8502
 L = 10007
-N = 10
+N = 1
 deck = list(range(L))
 for i in range(N):
     deck = shuffle(deck,rules)
 print(deck[pos])
-print(shuffle2(L,N,pos,rules))
+#print(shuffle2(L,N,pos,rules))
 
 L = 119315717514047
 N = 101741582076661
 print(shuffle2(L,N,2020,rules))
+
+print(polypow(69146477285364, 50766547354351, N, L))

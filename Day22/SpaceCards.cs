@@ -241,32 +241,29 @@ namespace Day22
         
         private List<(Operation op, int n)> Parse(IEnumerable<string> shuffles)
         {
-            List<(Operation op, int n)> ops2 = new List<(Operation, int)>();
+            List<(Operation op, int n)> ops = new List<(Operation, int)>();
 
             foreach(var s in shuffles)
             {
                 if(s.StartsWith(DEALINTO))
                 {
-                    //resultIndex = InverseSingleDealIntoStack(resultIndex, length);
-                    ops2.Add( (Operation.DEALINTO, 0) );
+                    ops.Add( (Operation.DEALINTO, 0) );
                 }
                 else if(s.StartsWith(DEALINCREMENT))
                 {
                     var nStr = s.Substring(DEALINCREMENT.Length + 1);
                     var n = int.Parse(nStr);
-                    //resultIndex = InverseSingleDealWith(n, resultIndex, length);
-                    ops2.Add( (Operation.DEALINCREMENT, n) );
+                    ops.Add( (Operation.DEALINCREMENT, n) );
                 }
                 else if(s.StartsWith(CUT))
                 {
                     var nStr = s.Substring(CUT.Length + 1);
                     var n = int.Parse(nStr);
-                    //resultIndex = InverseSingleCut(n, resultIndex, length);
-                    ops2.Add( (Operation.CUT, n) );
+                    ops.Add( (Operation.CUT, n) );
                 }
             }
 
-            return ops2;
+            return ops;
         }
 
         public long Inverse(long index, long length, long count, IEnumerable<string> shuffles)
@@ -308,7 +305,6 @@ namespace Day22
 
             var ab = CalcCycleAB(length, ops2);
 
-            // TODO polypow
             // modpow the polynomial: (ax+b)^m % n
             // f(x) = ax+b
             // g(x) = cx+d
@@ -329,6 +325,11 @@ namespace Day22
             return ((a % length) + length) % length;  // always positive
         }
 
+        public static long BigMod(BigInteger a, long length)
+        {
+            return (long)(((a % length) + length) % length);
+        }
+
         public long BigMult(long a, long b, long length)
         {
             BigInteger bigA = new BigInteger(a);
@@ -337,10 +338,7 @@ namespace Day22
             checked{
                 var ab = bigA * bigB;
 
-                BigInteger.DivRem(ab, length, out var abMod);
-                BigInteger.DivRem(abMod + length, length, out var abMod2);
-
-                return (long)abMod2;
+                return BigMod(ab, length);
             }
         }
 
@@ -353,10 +351,7 @@ namespace Day22
             checked{
                 var abc = bigA * bigB + bigC;
 
-                BigInteger.DivRem(abc, length, out var abMod);
-                BigInteger.DivRem(abMod + length, length, out var abMod2);
-
-                return (long)abMod2;
+                return BigMod(abc, length);
             }
         }
 

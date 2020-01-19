@@ -10,7 +10,7 @@ namespace Day23
     public class NetworkElfComputer
     {
         private ElfComputer Cpu;
-        private Queue<Packet> NetworkQueue;
+        private ConcurrentQueue<Packet> NetworkQueue;
         private int Id;
         private int inputCount;
         private List<long> outputs;
@@ -23,7 +23,7 @@ namespace Day23
         {
             Id = id;
             Cpu = new ElfComputer(instructions, InputAsyncWrapper, Output);
-            NetworkQueue = new Queue<Packet>();
+            NetworkQueue = new ConcurrentQueue<Packet>();
             RouteAction = route;
             outputs= new List<long>();
         }
@@ -44,17 +44,33 @@ namespace Day23
             }
             else
             {
-                if(NetworkQueue.Any())
+                if(!NetworkQueue.IsEmpty)
                 {
+                    idle = false;
                     if(useX)
                     {
-                        input = NetworkQueue.Peek().X;
+                        if(NetworkQueue.TryPeek(out var result))
+                        {
+                            input = result.X;
+                            useX = false;
+                        }
+                        else
+                        {
+                            input = -1;
+                        }
                     }
                     else
                     {
-                        input = NetworkQueue.Dequeue().Y;
+                        if(NetworkQueue.TryDequeue(out var result))
+                        {
+                            input = result.Y;
+                            useX = true;
+                        }
+                        else
+                        {
+                            input = -1;
+                        }
                     }
-                    useX = !useX;
                 }
                 else
                 {
@@ -101,7 +117,7 @@ namespace Day23
 
         public bool IsIdle()
         {
-            return NetworkQueue.Count == 0 && idle;
+            return NetworkQueue.IsEmpty && idle;
         }
     }
 }

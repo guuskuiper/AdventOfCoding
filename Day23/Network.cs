@@ -63,6 +63,7 @@ namespace Day23
         {
             System.Console.WriteLine("Starting NAT");
             long prevY = long.MaxValue;
+            //return;
             Task.Run(
                 async () => 
                 {
@@ -80,7 +81,7 @@ namespace Day23
                             {
                                 if(NATpacket.Y == prevY)
                                 {
-                                    System.Console.WriteLine("DONE" + prevY);
+                                    System.Console.WriteLine("DONE Y:" + prevY);
                                     throw new Exception("DONE" + prevY);
                                 }
                                 prevY = NATpacket.Y;

@@ -1,0 +1,22 @@
+north
+take dark matter
+north
+north
+take manifold
+east
+take candy cane
+north
+south
+west
+west
+take jam
+east
+south
+east
+south
+take antenna
+west 
+take hypercube
+north
+south 
+east

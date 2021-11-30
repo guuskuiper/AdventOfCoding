@@ -1,7 +1,8 @@
 ﻿using AdventOfCode;
-using AdventOfCode.Day01;
 
-Console.WriteLine("AdventOfCode");
-Solution current = new Solution01();
+Console.WriteLine("** AdventOfCode **");
+
+Solution current = DayGenerator.GetByName("Solution01");
+
+Console.WriteLine($"* {current.GetType().Name} *");
 current.Run();
-

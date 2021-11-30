@@ -1,10 +1,30 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AdventOfCode;
 
 public static class DayGenerator
 {
-    public static async Task CreateDirectoriesPerDay()
+    public static Solution GetByName(string name)
+    {
+        var solutionType = GetSolutionTypes().Find(x => x.Name == name);
+        if (solutionType == null) throw new Exception("Cannot find: " + name);
+        return CreateInstance(solutionType);
+    }
+
+    private static List<Type> GetSolutionTypes() => 
+        Assembly.GetAssembly(typeof(Program))!
+            .ExportedTypes
+            .Where(x => x.IsAssignableTo(typeof(Solution)) && !x.IsAbstract)
+            .OrderBy(x => x.Name)
+            .ToList();
+
+    private static Solution CreateInstance(Type t)
+    {
+        return (Activator.CreateInstance(t) as Solution)!;
+    }
+
+    public static async Task CreateDirectoriesPerDay(bool force = false)
     {
         var sourcePath = GetSourceFilePathName();
         var root = Path.GetDirectoryName(sourcePath);
@@ -20,6 +40,8 @@ public static class DayGenerator
 
             var className = $"Solution{day:D2}";
             var fileName = Path.Combine(newDayPath, $"Solution{day:D2}" + ".cs");
+            if(File.Exists(fileName) && !force) continue;
+
             string content = @""
                              + $"namespace AdventOfCode.{dayString};" + Environment.NewLine
                              + Environment.NewLine

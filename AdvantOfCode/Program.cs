@@ -1,11 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using AdventOfCode;
+using AdventOfCode.Day01;
 
 Console.WriteLine("AdventOfCode");
+Solution current = new Solution01();
+current.Run();
 
-await CreateDirectoriesPerDay();
+//await CreateDirectoriesPerDay();
 
 async Task CreateDirectoriesPerDay()
 {
@@ -24,8 +25,13 @@ async Task CreateDirectoriesPerDay()
         var className = $"Solution{day:D2}";
         var fileName = Path.Combine(newDayPath, $"Solution{day:D2}" + ".cs");
         string content = @""
-                         + $"public class {className}" + Environment.NewLine
+                         + $"namespace AdventOfCode.{dayString};" + Environment.NewLine
+                         + Environment.NewLine
+                         + $"public class {className} : Solution" + Environment.NewLine
                          + "{" + Environment.NewLine
+                         + "    public void Run()" + Environment.NewLine
+                         + "    {" + Environment.NewLine
+                         + "    }" + Environment.NewLine
                          + "}" + Environment.NewLine;
         await File.WriteAllTextAsync(fileName, content);
     }

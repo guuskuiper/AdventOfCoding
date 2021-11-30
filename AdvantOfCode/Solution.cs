@@ -2,5 +2,5 @@
 
 public interface Solution
 {
-    void Run();
+    string Run();
 }

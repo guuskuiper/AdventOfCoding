@@ -47,8 +47,9 @@ public static class DayGenerator
                              + Environment.NewLine
                              + $"public class {className} : Solution" + Environment.NewLine
                              + "{" + Environment.NewLine
-                             + "    public void Run()" + Environment.NewLine
+                             + "    public string Run()" + Environment.NewLine
                              + "    {" + Environment.NewLine
+                             + "        return \"UNKNOWN\";" + Environment.NewLine
                              + "    }" + Environment.NewLine
                              + "}" + Environment.NewLine;
             await File.WriteAllTextAsync(fileName, content);

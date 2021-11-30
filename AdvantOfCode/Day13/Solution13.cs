@@ -2,7 +2,8 @@ namespace AdventOfCode.Day13;
 
 public class Solution13 : Solution
 {
-    public void Run()
+    public string Run()
     {
+        return "UNKNOWN";
     }
 }

@@ -1,51 +1,46 @@
+using System.Security.Cryptography.X509Certificates;
+
 namespace AdventOfCode.Day01;
 
 public class Solution01 : Solution
 {
-    private List<int> numbers = new List<int>();
-
     public string Run()
     {
         string input = File.ReadAllText("Day01/input01.txt");
-        string[] inputs = input.Split('\n');
+        List<int> numbers = input.Split('\n').Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
+        List<int> window = GetSliding3Window(numbers).ToList();
 
-        foreach(var i in inputs)
-        {
-            if(string.IsNullOrEmpty(i)) continue;
-            int n = int.Parse(i);
-            numbers.Add(n);
-        }
+        int increases = GetIncreases(numbers);
+        int increasesWindow = GetIncreases(window);
 
-      
-
-        int increases = 0;
-        {
-            int prev = numbers[0];
-            for(int i = 1; i < numbers.Count; i++)
-            {
-                int c = numbers[i];
-                if(c > prev) increases++;
-                prev = c;
-            }
-        }
-
-
-        int increasesWindow = 0;
-        {
-            int prevWindow = GetWindowSum(2);
-            for(int i = 3; i < numbers.Count; i++)
-            {
-                int c = GetWindowSum(i);
-                if(c > prevWindow) increasesWindow++;
-                prevWindow = c;
-            }
-        }
-
-        return increases.ToString() + "," + increasesWindow.ToString() ;
+        return increases + "," + increasesWindow ;
     }
 
-    private int GetWindowSum(int i)
+    private int GetIncreases(IEnumerable<int> numbers)
     {
-        return numbers[i] + numbers[i - 1] + numbers[i - 2]; 
+        int increases = 0;
+        int prev = numbers.Take(1).Single();
+
+        foreach (var number in numbers.Skip(1))
+        {
+            if(number > prev) increases++;
+            prev = number;
+        }
+
+        return increases;
+    }
+
+    private IEnumerable<int> GetSliding3Window(IEnumerable<int> input)
+    {
+        int pp = input.Take(1).Single();
+        int p = input.Skip(1).Take(1).Single();
+        input = input.Skip(2);
+
+        foreach (int i in input)
+        {
+            yield return pp + p + i;
+            pp = p;
+            p = i;
+        }
     }
 }

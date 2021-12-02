@@ -1,26 +1,27 @@
+using System.Runtime.CompilerServices;
+
 namespace AdventOfCode.Day02;
 
 public class Solution02 : Solution
 {
-    private int x = 0;
-    private int z = 0;
+    private int horiz = 0;
+    private int depth = 0;
     private int aim = 0;
 
     public string Run()
     {
-        string input = File.ReadAllText("Day02/input02.txt");
-        List<string> lines = input.Split('\n').ToList();
+        List<string> lines = InputReader.ReadFileLines();
 
         string a = Parse(lines, this.ParseLineA);
         string b = Parse(lines, this.ParseLineB);
 
-        return a + '\n' + b;
+        return a + "\n" + b;
     }
 
     private string Parse(List<string> lines, Action<string> func)
     {
-        this.z = 0;
-        this.x = 0;
+        this.depth = 0;
+        this.horiz = 0;
         this.aim = 0;
 
         foreach (string line in lines)
@@ -28,52 +29,52 @@ public class Solution02 : Solution
             func(line);
         }
 
-        return (this.x * this.z).ToString();
+        return (this.horiz * this.depth).ToString();
     }
 
     private void ParseLineA(string line)
     {
-        var split = line.Split(' ');
-        if (split.Length != 2) return;
-        int value = int.Parse(split[1]);
+        if (!GetValue(line, out string name, out int value)) return;
 
-        switch (split[0])
+        (int dHoriz, int dDepth) = name switch
         {
-            case "forward":
-                this.x += value;
-                break;
-            case "down":
-                this.z += value;
-                break;
-            case "up":
-                this.z -= value;
-                break;
-            default:
-                throw new Exception();
-        }
-
+            "forward" => (value, 0),
+            "down" => (0, +value),
+            "up" => (0, -value),
+            _ => throw new NotImplementedException()
+        };
+        this.horiz += dHoriz;
+        this.depth += dDepth;
     }
 
     private void ParseLineB(string line)
     {
-        var split = line.Split(' ');
-        if (split.Length != 2) return;
-        int value = int.Parse(split[1]);
+        if (!GetValue(line, out string name, out int value)) return;
 
-        switch (split[0])
+        (int dHoriz, int dDepth, int daim) = name switch
         {
-            case "forward":
-                this.z += this.aim * value;
-                this.x += value;
-                break;
-            case "down":
-                this.aim += value;
-                break;
-            case "up":
-                this.aim -= value;
-                break;
-            default:
-                throw new Exception();
+            "forward" => (value, this.aim * value, 0),
+            "down"    => (0, 0, +value),
+            "up"      => (0, 0, -value),
+            _ => throw new NotImplementedException()
+        };
+        this.horiz += dHoriz;
+        this.depth += dDepth;
+        this.aim += daim;
+    }
+
+    private static bool GetValue(string line, out string name, out int value)
+    {
+        var split = line.Split(' ');
+        if (split.Length != 2)
+        {
+            name = "";
+            value = int.MaxValue;
+            return false;
         }
+
+        name = split[0];
+        value = int.Parse(split[1]);
+        return true;
     }
 }

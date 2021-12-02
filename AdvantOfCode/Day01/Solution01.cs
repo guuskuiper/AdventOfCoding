@@ -6,14 +6,15 @@ public class Solution01 : Solution
 {
     public string Run()
     {
-        string input = File.ReadAllText("Day01/input01.txt");
-        List<int> numbers = input.Split('\n').Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
+        List<string> input = InputReader.ReadFileLines();
+
+        List<int> numbers = input.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
         List<int> window = GetSliding3Window(numbers).ToList();
 
         int increases = GetIncreases(numbers);
         int increasesWindow = GetIncreases(window);
 
-        return increases + "," + increasesWindow ;
+        return increases + "\n" + increasesWindow;
     }
 
     private int GetIncreases(IEnumerable<int> numbers)

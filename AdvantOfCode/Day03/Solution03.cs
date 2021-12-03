@@ -1,64 +1,71 @@
+using System.Diagnostics;
+
 namespace AdventOfCode.Day03;
 
 public class Solution03 : Solution
 {
+    private const string Awnser = "4138664\n4273224";
+
     public string Run()
     {
         List<string> lines = InputReader.ReadFileLines();
 
         int bitCount = lines[0].Length;
 
-        var mostCommontStr = new string('-', bitCount).ToCharArray();
-        var leastCommontStr = new string('-', bitCount).ToCharArray();
+        string mostCommontStr = GetMostCommonBitString(lines, bitCount);
+        string leastCommontStr = InvertBitString(mostCommontStr);
 
+        int gammaRate = String2Int32(mostCommontStr);
+        int epsionRate = String2Int32(leastCommontStr);
+
+        string lineOxygen = FilterByCommonBit(lines, bitCount, false);
+        string lineCO2 = FilterByCommonBit(lines, bitCount, true);
+
+        int CO2 = String2Int32(lineCO2);
+        int O2 = String2Int32(lineOxygen);
+
+        return gammaRate * epsionRate + "\n" + CO2 * O2;
+    }
+
+    private string GetMostCommonBitString(List<string> lines, int bitCount)
+    {
+        string mostCommonBitString = "";
         int mostCommon = 0;
         int leastCommon = 0;
         for (int i = 0; i < bitCount; i++)
         {
             int rI = bitCount - i - 1;
-            bool common = GetCommenBit(lines, rI);
-            mostCommon += (common ? 1 : 0) << (i);
-            leastCommon += (common ? 0 : 1) << (i);
-            mostCommontStr[i] = (common ? '1' : '0');
-            leastCommontStr[i] = (common ? '0' : '1');
+            bool common = GetCommenBit(lines, i);
+            mostCommon += (common ? 1 : 0) << rI;
+            leastCommon += (common ? 0 : 1) << rI;
+            mostCommonBitString += GetChar(common);
         }
 
-        int mult = mostCommon * leastCommon;
+        return mostCommonBitString;
+    }
 
-        List<string> filterLinesOxygen = lines;
-
-        int oxygen = 0;
+    private string FilterByCommonBit(List<string> lines, int bitCount, bool invert)
+    {
+        List<string> filterLines = lines;
         for (int i = 0; i < bitCount; i++)
         {
-            int rI = bitCount - i - 1;
-            bool common = GetCommenBit(filterLinesOxygen, i, true);
-            filterLinesOxygen = Filter(filterLinesOxygen, i, common);
-            if(filterLinesOxygen.Count <= 1) break;
-        }
-
-        string lineOxygen = filterLinesOxygen.Single();
-
-        List<string> filterLinesCO2 = lines;
-        for (int i = 0; i < bitCount; i++)
-        {
-            int rI = bitCount - i - 1;
-            bool common = GetCommenBit(filterLinesCO2, i, true);
+            bool common = GetCommenBit(filterLines, i, true);
             bool nCommon = !common;
-            filterLinesCO2 = Filter(filterLinesCO2, i , nCommon);
-            if (filterLinesCO2.Count <= 1) break;
+            filterLines = Filter(filterLines, i, invert ? nCommon : common);
+            if (filterLines.Count <= 1) break;
         }
 
-        string lineCO2 = filterLinesCO2.Single();
-
-        int CO2 = String2Int(lineCO2);
-        int O2 = String2Int(lineOxygen);
-
-        return mult.ToString() + "\n" + CO2 * O2;
+        return filterLines.Single();
     }
 
     private bool GetBit(string number, int bit)
     {
-        return number[bit] == '1';
+        return number[bit] == GetChar(true);
+    }
+
+    private char GetChar(bool bit)
+    {
+        return bit ? '1' : '0';
     }
 
     private bool GetCommenBit(List<string> lines, int bit, bool onEqual = true)
@@ -78,7 +85,7 @@ public class Solution03 : Solution
 
     private List<string> Filter(List<string> lines, int bit, bool value)
     {
-        List<string> newLines = new List<string>();
+        List<string> newLines = new ();
         foreach (string line in lines)
         {
             if (GetBit(line, bit) == value)
@@ -90,8 +97,20 @@ public class Solution03 : Solution
         return newLines;
     }
 
-    private int String2Int(string number)
+    private string InvertBitString(string bitString)
     {
+        char[] inverted = new char[bitString.Length];
+        for (int i = 0; i < bitString.Length; i++)
+        {
+            inverted[i] = GetChar(!GetBit(bitString, i));
+        }
+
+        return new string(inverted);
+    }
+
+    private int String2Int32(string number)
+    {
+        return Convert.ToInt32(number, 2);
         int value = 0;
         for (int i = 0; i < number.Length; i++)
         {

@@ -5,9 +5,14 @@ public class Solution04 : Solution
     public class Board
     {
         public const int SIZE = 5;
-        public int[,] Data = new int[SIZE, SIZE];
-        public bool[,] Mark = new bool[SIZE, SIZE];
+        public BoardValue[,] Value = new BoardValue[SIZE, SIZE];
         public bool Win = false;
+    }
+
+    public class BoardValue
+    {
+        public int Number;
+        public bool Mark;
     }
 
     private List<Board> boards;
@@ -84,7 +89,11 @@ public class Solution04 : Solution
             int[] rowNumbers = boardInput[row].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
             for (int col = 0; col < Board.SIZE; col++)
             {
-                board.Data[row, col] = rowNumbers[col];
+                board.Value[row, col] = new BoardValue 
+                { 
+                    Number = rowNumbers[col], 
+                    Mark = false 
+                };
             }
         }
 
@@ -97,9 +106,10 @@ public class Solution04 : Solution
         {
             for (int col = 0; col < Board.SIZE; col++)
             {
-                if(board.Data[row, col] == number)
+                BoardValue boardValue = board.Value[row, col];
+                if (boardValue.Number == number)
                 {
-                    board.Mark[row, col] = true;
+                    boardValue.Mark = true;
                 }
             }
         }
@@ -115,12 +125,12 @@ public class Solution04 : Solution
 
     private bool CheckRows(Board board)
     {
-        return Check(board, (board, i, j) => board.Mark[i, j]);
+        return Check(board, (board, i, j) => board.Value[i, j].Mark);
     }
 
     private bool CheckCols(Board board)
     {
-        return Check(board, (board, i, j) => board.Mark[j, i]);
+        return Check(board, (board, i, j) => board.Value[j, i].Mark);
     }
 
     private bool Check(Board board, Func<Board, int, int, bool> getMark)
@@ -155,9 +165,10 @@ public class Solution04 : Solution
         {
             for (int j = 0; j < Board.SIZE; j++)
             {
-                if (!board.Mark[i, j])
+                BoardValue boardValue = board.Value[i, j];
+                if (!boardValue.Mark)
                 {
-                    score += board.Data[i, j];
+                    score += boardValue.Number;
                 }
             }
         }

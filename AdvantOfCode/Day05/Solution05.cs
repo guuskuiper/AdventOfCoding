@@ -3,10 +3,10 @@ namespace AdventOfCode.Day05;
 public class Solution05 : Solution
 {
     private int[][]? _oceanFloor;
-    private List<OceanLine> _oceanlines = new ();
+    private List<Line> _oceanlines = new ();
     private bool onlyHorizontalVertical = true;
 
-    public class OceanLine
+    public class Line
     {
         public Point From { get; set; }
         public Point To { get; set; }
@@ -23,10 +23,10 @@ public class Solution05 : Solution
         var lines = InputReader.ReadFileLines();
         ParseLines(lines);
         
-        int overlapCount = Solve(true);
+        int overlapCountA = Solve(true);
         int overlapCountB = Solve(false);
         
-        return overlapCount + "\n" + overlapCountB;
+        return overlapCountA + "\n" + overlapCountB;
     }
 
     private int Solve(bool horizontalVerticalOnly)
@@ -48,35 +48,33 @@ public class Solution05 : Solution
     private void ParseLine(string line)
     {
         var arrow = line.Split("->");
-        var arrowFrom = arrow[0].Split(',');
-        var arrowTo = arrow[1].Split(',');
+        var from = ParsePoint(arrow[0]);
+        var to = ParsePoint(arrow[1]);
 
-        var oceanLine = new OceanLine()
+        var oceanLine = new Line
         {
-            From = new Point
-            {
-                X = int.Parse(arrowFrom[0]),
-                Y = int.Parse(arrowFrom[1])
-            },
-            To = new Point
-            {
-                X = int.Parse(arrowTo[0]),
-                Y = int.Parse(arrowTo[1])
-            }
+            From = from,
+            To = to
         };
         
         _oceanlines.Add(oceanLine);
     }
 
+    private Point ParsePoint(string point)
+    {
+        var split = point.Split(',');
+        return new Point
+        {
+            X = int.Parse(split[0]),
+            Y = int.Parse(split[1])
+        };
+    }
+
     private void CreateOceanFloor()
     {
-        int maxFromX = _oceanlines.Select(x => x.From.X).Max();
-        int maxToX = _oceanlines.Select(x => x.To.X).Max();
-        int sizeX = Math.Max(maxFromX, maxToX) + 1;
-        
-        int maxFromY = _oceanlines.Select(x => x.From.Y).Max();
-        int maxToY = _oceanlines.Select(x => x.To.Y).Max();
-        int sizeY = Math.Max(maxFromY, maxToY) + 1;
+        var points = _oceanlines.SelectMany(x => new[] { x.From, x.To }).ToList();
+        int sizeX = 1 + points.Max(p => p.X);
+        int sizeY = 1 + points.Max(p => p.Y);
 
         _oceanFloor = new int[sizeX][];
         for (var index = 0; index < _oceanFloor.Length; index++)
@@ -93,7 +91,7 @@ public class Solution05 : Solution
         }
     }
 
-    private void DrawLine(OceanLine line)
+    private void DrawLine(Line line)
     {
         if (line.From.X == line.To.X)
         {
@@ -103,7 +101,7 @@ public class Solution05 : Solution
 
             for (int y = yMin; y <= yMax; y++)
             {
-                _oceanFloor[x][y]++;
+                _oceanFloor![x][y]++;
             }
         }
         else if (line.From.Y == line.To.Y)
@@ -114,7 +112,7 @@ public class Solution05 : Solution
 
             for (int x = xMin; x <= xMax; x++)
             {
-                _oceanFloor[x][y]++;
+                _oceanFloor![x][y]++;
             }
         }
         else if(!onlyHorizontalVertical)
@@ -130,7 +128,7 @@ public class Solution05 : Solution
                 int x = line.From.X + i * sx;
                 int y = line.From.Y + i * sy;
                 
-                _oceanFloor[x][y]++;
+                _oceanFloor![x][y]++;
             }
         }
     }
@@ -138,7 +136,7 @@ public class Solution05 : Solution
     private int CountOverlap()
     {
         int count = 0;
-        foreach (var line in _oceanFloor)
+        foreach (var line in _oceanFloor!)
         {
             foreach (var tile in line)
             {

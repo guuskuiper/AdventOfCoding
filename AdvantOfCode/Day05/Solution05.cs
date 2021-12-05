@@ -95,41 +95,31 @@ public class Solution05 : Solution
     {
         if (line.From.X == line.To.X)
         {
-            int x = line.From.X;
-            int yMin = Math.Min(line.From.Y, line.To.Y);
-            int yMax = Math.Max(line.From.Y, line.To.Y);
-
-            for (int y = yMin; y <= yMax; y++)
-            {
-                _oceanFloor![x][y]++;
-            }
+            DrawDiagonal(line);
         }
         else if (line.From.Y == line.To.Y)
         {
-            int y = line.From.Y;
-            int xMin = Math.Min(line.From.X, line.To.X);
-            int xMax = Math.Max(line.From.X, line.To.X);
-
-            for (int x = xMin; x <= xMax; x++)
-            {
-                _oceanFloor![x][y]++;
-            }
+            DrawDiagonal(line);
         }
         else if(!onlyHorizontalVertical)
         {
-            //45 degree
-            int sx = Math.Sign(line.To.X - line.From.X);
-            int sy = Math.Sign(line.To.Y - line.From.Y);
+            DrawDiagonal(line);
+        }
+    }
 
-            int points = Math.Abs(line.To.X - line.From.X) + 1;
+    private void DrawDiagonal(Line line)
+    {
+        int sx = Math.Sign(line.To.X - line.From.X);
+        int sy = Math.Sign(line.To.Y - line.From.Y);
 
-            for (int i = 0; i < points; i++)
-            {
-                int x = line.From.X + i * sx;
-                int y = line.From.Y + i * sy;
-                
-                _oceanFloor![x][y]++;
-            }
+        int points = 1 + (sx != 0 ? Math.Abs(line.To.X - line.From.X) : Math.Abs(line.To.Y - line.From.Y));
+
+        for (int i = 0; i < points; i++)
+        {
+            int x = line.From.X + i * sx;
+            int y = line.From.Y + i * sy;
+
+            _oceanFloor![x][y]++;
         }
     }
 

@@ -3,7 +3,9 @@
 Console.WriteLine("** AdventOfCode **");
 //await DayGenerator.CreateDirectoriesPerDay(true);
 
-Solution current = DayGenerator.GetByName("Solution08");
+int day = args.Length > 0 ? int.Parse(args[0]) : 8;
+string solutionName = $"Solution{day:D2}";
+Solution current = DayGenerator.GetByName(solutionName);
 
 Console.WriteLine($"* {current.GetType().Name} *");
 var result = current.Run();

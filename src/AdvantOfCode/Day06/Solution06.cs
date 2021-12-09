@@ -17,7 +17,7 @@ public class Solution06 : Solution
         SimulateDays(256, SimulateBin);
         long B = CountBins();
         
-        return A  + " \n" + B;
+        return A  + "\n" + B;
     }
 
 

@@ -6,7 +6,9 @@ public class Solution08 : Solution
 {
     private int[] digitCount = new int[10];
     private int valueSum = 0;
-    private Dictionary<string, int> patternDict;
+
+    private int[] encoding;
+    
     public string Run()
     {
         var input = InputReader.ReadFileLines();
@@ -36,40 +38,40 @@ public class Solution08 : Solution
 
     private void AnalyzePattern(string pattern)
     {
-        patternDict = new Dictionary<string, int>();
+        encoding = new int[10];
         var words = pattern.Trim().Split();
-        var one = words.Where(x => x.Length == 2).Take(1).Single();
-        patternDict[one] = 1;
         
-        var four = words.Where(x => x.Length == 4).Take(1).Single();
-        patternDict[four] = 4;
-        
-        patternDict[words.Where(x => x.Length == 7).Take(1).Single()] = 8;
-        patternDict[words.Where(x => x.Length == 3).Take(1).Single()] = 7;
+        encoding[1] = Encode(GetSingleByLength(words, 2));
+        encoding[4] = Encode(GetSingleByLength(words, 4));
+        encoding[8] = Encode(GetSingleByLength(words, 7));
+        encoding[7] = Encode(GetSingleByLength(words, 3));
 
-        string fourNotOne = "";
-        foreach (var c in four)
-        {
-            if (!one.Contains(c))
-            {
-                fourNotOne += c;
-            }
-        }
+        int fourNotOne = encoding[4] & ~encoding[1];
 
-        Analyze5(words, one, fourNotOne);
-        Analyze6(words, one, fourNotOne);
+        Analyze5(words, encoding[1], fourNotOne);
+        Analyze6(words, encoding[1], fourNotOne);
     }
 
-    private void Analyze5(string[] words, string one, string fourNotOne)
+    private string GetSingleByLength(string[] words, int length)
+        => words.Where(x => x.Length == length).Take(1).Single();
+
+    private int Encode(string pattern)
+        => pattern.Aggregate(0, (i, c) => i | 1 << c - 'a');
+
+    private IEnumerable<int> EncodeByLength(string[] words, int length)
+        => words.Where(x => x.Length == length).Select(Encode);
+    
+    private void Analyze5(string[] words, int one, int fourNotOne)
     {
+        var l5 = EncodeByLength(words, 5).ToList();
+        
         //2, 3, 5 -> 3 both from 1
         //2, 5 -> both from 1 -> 4
-        var l5 = words.Where(x => x.Length == 5).ToList();
         foreach (var s in l5)
         {
-            if (FindAllPattern(s, one))
+            if (FindContainsAll(s, one))
             {
-                patternDict[s] = 3;
+                encoding[3] = s;
                 l5.Remove(s);
                 break;
             }
@@ -77,28 +79,28 @@ public class Solution08 : Solution
 
         foreach (var s in l5)
         {
-            if (FindAllPattern(s, fourNotOne))
+            if (FindContainsAll(s, fourNotOne))
             {
-                patternDict[s] = 5;
+                encoding[5] = s;
                 l5.Remove(s);
                 break;
             }
         }
 
-        patternDict[l5.Single()] = 2;
+        encoding[2] = l5.Single();
     }
     
-    private void Analyze6(string[] words, string one, string fourNotOne)
+    private void Analyze6(string[] words, int one, int fourNotOne)
     {
-        var l6 = words.Where(x => x.Length == 6).ToList();
+        var l6 = EncodeByLength(words, 6).ToList();
 
         //0, 6, 9 -> 0 not both of the new from 1 -> 4
         //6, 9 -> 6 not both from 1
         foreach (var s in l6)
         {
-            if (!FindAllPattern(s, fourNotOne))
+            if (!FindContainsAll(s, fourNotOne))
             {
-                patternDict[s] = 0;
+                encoding[0] = s;
                 l6.Remove(s);
                 break;
             }
@@ -106,30 +108,20 @@ public class Solution08 : Solution
 
         foreach (var s in l6)
         {
-            if (!FindAllPattern(s, one))
+            if (!FindContainsAll(s, one))
             {
-                patternDict[s] = 6;
+                encoding[6] = s;
                 l6.Remove(s);
                 break;
             }
         }
 
-        patternDict[l6.Single()] = 9;
+        encoding[9] = l6.Single();
     }
 
-    private bool FindAllPattern(string s, string p)
+    private bool FindContainsAll(int word, int pattern)
     {
-        bool found = true;
-        foreach (var c in p)
-        {
-            if (!s.Contains(c))
-            {
-                found = false;
-                break;
-            }
-        }
-
-        return found;
+        return (word & pattern) == pattern;
     }
 
     private void DecodeDigits(string text)
@@ -137,10 +129,9 @@ public class Solution08 : Solution
         var digits = text.Trim().Split();
 
         int value = 0;
-
         foreach (var digit in digits)
         {
-            var d = Dict2Digit(digit);
+            var d = Decode(digit);
             if (d >= 0)
             {
                 value *= 10;
@@ -152,15 +143,16 @@ public class Solution08 : Solution
         valueSum += value;
     }
 
-    private int Dict2Digit(string text)
+    private int Decode(string text)
     {
-        foreach ((string key, int value) in patternDict)
-        {
-            if(text.Length != key.Length) continue;
+        int textEncoded = Encode(text);
 
-            if (FindAllPattern(text, key))
+        for (var digit = 0; digit < encoding.Length; digit++)
+        {
+            var e = encoding[digit];
+            if (e == textEncoded)
             {
-                return value;
+                return digit;
             }
         }
 

@@ -19,16 +19,11 @@ public class Solution10 : Solution
         public int CharacterNumber { get; set; }
     }
 
-    public class Chunk
-    {
-        public List<Chunk> Chunks { get; set; }
-    }
-
-    private List<SyntaxError> _syntaxErrors = new List<SyntaxError>();
-    private List<string> _completion = new List<string>();
-    private Stack<char> opendChunks;
-    private int lineNumber = 0;
-    private int charNumber = 0;
+    private readonly List<SyntaxError> _syntaxErrors = new ();
+    private readonly List<string> _completion = new ();
+    private Stack<char>? _openedChunks;
+    private int _lineNumber = 0;
+    private int _charNumber = 0;
 
     public string Run()
     {
@@ -38,74 +33,16 @@ public class Solution10 : Solution
         int A = GetSyntaxSore();
         long B = GetCompletionSore();
         
-        return A + "\n" + B; // not: 192498059
+        return A + "\n" + B;
     }
-
-    private int GetSyntaxSore()
-    {
-        int score = 0;
-        foreach (var syntaxError in _syntaxErrors)
-        {
-            score += GetErrorScore(syntaxError.Character);
-        }
-
-        return score;
-    }
-
-    private int GetErrorScore(char c)
-        => c switch
-        {
-            CLOSE_PARENTHESIS => 3,
-            CLOSE_ANGLE => 25137,
-            CLOSE_BRACKET => 57,
-            CLOSE_BRACE => 1197,
-            _ => 0
-        };
-    
-    private long GetCompletionSore()
-    {
-        List<long> scores = new List<long>();
-        foreach (var completion in _completion)
-        {
-            scores.Add(GetCompletionLineScore(completion));
-        }
-
-        scores.Sort();
-        
-        int middle = (scores.Count - 1) / 2;
-
-        return scores[middle];
-    }
-
-    private long GetCompletionLineScore(string line)
-    {
-        long score = 0;
-        foreach (var c in line)
-        {
-            score *= 5;
-            score += GetMissingScore(c);
-        }
-
-        return score;
-    }
-    
-    private int GetMissingScore(char c)
-        => c switch
-        {
-            CLOSE_PARENTHESIS => 1,
-            CLOSE_ANGLE => 4,
-            CLOSE_BRACKET => 2,
-            CLOSE_BRACE => 3,
-            _ => 0
-        };
 
     private void ParseLines(List<string> lines)
     {
-        lineNumber = -1;
+        _lineNumber = -1;
 
         foreach (var line in lines)
         {
-            lineNumber++;
+            _lineNumber++;
             
             if (!ParseLine(line))
             {
@@ -118,29 +55,29 @@ public class Solution10 : Solution
 
     private bool ParseLine(string line)
     {
-        bool succes = true;
-        charNumber = 0;
-        opendChunks = new Stack<char>();
+        bool success = true;
+        _charNumber = 0;
+        _openedChunks = new Stack<char>();
         foreach (var c in line)
         {
             if (!ParseSyntaxErrorChar(c))
             {
-                succes = false;
+                success = false;
                 break; 
             }
             
-            charNumber++;
+            _charNumber++;
         }
 
-        return succes;
+        return success;
     }
 
     private void CompleteLine()
     {
         string complete = "";
-        while (opendChunks.Count > 0)
+        while (_openedChunks!.Count > 0)
         {
-            char openTop = opendChunks.Pop();
+            char openTop = _openedChunks.Pop();
             complete += Pair(openTop);
         }
         _completion.Add(complete);
@@ -151,16 +88,16 @@ public class Solution10 : Solution
         bool success = true;
         if (IsOpen(c))
         {
-            opendChunks.Push(c);
+            _openedChunks!.Push(c);
         }
         else
         {
-            char top = opendChunks.Peek();
+            char top = _openedChunks!.Peek();
             char expected = Pair(top);
 
             if (expected == c)
             {
-                opendChunks.Pop();
+                _openedChunks.Pop();
             }
             else
             {
@@ -168,8 +105,8 @@ public class Solution10 : Solution
                 {
                     Character = c,
                     Expected = expected,
-                    CharacterNumber = charNumber,
-                    LineNumber = lineNumber
+                    CharacterNumber = _charNumber,
+                    LineNumber = _lineNumber
                 });
                 success = false;
             }
@@ -196,6 +133,65 @@ public class Solution10 : Solution
             OPEN_BRACE => CLOSE_BRACE,
             CLOSE_BRACE => OPEN_BRACE,
             OPEN_ANGLE => CLOSE_ANGLE,
-            CLOSE_ANGLE => OPEN_ANGLE
+            CLOSE_ANGLE => OPEN_ANGLE,
+            _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
+        };
+    
+    private int GetSyntaxSore()
+    {
+        int score = 0;
+        foreach (var syntaxError in _syntaxErrors)
+        {
+            score += GetErrorScore(syntaxError.Character);
+        }
+
+        return score;
+    }
+
+    private int GetErrorScore(char c)
+        => c switch
+        {
+            CLOSE_PARENTHESIS => 3,
+            CLOSE_ANGLE => 25137,
+            CLOSE_BRACKET => 57,
+            CLOSE_BRACE => 1197,
+            _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
+        };
+    
+    private long GetCompletionSore()
+    {
+        List<long> scores = new List<long>();
+        foreach (var completion in _completion)
+        {
+            scores.Add(GetCompletionLineScore(completion));
+        }
+
+        scores.Sort();
+
+        int middle = (scores.Count - 1) / 2;
+
+        return scores[middle];
+    }
+
+    private long GetCompletionLineScore(string line)
+    {
+        long score = 0;
+        foreach (var c in line)
+        {
+            score *= 5;
+            score += GetMissingScore(c);
+        }
+
+        return score;
+    }
+    
+    private int GetMissingScore(char c)
+        => c switch
+        {
+            CLOSE_PARENTHESIS => 1,
+            CLOSE_ANGLE => 4,
+            CLOSE_BRACKET => 2,
+            CLOSE_BRACE => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
         };
 }

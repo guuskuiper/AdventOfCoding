@@ -14,7 +14,7 @@ public class Solution11 : Solution
         public bool Flashed { get; set; }
     }
 
-    private Cave _cave;
+    private Cave _cave = new ();
     private long _flashes = 0;
     private long _steps = 0;
 
@@ -147,7 +147,6 @@ public class Solution11 : Solution
 
     private void Parse(List<string> input)
     {
-        _cave = new Cave();
         for (int i = 0; i < Cave.SIZE; i++)
         {
             var line = input[i];

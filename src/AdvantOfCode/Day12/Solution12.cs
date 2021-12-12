@@ -4,93 +4,98 @@ public class Solution12 : Solution
 {
     private class Node
     {
-        public string Name { get; set; }
-        public bool IsLarge { get; set; }
-        public List<Node> Connections = new ();
+        public Node(string name)
+        {
+            Name = name;
+            IsLarge = char.IsUpper(Name, 0);
+        }
+
+        public string Name { get; init; }
+        public bool IsLarge { get; init; }
+        public readonly List<Node> Connections = new ();
     }
 
-    private class Path
+    private class PathBase
     {
-        public Node? Double = null;
-        public List<Node> Nodes = new ();
-
+        protected List<Node> Nodes = new ();
         public Node Current() => Nodes[^1];
-        public Path AddNode(Node n)
+        
+        public virtual PathBase AddNode(Node n)
         {
-            Node? newDouble = !n.IsLarge && Nodes.Contains(n) && Double == null ? n : Double;  
-            return new Path()
+            return new PathBase()
             {
-                Double = newDouble,
                 Nodes = new(Nodes) {n}
             };
         }
 
-        public bool CanAdd(Node n)
+        public virtual bool CanAdd(Node n)
         {
-            return n.IsLarge || !Nodes.Contains(n) || Double == null;
+            return n.IsLarge || !Nodes.Contains(n);
         }
     }
 
+    private class PathDouble : PathBase
+    {
+        private Node? _double = null;
+
+        public override PathDouble AddNode(Node n)
+        {
+            Node? newDouble = !n.IsLarge && Nodes.Contains(n) && _double == null ? n : _double;  
+            return new PathDouble
+            {
+                _double = newDouble,
+                Nodes = new(Nodes) {n}
+            };
+        }
+
+        public override bool CanAdd(Node n)
+        {
+            return n.IsLarge || !Nodes.Contains(n) || _double == null;
+        }
+    }
+
+    private const string START = "start";
+    private const string END = "end";
     private Dictionary<string, Node> _nodes = new ();
-    private List<List<Node>> _paths = new ();
-    private List<Path> _pathsDouble = new();
+    private List<PathBase> _paths = new ();
     
     public string Run()
     {
         var lines = InputReader.ReadFileLines();
         ParseLines(lines);
-        FindAllPaths();
+        
+        FindAllPaths(new PathBase());
         long A = _paths.Count;
-        FindAllPathsB();
-        long B = _pathsDouble.Count;
+        
+        FindAllPaths(new PathDouble());
+        long B = _paths.Count;
+        
         return A + "\n" + B;
     }
-    
-    private void FindAllPathsB()
+
+    private void FindAllPaths(PathBase root)
     {
-        Node start = _nodes["start"];
-        Path path = new Path().AddNode(start);
-        FindNextB(path);
+        _paths = new();
+        
+        Node start = _nodes[START];
+        PathBase path = root.AddNode(start);
+        FindNext(path);
     }
 
-    private void FindNextB(Path path)
+    private void FindNext(PathBase path)
     {
         Node current = path.Current();
         foreach (var connection in current.Connections)
         {
-            if(!path.CanAdd(connection)) continue;
-            if(connection.Name == "start") continue;
-
-            Path newPath = path.AddNode(connection);
-
-            if (connection.Name == "end")
+            if (!path.CanAdd(connection) ||
+                connection.Name == START)
             {
-                _pathsDouble.Add(newPath);
+                continue;
             }
-            else
-            {
-                FindNextB(newPath);
-            }
-        }
-    }
 
-    private void FindAllPaths()
-    {
-        Node start = _nodes["start"];
-        List<Node> path = new () { start};
-        FindNext(path);
-    }
+            PathBase newPath = path.AddNode(connection);
 
-    private void FindNext(List<Node> path)
-    {
-        Node current = path[^1];
-        foreach (var connection in current.Connections)
-        {
-            if(!connection.IsLarge && path.Contains(connection)) continue;
-
-            List<Node> newPath = new List<Node>(path) {connection};
-
-            if (connection.Name == "end")
+            if (connection.Name == END)
             {
                 _paths.Add(newPath);
             }
@@ -130,11 +135,7 @@ public class Solution12 : Solution
         }
         else
         {
-            n = new Node
-            {
-                Name = name,
-                IsLarge = char.IsUpper(name, 0)
-            };
+            n = new Node(name);
             _nodes[name] = n;
         }
 

@@ -6,10 +6,13 @@ public class Solution13 : Solution
 {
     private record Point(int X, int Y);
 
-    private List<Point> _points = new ();
-    private List<Point> _fold = new();
+    private readonly List<Point> _points = new ();
+    private readonly List<Point> _fold = new();
 
     private bool[,] _paper;
+    private int _sizeX;
+    private int _sizeY;
+    
     
     public string Run()
     {
@@ -17,17 +20,20 @@ public class Solution13 : Solution
 
         ParseLines(lines);
         CreatePaper();
-        Fold(_fold[0]);
+        Fold(0, 1);
         long A = Count();
-        Fold(_fold.Skip(1).ToList());
+        Fold(1);
         string B = Print();
         
         return A + "\n" + B;
     }
     
-    private void Fold(List<Point> folds)
+    private void Fold(int offset, int count = -1)
     {
-        foreach (var fold in folds)
+        var skipped = _fold.Skip(offset);
+
+        IEnumerable<Point> counted = count > 0 ? skipped.Take(count) : skipped;
+        foreach (var fold in counted)
         {
             Fold(fold);
         }
@@ -35,42 +41,37 @@ public class Solution13 : Solution
 
     private void Fold(Point fold)
     {
-        bool[,] foldedPaper;
         if (fold.Y < 0)
         {
-            int sizeY = _paper.GetLength(1);
-            foldedPaper = new bool[fold.X,sizeY];
-            for (int y = 0; y < sizeY; y++)
+            _sizeX = fold.X;
+            for (int y = 0; y < _sizeY; y++)
             {
-                for (int x = 0; x < fold.X; x++)
+                for (int x = 0; x < _sizeX; x++)
                 {
                     int foldedX = fold.X + (fold.X - x);
-                    foldedPaper[x, y] = _paper[x, y] || _paper[foldedX, y];
+                    _paper[x, y] |= _paper[foldedX, y];
                 }
             }
         }
         else
         {
-            int sizeX = _paper.GetLength(0);
-            foldedPaper = new bool[sizeX, fold.Y];
-            for (int x = 0; x < sizeX; x++)
+            _sizeY = fold.Y;
+            for (int x = 0; x < _sizeX; x++)
             {
-                for (int y = 0; y < fold.Y; y++)
+                for (int y = 0; y < _sizeY; y++)
                 {
                     int foldedY = fold.Y + (fold.Y - y);
-                    foldedPaper[x, y] = _paper[x, y] || _paper[x, foldedY];
+                    _paper[x, y] |= _paper[x, foldedY];
                 }
             }
         }
-
-        _paper = foldedPaper;
     }
 
     private void CreatePaper()
     {
-        int maxX = _points.Max(p => p.X);
-        int maxY = _points.Max(p => p.Y);
-        _paper = new bool[maxX + 1, maxY + 1 + 1];
+        _sizeX = 1 + 2 * _fold.First(p => p.Y < 0).X;
+        _sizeY = 1 + 2 * _fold.First(p => p.X < 0).Y;
+        _paper = new bool[_sizeX, _sizeY];
 
         foreach (var point in _points)
         {
@@ -98,10 +99,10 @@ public class Solution13 : Solution
         else
         {
             var fold = line.Split();
-            var foldxy = fold[2].Split('=');
-            bool isX = foldxy[0] == "x";
-            int x = isX ? Int32.Parse(foldxy[1]) : -1;
-            int y = !isX ? Int32.Parse(foldxy[1]) : -1;
+            var foldXY = fold[2].Split('=');
+            bool isX = foldXY[0] == "x";
+            int x = isX ? Int32.Parse(foldXY[1]) : -1;
+            int y = !isX ? Int32.Parse(foldXY[1]) : -1;
             _fold.Add(new Point(x, y));
             
         }
@@ -110,11 +111,14 @@ public class Solution13 : Solution
     private long Count()
     {
         long count = 0;
-        foreach (var element in _paper)
+        for (int y = 0; y < _sizeY; y++)
         {
-            if (element)
+            for (int x = 0; x < _sizeX; x++)
             {
-                count++;
+                if (_paper[x, y])
+                {
+                    count++;
+                }
             }
         }
 
@@ -124,9 +128,9 @@ public class Solution13 : Solution
     private string Print()
     {
         StringBuilder sb = new();
-        for (int y = 0; y < _paper.GetLength(1); y++)
+        for (int y = 0; y < _sizeY; y++)
         {
-            for (int x = 0; x < _paper.GetLength(0); x++)
+            for (int x = 0; x < _sizeX; x++)
             {
                 sb.Append(_paper[x, y] ? '#' : ' ');
             }

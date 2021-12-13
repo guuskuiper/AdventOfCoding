@@ -11,6 +11,6 @@ public static class InputReader
 
     public static List<string> ReadFileLines([CallerFilePath] string path = null)
     {
-        return ReadFile(path).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+        return ReadFile(path).Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
     }
 }

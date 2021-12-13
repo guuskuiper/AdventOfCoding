@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace AdventOfCode.Test;
@@ -16,6 +17,13 @@ public class DaySolutionTest
     [Fact] public void Day10() => AssertDay(10, "243939", "2421222841");
     [Fact] public void Day11() => AssertDay(11, "1675", "515");
     [Fact] public void Day12() => AssertDay(12, "5254", "149385");
+    [Fact] public void Day13() => AssertDay(13, "684", "" +
+"  ## ###  #### ###  #     ##  #  # #  # " + Environment.NewLine +
+"   # #  #    # #  # #    #  # # #  #  # " + Environment.NewLine +
+"   # #  #   #  ###  #    #    ##   #### " + Environment.NewLine +
+"   # ###   #   #  # #    # ## # #  #  # " + Environment.NewLine +
+"#  # # #  #    #  # #    #  # # #  #  # " + Environment.NewLine +
+" ##  #  # #### ###  ####  ### #  # #  # " + Environment.NewLine);
 
     private void AssertDay(int day, string expectedA, string expectedB)
     {

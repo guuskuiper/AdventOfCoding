@@ -47,7 +47,7 @@ public class Solution14 : Solution
         {
             char current = _polymereTemplate[i];
 
-            string pair = prev + current.ToString();
+            string pair = $"{prev}{current}";
 
             if (_pairInsertions.TryGetValue(pair, out char insertion))
             {
@@ -68,8 +68,8 @@ public class Solution14 : Solution
         {
             if (_pairInsertions.TryGetValue(kvp.Key, out char insertion))
             {
-                string element1 = kvp.Key[0].ToString() + insertion;
-                string element2 = insertion.ToString() + kvp.Key[1];
+                string element1 = $"{kvp.Key[0]}{insertion}";
+                string element2 = $"{insertion}{kvp.Key[1]}";
                 
                 elements.AddOrCreate(element1, kvp.Value);
                 elements.AddOrCreate(element2, kvp.Value);
@@ -130,12 +130,9 @@ public class Solution14 : Solution
 
     private void ParsePairs(IEnumerable<string> pairs)
     {
-        _pairInsertions = new();
-        foreach (var pair in pairs)
-        {
-            var split = pair.Split("->");
-            _pairInsertions[split[0].Trim()] = split[1].Trim()[0];
-        }
+        _pairInsertions = pairs
+            .Select(p => p.Split(" -> "))
+            .ToDictionary(s => s[0], s => s[1][0]);
     }
     
     private static Dictionary<string, long> GetElements(string polymere)

@@ -8,7 +8,7 @@ public class DaySolutionTest
 {
     private const string Prefix = "Day";
     
-    [Fact] public void Day01() => AssertDay("1548", "1589");
+    [Fact] public void Day01() => AssertDay("1548", "1589", Prefix + 1);
     [Fact] public void Day02() => AssertDay("1746616", "1741971043");
     [Fact] public void Day03() => AssertDay("4138664", "4273224");
     [Fact] public void Day04() => AssertDay("31424", "23042");
@@ -27,7 +27,7 @@ public class DaySolutionTest
 "   # ###   #   #  # #    # ## # #  #  # " + Environment.NewLine +
 "#  # # #  #    #  # #    #  # # #  #  # " + Environment.NewLine +
 " ##  #  # #### ###  ####  ### #  # #  # " + Environment.NewLine);
-
+    [Fact] public void Day14() => AssertDay("2345", "2432786807053");
     private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
     {
         int day = int.Parse(callerName.Substring(Prefix.Length));

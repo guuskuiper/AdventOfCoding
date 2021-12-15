@@ -28,6 +28,8 @@ public class DaySolutionTest
 "#  # # #  #    #  # #    #  # # #  #  # " + Environment.NewLine +
 " ##  #  # #### ###  ####  ### #  # #  # " + Environment.NewLine);
     [Fact] public void Day14() => AssertDay("2345", "2432786807053");
+    [Fact] public void Day15() => AssertDay("540", "2879");
+    
     private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
     {
         int day = int.Parse(callerName.Substring(Prefix.Length));

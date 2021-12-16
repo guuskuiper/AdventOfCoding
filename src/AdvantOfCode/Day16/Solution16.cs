@@ -9,23 +9,63 @@ public class Solution16 : Solution
     private bool[] _bits;
     private int _position = 0;
     private long _versionSum = 0;
+
+    public class BitsReader
+    {
+        private readonly ReadOnlyMemory<char> _bits;
+        private int _position;
+
+        public BitsReader(ReadOnlyMemory<char> bits)
+        {
+            _bits = bits;
+            _position = 0;
+        }
+
+        public int Position => _position;
+
+        public bool GetBit()
+        {
+            return GetBits(1) != 0;
+        }
+
+        public long GetBits(int length)
+        {
+            if (length <= 0)
+            {
+                return 0;
+            }
+            long value = Convert.ToInt64(_bits.Slice(_position, length).ToString(), 2);
+            _position += length;
+            return value;
+        }
+    }
+
+    private BitsReader _bitsReader;
     
     public string Run()
     {
-        var line = InputReader.ReadFileLines();
+        var lines = InputReader.ReadFileLines();
+        string line = lines[0];
+        var binaryString = Hex2BitString(line);
 
-        _bits = GetBits(line[0]);
+        _bitsReader = new BitsReader(binaryString.AsMemory());
         long value = ParsePacket();
         
-        return _versionSum + "\n" + value; // not 197445831835 to low
+        return _versionSum + "\n" + value;
     }
 
+    private string Hex2BitString(string hex) => 
+        string.Join(null, hex.ToCharArray().Select(HexChar2BitString));
+
+    private string HexChar2BitString(char h) => 
+        Convert.ToString(Convert.ToInt32(h.ToString(), 16), 2).PadLeft(4, '0');
+    
     private long ParsePacket()
     {
         long value;
         
-        var version = ParseNumber(3);
-        var typeId = ParseNumber(3);
+        var version = _bitsReader.GetBits(3);
+        var typeId = _bitsReader.GetBits(3);
 
         _versionSum += version;
 
@@ -58,10 +98,10 @@ public class Solution16 : Solution
     {
         List<long> values = new();
         
-        var lengthTypeId = ParseBit();
+        var lengthTypeId = _bitsReader.GetBit();
         if (lengthTypeId)
         {
-            var numberOfSubPackets = ParseNumber(11);
+            var numberOfSubPackets = _bitsReader.GetBits(11);
             for (int i = 0; i < numberOfSubPackets; i++)
             {
                 values.Add(ParsePacket());
@@ -69,9 +109,9 @@ public class Solution16 : Solution
         }
         else
         {
-            var totalLength = ParseNumber(15);
-            long endPosition = _position + totalLength;
-            while (_position < endPosition)
+            var totalLength = _bitsReader.GetBits(15);
+            long endPosition = _bitsReader.Position + totalLength;
+            while (_bitsReader.Position < endPosition)
             {
                 values.Add(ParsePacket());
             }
@@ -82,65 +122,15 @@ public class Solution16 : Solution
 
     private long ParseLiteralValue()
     {
-        List<bool> literalValue = new();
+        long literalValue = 0;
         bool moreBits;
         do
         {
-            moreBits = ParseBit();
-            literalValue.AddRange(ParseBits(4));
+            literalValue <<= 4;
+            moreBits = _bitsReader.GetBit();
+            literalValue |= _bitsReader.GetBits(4);
         } while (moreBits);
 
-        long value = GetNumber(literalValue.ToArray());
-
-        //Console.WriteLine($"Literal: {value}");
-
-        return value;
-    }
-
-    private bool ParseBit() => ParseBits(1).Single();
-    
-    private bool[] ParseBits(int length)
-    {
-        int start = _position;
-        _position += length;
-        return _bits[start .. _position];
-    }
-
-    private long ParseNumber(int length) => GetNumber(ParseBits(length));
-
-    private long GetNumber(bool[] bits)
-    {
-        if (bits.Length >= 63)
-        {
-            throw new Exception("Long not enough bits");
-        }
-        long number = 0;
-        for (int i = 0; i < bits.Length; i++)
-        {
-            number += (bits[i] ? ONE : ZERO) << (bits.Length - i - 1);
-        }
-        return number;
-    }
-
-    private bool[] GetBits(string s)
-    {
-        List<bool> bits = new();
-        foreach (var c in s)
-        {
-            bits.AddRange(GetBits(c));
-        }
-        return bits.ToArray();
-    }
-
-    private bool[] GetBits(char c)
-    {
-        int number = Convert.ToInt32(c.ToString(), 16);
-        bool[] bits = new bool[4];
-        for (int i = 0; i < bits.Length; i++)
-        {
-            int shift = 1 << (bits.Length - i - 1);
-            bits[i] = (number & shift) == shift;
-        }
-        return bits;
+        return literalValue;
     }
 }

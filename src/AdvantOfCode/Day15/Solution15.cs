@@ -12,42 +12,9 @@ public class Solution15 : Solution
         public int Y { get; init; }
     }
 
-    public class NodeComparer : IComparer<Node>
-    {
-        public int Compare(Node? x, Node? y)
-        {
-            return CompareByDistance(x, y);
-        }
-        
-        private int CompareByDistance(Node? x, Node? y)
-        {
-            int compareX = x!.Distance.CompareTo(y!.Distance);
-            if (compareX != 0)
-            {
-                return compareX;
-            }
-            return CompareByX(x, y);
-        }
-
-        private int CompareByX(Node? x, Node? y)
-        {
-            int compareX = x!.X.CompareTo(y!.X);
-            if (compareX != 0)
-            {
-                return compareX;
-            }
-            return CompareByY(x, y);
-        }
-        
-        private int CompareByY(Node? x, Node? y)
-        {
-            return x!.Y.CompareTo(y!.Y);
-        }
-    }
-    
     private int[,] cave;
     private Node[,] nodes;
-    private SortedSet<Node> unvisited;
+    private PriorityQueue<Node, long> _priorityQueue;
 
     public Solution15()
     {
@@ -75,13 +42,11 @@ public class Solution15 : Solution
                 };
             }
         }
-        nodes[0, 0].Distance = 0;
+        Node start = nodes[0, 0];
+        start.Distance = 0;
 
-        unvisited = new SortedSet<Node>( new NodeComparer());
-        foreach (var node in nodes)
-        {
-            unvisited.Add(node);
-        }
+        _priorityQueue = new PriorityQueue<Node, long>();
+        _priorityQueue.Enqueue(start, start.Distance);
     }
 
     private void InitializeLargeCave(int size = 5)
@@ -118,13 +83,11 @@ public class Solution15 : Solution
             }
         }
         nodes = newNodes;
-        nodes[0, 0].Distance = 0;
-        
-        unvisited = new SortedSet<Node>( new NodeComparer());
-        foreach (var node in nodes)
-        {
-            unvisited.Add(node);
-        }
+        Node start = nodes[0, 0];
+        start.Distance = 0;
+
+        _priorityQueue = new PriorityQueue<Node, long>();
+        _priorityQueue.Enqueue(start, start.Distance);
     }
 
     private int Wrap(int n)
@@ -170,7 +133,7 @@ public class Solution15 : Solution
 
     private Node GetSmallestDistanceUnvisitedNode()
     {
-        return unvisited.First();
+        return _priorityQueue.Dequeue();
     }
     
     private void UpdateNeighbours(Node n)
@@ -181,7 +144,6 @@ public class Solution15 : Solution
         UpdateNeighbour(n.X, n.Y + 1, n.Distance);
 
         n.Visited = true;
-        unvisited.Remove(n);
     }
     
     private void UpdateNeighbour(int x, int y, long prevDistance)
@@ -195,9 +157,8 @@ public class Solution15 : Solution
         long distance = prevDistance + cave[x, y];
         if (distance < n.Distance)
         {
-            unvisited.Remove(n);
             n.Distance = distance;
-            unvisited.Add(n);
+            _priorityQueue.Enqueue(n, n.Distance);
         }
     }
 

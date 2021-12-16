@@ -46,7 +46,7 @@ public class Solution16 : Solution
         typeId switch
         {
             0 => values.Sum(),
-            1 => values.Aggregate((long)1, (x,y) => x * y),
+            1 => values.Aggregate(ONE, (x,y) => x * y),
             2 => values.Min(),
             3 => values.Max(),
             5 => values[0] > values[1] ? 1 : 0,
@@ -83,12 +83,12 @@ public class Solution16 : Solution
     private long ParseLiteralValue()
     {
         List<bool> literalValue = new();
-        bool[] currentBits;
+        bool moreBits;
         do
         {
-            currentBits = ParseBits(5);
-            literalValue.AddRange(currentBits[1..5]);
-        } while (currentBits[0]);
+            moreBits = ParseBit();
+            literalValue.AddRange(ParseBits(4));
+        } while (moreBits);
 
         long value = GetNumber(literalValue.ToArray());
 
@@ -127,7 +127,7 @@ public class Solution16 : Solution
         List<bool> bits = new();
         foreach (var c in s)
         {
-            bits.AddRange(GetBits(c).Reverse());
+            bits.AddRange(GetBits(c));
         }
         return bits.ToArray();
     }
@@ -138,7 +138,7 @@ public class Solution16 : Solution
         bool[] bits = new bool[4];
         for (int i = 0; i < bits.Length; i++)
         {
-            int shift = 1 << i;
+            int shift = 1 << (bits.Length - i - 1);
             bits[i] = (number & shift) == shift;
         }
         return bits;

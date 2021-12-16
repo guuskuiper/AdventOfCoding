@@ -16,25 +16,32 @@ public class Solution15 : Solution
     {
         public int Compare(Node? x, Node? y)
         {
-            int compareDistance = x!.Distance.CompareTo(y!.Distance);
-            if (compareDistance != 0)
+            return CompareByDistance(x, y);
+        }
+        
+        private int CompareByDistance(Node? x, Node? y)
+        {
+            int compareX = x!.Distance.CompareTo(y!.Distance);
+            if (compareX != 0)
             {
-                return compareDistance;
+                return compareX;
             }
-            
+            return CompareByX(x, y);
+        }
+
+        private int CompareByX(Node? x, Node? y)
+        {
             int compareX = x!.X.CompareTo(y!.X);
             if (compareX != 0)
             {
                 return compareX;
             }
-            
-            int compareY = x!.Y.CompareTo(y!.Y);
-            if (compareY != 0)
-            {
-                return compareY;
-            }
-
-            return 0;
+            return CompareByY(x, y);
+        }
+        
+        private int CompareByY(Node? x, Node? y)
+        {
+            return x!.Y.CompareTo(y!.Y);
         }
     }
     

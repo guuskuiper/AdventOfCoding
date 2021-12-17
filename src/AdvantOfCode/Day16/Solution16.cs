@@ -62,24 +62,22 @@ public class Solution16 : Solution
     
     private long ParsePacket()
     {
-        long value;
-        
         var version = _bitsReader.GetBits(3);
         var typeId = _bitsReader.GetBits(3);
 
         _versionSum += version;
 
+        List<long> values;
         if (typeId == 4)
         {
-            value = ParseLiteralValue();
+            values = new () { ParseLiteralValue() };
         }
         else
         {
-            var values = ParseOperator();
-            value = ExecuteOperator(typeId, values);
+            values = ParseOperator();
         }
 
-        return value;
+        return ExecuteOperator(typeId, values);
     }
 
     private long ExecuteOperator(long typeId, List<long> values) =>
@@ -89,6 +87,7 @@ public class Solution16 : Solution
             1 => values.Aggregate(ONE, (x,y) => x * y),
             2 => values.Min(),
             3 => values.Max(),
+            4 => values.Single(),
             5 => values[0] > values[1] ? 1 : 0,
             6 => values[0] < values[1] ? 1 : 0,
             7 => values[0] == values[1] ? 1 : 0,

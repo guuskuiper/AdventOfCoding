@@ -10,6 +10,7 @@ public class Solution15 : Solution
         public long Distance { get; set; }
         public int X { get; init; }
         public int Y { get; init; }
+        public Node? Previous { get; set; }
     }
 
     private int[,] cave;
@@ -107,21 +108,39 @@ public class Solution15 : Solution
 
         Solve(endX, endY);
         long shortestPath = nodes[endX, endY].Distance;
+        var path = Path(endX, endY);
+        //Console.WriteLine(PrintPath(path));
         
         InitializeLargeCave(5);
         endX = nodes.GetLength(0) - 1;
         endY = nodes.GetLength(1) - 1;
         Solve(endX, endY);
         long shortestPathB = nodes[endX, endY].Distance;
-        
+
         return shortestPath + "\n" + shortestPathB; 
+    }
+
+    private List<Node> Path(int endX, int endY)
+    {
+        Node current = nodes[endX, endY];
+        List<Node> path = new() { current };
+
+        while (current.Previous is not null)
+        {
+            current = current.Previous;
+            path.Add(current);
+        }
+
+        path.Reverse();
+
+        return path;
     }
 
     private void Solve(int endX, int endY)
     {
         while (true)
         {
-            Node n = GetSmallestDistanceUnvisitedNode();
+            Node n = _priorityQueue.Dequeue();
             UpdateNeighbours(n);
 
             if (n.X == endX && n.Y == endY)
@@ -130,23 +149,18 @@ public class Solution15 : Solution
             }
         }
     }
-
-    private Node GetSmallestDistanceUnvisitedNode()
-    {
-        return _priorityQueue.Dequeue();
-    }
     
     private void UpdateNeighbours(Node n)
     {
-        UpdateNeighbour(n.X - 1, n.Y, n.Distance);
-        UpdateNeighbour(n.X + 1, n.Y, n.Distance);
-        UpdateNeighbour(n.X, n.Y - 1, n.Distance);
-        UpdateNeighbour(n.X, n.Y + 1, n.Distance);
+        UpdateNeighbour(n.X - 1, n.Y, n);
+        UpdateNeighbour(n.X + 1, n.Y, n);
+        UpdateNeighbour(n.X, n.Y - 1, n);
+        UpdateNeighbour(n.X, n.Y + 1, n);
 
         n.Visited = true;
     }
     
-    private void UpdateNeighbour(int x, int y, long prevDistance)
+    private void UpdateNeighbour(int x, int y, Node previous)
     {
         if(!InRange(x, y)) return;
 
@@ -154,10 +168,11 @@ public class Solution15 : Solution
         
         if(n.Visited) return;
 
-        long distance = prevDistance + cave[x, y];
+        long distance = previous.Distance + cave[x, y];
         if (distance < n.Distance)
         {
             n.Distance = distance;
+            n.Previous = previous;
             _priorityQueue.Enqueue(n, n.Distance);
         }
     }
@@ -167,21 +182,29 @@ public class Solution15 : Solution
         return x >= 0 && x < nodes.GetLength(0) &&
                y >= 0 && y < nodes.GetLength(1);
     }
-
-    private void ShowVisited()
+    
+    private string PrintPath(List<Node> path)
     {
-        string s = PrintVisited();
-        Console.WriteLine(s);
-    }
+        char[,] grid = new char[nodes.GetLength(0), nodes.GetLength(1)];
+        for (int x = 0; x < nodes.GetLength(0); x++)
+        {
+            for (int y = 0; y < nodes.GetLength(1); y++)
+            {
+                grid[x, y] = ' ';
+            }
+        }
 
-    private string PrintVisited()
-    {
+        foreach (var node in path)
+        {
+            grid[node.X, node.Y] = 'X';
+        }
+
         StringBuilder sb = new StringBuilder();
         for (int x = 0; x < nodes.GetLength(0); x++)
         {
             for (int y = 0; y < nodes.GetLength(1); y++)
             {
-                sb.Append(nodes[x, y].Visited ? 'X' : ' ');
+                sb.Append(grid[x, y]);
             }
 
             sb.AppendLine();

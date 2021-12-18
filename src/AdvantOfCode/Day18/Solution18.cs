@@ -2,6 +2,8 @@ using System.Diagnostics;
 
 namespace AdventOfCode.Day18;
 
+using Pair = Solution18.BinaryTreeNode<int>;
+
 public class Solution18 : Solution
 {
     public ref struct NumberReader
@@ -31,9 +33,9 @@ public class Solution18 : Solution
         }
     }
 
-    public class Pair
+    public class BinaryTreeNode<T>
     {
-        public Pair(Pair left, Pair right)
+        public BinaryTreeNode(T value, BinaryTreeNode<T> left, BinaryTreeNode<T> right) : this(value)
         {
             Left = left;
             Right = right;
@@ -41,84 +43,74 @@ public class Solution18 : Solution
             Right.Parent = this;
         }
 
-#pragma warning disable CS8618
-        protected Pair() { }
-#pragma warning restore CS8618
-
-        public Pair Left { get; private set; }
-        public Pair Right { get; private set; }
-        public Pair? Parent { get; private set; }
-        public virtual bool IsLeaf => false;
-
-        public override string ToString()
+        public BinaryTreeNode(T value)
         {
-            return $"[{Left},{Right}]";
+            Value = value;
         }
 
-        public void ReplaceBy(Pair newPair)
+        public T Value { get; set; }
+        public BinaryTreeNode<T>? Left { get; private set; }
+        public BinaryTreeNode<T>? Right { get; private set; }
+        public BinaryTreeNode<T>? Parent { get; private set; }
+        
+        public bool IsLeaf => Left is null;
+        
+        public override string ToString()
         {
-            Pair parent = Parent ?? throw new InvalidOperationException();
+            if (Left is null || Right is null)
+            {
+                return Value!.ToString()!;
+            }
+            return $"[{Left},{Right}]";
+        }
+        
+        public void ReplaceBy(BinaryTreeNode<T> newNode)
+        {
+            BinaryTreeNode<T> parent = Parent ?? throw new InvalidOperationException();
 
             if (parent.Left == this)
             {
-                parent.Left = newPair;
+                parent.Left = newNode;
             }
             else
             {
-                parent.Right = newPair;
+                parent.Right = newNode;
             }
 
-            newPair.Parent = parent;
+            newNode.Parent = parent;
             Parent = null;
         }
+    }
 
-        public static Pair Parse(ref NumberReader reader)
+    private static class PairExtensions
+    {
+
+        public static BinaryTreeNode<int> Parse(ref NumberReader reader)
         {
-            Pair p;
+            BinaryTreeNode<int> p;
             if (char.IsDigit(reader.Peek()))
             {
-                p = Number.Parse(ref reader);
+                p = new BinaryTreeNode<int>(reader.ReadInt());
             }
             else
             {
                 var start = reader.ReadChar();
                 Debug.Assert(start == '[');
 
-                Pair left = Parse(ref reader);
+                BinaryTreeNode<int> left = Parse(ref reader);
 
                 var comma = reader.ReadChar();
                 Debug.Assert(comma == ',');
 
-                Pair right = Parse(ref reader);
+                BinaryTreeNode<int> right = Parse(ref reader);
 
                 var close = reader.ReadChar();
                 Debug.Assert(close == ']');
 
-                p = new Pair(left, right);
+                p = new BinaryTreeNode<int>(0, left, right);
             }
 
             return p;
-        }
-    }
-
-    public class Number : Pair
-    {
-        public Number(int value)
-        {
-            Value = value;
-        }
-
-        public int Value { get; set; }
-        public override bool IsLeaf => true;
-
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-
-        public new static Number Parse(ref NumberReader reader)
-        {
-            return new Number(reader.ReadInt());
         }
     }
 
@@ -129,19 +121,13 @@ public class Solution18 : Solution
         long A = AdditionsMagnitude(lines);
         long B = LargestCombination(lines);
 
-        return A + "\n" + B;
+        return $"{A}\n{B}";
     }
 
     private long AdditionsMagnitude(List<string> lines)
     {
-        Pair root = ProcessLine(lines[0]);        
-        foreach (var line in lines.Skip(1))
-        {
-            Pair current = ProcessLine(line);
-            root = Add(root, current);
-        }
-
-        return Magnitude(root);
+        var result = lines.Skip(1).Aggregate(ProcessLine(lines[0]), (sum, line) => Add(sum, ProcessLine(line)));
+        return Magnitude(result);
     }
 
     private long LargestCombination(List<string> lines)
@@ -154,9 +140,7 @@ public class Solution18 : Solution
             {
                 if(i == j) continue;
                 
-                Pair left = ProcessLine(lines[i]);
-                Pair right = ProcessLine(lines[j]);
-                Pair sum = Add(left, right);
+                Pair sum = Add(ProcessLine(lines[i]), ProcessLine(lines[j]));
                 long magnitude = Magnitude(sum);
                 if (magnitude > maxMagnitude)
                 {
@@ -168,18 +152,18 @@ public class Solution18 : Solution
         return maxMagnitude;
     }
 
-    private long Magnitude(Pair p)
+    private long Magnitude(BinaryTreeNode<int> p)
     {
         long sum = 0;
         
-        if (p is Number n)
+        if (p.IsLeaf)
         {
-            sum = n.Value;
+            sum = p.Value;
         }
         else
         {
-            sum += 3 * Magnitude(p.Left);
-            sum += 2 * Magnitude(p.Right);
+            sum += 3 * Magnitude(p.Left!);
+            sum += 2 * Magnitude(p.Right!);
         }
 
         return sum;
@@ -188,20 +172,16 @@ public class Solution18 : Solution
     private Pair ProcessLine(string line)
     {
         var reader = new NumberReader(line);
-        var root = Pair.Parse(ref reader);
-        return root;
+        return PairExtensions.Parse(ref reader);
     }
 
     private Pair Add(Pair left, Pair right)
     {
-        Pair added = new Pair(left, right);
-
-        Reduce(added);
-        
-        return added;
+        Pair added = new Pair(0, left, right);
+        return Reduce(added);
     }
 
-    private void Reduce(Pair p)
+    private Pair Reduce(Pair p)
     {
         bool moreWork = true; 
         while (moreWork)
@@ -214,82 +194,78 @@ public class Solution18 : Solution
                 moreWork |= Split(p);
             }
         }
+        return p;
     }
 
     private bool Explode(Pair root)
     {
-        Pair toExplode = FindDepth(root, 0, 4, out int depth);
-        if (depth < 4)
+        Pair? toExplode = FindDepth(root, 0, 4, out int depth);
+        if (toExplode is null)
         {
             return false;
         }
 
-        Number? leftLeave = FindLeaveLeft(toExplode);
+        Pair? leftLeave = FindLeaveLeft(toExplode);
         if (leftLeave is not null)
         {
-            leftLeave.Value += toExplode.Left is Number n ? n.Value : 0;
+            leftLeave.Value += toExplode.Left!.Value;
         }
 
-        Number? rightLeave = FindLeaveRight(toExplode);
+        Pair? rightLeave = FindLeaveRight(toExplode);
         if (rightLeave is not null)
         {
-            rightLeave.Value += toExplode.Right is Number n ? n.Value : 0;
+            rightLeave.Value += toExplode.Right!.Value;
         }
 
-        toExplode.ReplaceBy(new Number(0));
+        toExplode.ReplaceBy(new Pair(0));
         return true;
     }
 
-    private Number? FindLeaveLeft(Pair start)
+    private Pair? FindLeaveLeft(Pair start)
     {
-        return FindLeave(start, pair => pair.Left, pair => pair.Right);
+        return FindLeave(start, pair => pair.Left!, pair => pair.Right!);
     }
     
-    private Number? FindLeaveRight(Pair start)
+    private Pair? FindLeaveRight(Pair start)
     {
-        return FindLeave(start, pair => pair.Right, pair => pair.Left);
+        return FindLeave(start, pair => pair.Right!, pair => pair.Left!);
     }
     
-    private Number? FindLeave(Pair start, Func<Pair, Pair> targetBranchDirection, Func<Pair, Pair> leafDiction)
+    private Pair? FindLeave(Pair start, Func<Pair, Pair> targetBranchDirection, Func<Pair, Pair> leafDiction)
     {
         Pair current = start;
-        Pair? branch = null;
         while (current.Parent is not null)
         {
-            Pair previous = current;
-            current = current.Parent;
-            Pair targetDirection = targetBranchDirection(current);
-            if (targetDirection != previous)
+            Pair targetDirection = targetBranchDirection(current.Parent);
+            if (targetDirection != current)
             {
-                branch = targetDirection;
-                break;
+                Pair branch = targetDirection;
+                while (!branch.IsLeaf)
+                {
+                    branch = leafDiction(branch);
+                }
+
+                return branch;
             }
+            
+            current = current.Parent;
         }
 
-        if (branch is null) return null;
-        
-        Pair toValue = branch;
-        while (!toValue.IsLeaf)
-        {
-            toValue = leafDiction(toValue);
-        }
-
-        return toValue is Number n ? n : null;
-
+        return null;
     }
 
-    private Pair FindDepth(Pair current, int currentDepth, int targetDepth, out int depth)
+    private Pair? FindDepth(Pair current, int currentDepth, int targetDepth, out int depth)
     {
-        Pair output;
+        Pair? output;
         if (current.IsLeaf)
         {
-            output = current;
+            output = null;
             depth = -1;
         }
         else if (currentDepth < targetDepth)
         {
-            Pair l = FindDepth(current.Left, currentDepth + 1, targetDepth, out int depthL);
-            Pair r = FindDepth(current.Right, currentDepth + 1, targetDepth, out int depthR);
+            Pair? l = FindDepth(current.Left!, currentDepth + 1, targetDepth, out int depthL);
+            Pair? r = FindDepth(current.Right!, currentDepth + 1, targetDepth, out int depthR);
             if (depthR > depthL)
             {
                 depth = depthR;
@@ -312,47 +288,42 @@ public class Solution18 : Solution
 
     private bool Split(Pair root)
     {
-        bool splitted = false;
-
-        if (root.Left is Number l)
+        if (root.IsLeaf)
         {
-            if (l.Value > 9)
-            {
-                root.Left.ReplaceBy(CreateSplit(l));
-                splitted = true;
-            }
-        }
-        else
-        {
-            splitted = Split(root.Left);
+            return SplitLeaf(root);
         }
 
-        if (!splitted)
+        if (Split(root.Left!))
         {
-            if (root.Right is Number r)
-            {
-                if (r.Value > 9)
-                {
-                    root.Right.ReplaceBy(CreateSplit(r));
-                    splitted = true;
-                }
-            }
-            else
-            {
-                splitted = Split(root.Right);
-            }
+            return true;
+        }
+        
+        if (Split(root.Right!))
+        {
+            return true;
         }
 
-        return splitted;
+        return false;
     }
 
-    private Pair CreateSplit(Number n)
+    private bool SplitLeaf(Pair n)
+    {
+        if (n.Value > 9)
+        {
+            n.ReplaceBy(CreateSplit(n));
+            return true;
+        }
+
+        return false;
+    }
+
+    private Pair CreateSplit(Pair n)
     {
         int value = n.Value;
 
-        Number left = new Number((int)Math.Floor(value / 2.0));
-        Number right = new Number((int)Math.Ceiling(value / 2.0));
+        Pair left = new Pair((int)Math.Floor(value / 2.0));
+        Pair right = new Pair((int)Math.Ceiling(value / 2.0));
 
-        return new Pair(left, right);
+        return new Pair(0, left, right);
     }
 }

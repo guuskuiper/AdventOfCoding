@@ -1,9 +1,25 @@
-using System.Numerics;
-
 namespace AdventOfCode.Day19;
 
 public class Solution19 : Solution
 {
+    public enum Axis
+    {
+        xPos,
+        xNeg,
+        yPos,
+        yNeg,
+        zPos,
+        zNeg,
+    }
+
+    public enum Rotation
+    {
+        none,
+        right,
+        down,
+        left,
+    }
+    
     public struct Vector3I : IEquatable<Vector3I>
     {
         public Vector3I(int x, int y, int z)
@@ -21,6 +37,8 @@ public class Solution19 : Solution
         public static Vector3I operator -(Vector3I a, Vector3I b) => new (a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         public static bool operator ==(Vector3I a, Vector3I b) => a.Equals(b);
         public static bool operator !=(Vector3I a, Vector3I b) => !(a == b);
+        public static long ManhattanDistance(Vector3I a, Vector3I b) => 
+            Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z);
 
         public override bool Equals(object? obj) => obj is Vector3I v && Equals(v);
         
@@ -42,8 +60,7 @@ public class Solution19 : Solution
     public class ScannerReports
     {
         public int Id { get; set; }
-        public List<Vector3I> Beacons { get; set; } = new();
-
+        public HashSet<Vector3I> Beacons { get; set; } = new();
         public bool Found;
         public Vector3I Offset;
     }
@@ -53,7 +70,6 @@ public class Solution19 : Solution
 
     public Solution19()
     {
-        //var lines = InputReader.ReadFileLines(@"C:\Users\zane\git\AdventOfCoding\src\AdvantOfCode\Day19\example19.txt");
         var lines = InputReader.ReadFileLines();
         _scanners = ParseLines(lines);
         InitializeOrientations();
@@ -61,69 +77,59 @@ public class Solution19 : Solution
     
     public string Run()
     {
+        MatchAllScanners();
 
-        //Combination(new Vector3I(1, 2, 3));
-      
-        // Test();
-        // return "";
+        long A = GetBeaconCount();
+        long B = GetMaxDistance();
+        
+        return A + "\n" + B;
+    }
+    
+    private void MatchAllScanners()
+    {
+        ScannerReports start = _scanners[0];
+        start.Found = true;
 
-        ScannerReports reference = _scanners[0];
-        reference.Found = true;
+        Queue<ScannerReports> referenceQueue = new();
+        referenceQueue.Enqueue(start);
 
-        Queue<int> toCheckIndices = new Queue<int>();
-        toCheckIndices.Enqueue(0);
-
-        while (toCheckIndices.Count > 0)
+        while (referenceQueue.Count > 0)
         {
-            int index = toCheckIndices.Dequeue();
-            
-            for (int j = 0; j < _scanners.Count; j++)
+            var reference = referenceQueue.Dequeue();
+
+            foreach (var scanner in _scanners)
             {
-                var scanner = _scanners[j];
-                
-                if(scanner.Found) continue;
-                
-                bool match = MatchScanners(_scanners[index], _scanners[j]);
+                if (scanner.Found) continue;
+
+                bool match = MatchScanners(reference, scanner);
                 if (match)
                 {
-                    toCheckIndices.Enqueue(j);
+                    referenceQueue.Enqueue(scanner);
                 }
             }
         }
-
+    }
+    
+    private long GetBeaconCount()
+    {
         HashSet<Vector3I> beacons = new();
         foreach (var scanner in _scanners)
         {
-            foreach (var beacon in scanner.Beacons)
-            {
-                beacons.Add(beacon);
-            }
+            beacons.UnionWith(scanner.Beacons);
         }
 
-        long A = beacons.Count;
-
-        // Console.WriteLine(FromAxis(new Vector3I(1, 2, 3), Axis.ZNeg));
-        //Console.WriteLine(Variation(new Vector3I(1, 2, 3), Axis.zPos, Rotation.none));
-
-        long B = GetMaxDistance();
-        
-        
-        return A + "\n" + B;
+        return beacons.Count;
     }
 
     private long GetMaxDistance()
     {
         long maxDistance = 0;
 
-        for (int i = 0; i < _scanners.Count; i++)
+        foreach (var a in _scanners)
         {
-            for (int j = 0; j < _scanners.Count; j++)
+            foreach (var b in _scanners)
             {
-                var offsetI = _scanners[i].Offset;
-                var offsetJ = _scanners[j].Offset;
-                long distance = Math.Abs(offsetI.X - offsetJ.X) + 
-                                Math.Abs(offsetI.Y - offsetJ.Y) +
-                                Math.Abs(offsetI.Z - offsetJ.Z);
+                long distance = Vector3I.ManhattanDistance(a.Offset, b.Offset);
 
                 if (distance > maxDistance)
                 {
@@ -139,19 +145,19 @@ public class Solution19 : Solution
     {
         foreach (var (axis, rotation) in _orientations)
         {
-            List<Vector3I> transformedBeacons = new();
+            HashSet<Vector3I> transformedBeacons = new();
             foreach (var otherBeacon in other.Beacons)
             {
                 transformedBeacons.Add(Variation(otherBeacon, axis, rotation));
             }
-
-            bool match = FindMatches(reference.Beacons, transformedBeacons, mimimumCount, out Vector3I offset);
+            
+            bool match = FindMatchesSets(reference.Beacons, transformedBeacons, mimimumCount, out Vector3I offset);
 
             if (match)
             {
                 Console.WriteLine($"Match {reference.Id} - {other.Id} => {axis} {rotation} {offset}");
                 other.Offset = offset;
-                other.Beacons = transformedBeacons.Select(x => x + offset).ToList();
+                other.Beacons = transformedBeacons.Select(x => x + offset).ToHashSet();
                 other.Found = true;
                 return true;
             }
@@ -159,38 +165,84 @@ public class Solution19 : Solution
 
         return false;
     }
-
-    private bool FindMatches(List<Vector3I> source, List<Vector3I> other, int minimumCount, out Vector3I offset)
+    
+    private bool FindMatchesSets(HashSet<Vector3I> source, HashSet<Vector3I> other, int minimumCount, out Vector3I offset)
     {
+        int remainingSource = source.Count;
         foreach (var s in source)
         {
+            if (remainingSource < minimumCount)
+            {
+                // need at least minimumCount matches in the source 
+                offset = new Vector3I();
+                return false;
+            }
+
+            int remainingOther = other.Count;
             foreach (var o in other)
             {
-                Vector3I tryOffset = s - o;
-                int count = 0;
-
-                foreach (var ts in source)
+                if (remainingOther < minimumCount)
                 {
-                    foreach (var to in other)
-                    {
-                        if (ts - to == tryOffset)
-                        {
-                            count++;
-                        }
-                    }
+                    // need at least minimumCount matches
+                    break;
                 }
+                
+                Vector3I tryOffset = s - o;
 
-                if (count >= minimumCount)
+                var transformed = other.Select(x => x + tryOffset).ToHashSet();
+                transformed.IntersectWith(source);
+                
+                if (transformed.Count >= minimumCount)
                 {
                     offset = tryOffset;
                     return true;
                 }
+
+                remainingOther--;
             }
+
+            remainingSource--;
         }
         
         offset = new Vector3I();
         return false;
     }
+    
+    
+    public Vector3I Variation(Vector3I v, Axis axis, Rotation rotation)
+    {
+        return FromRotation(FromAxis(v, axis), rotation);
+    }
+
+    public Vector3I FromAxis(Vector3I v, Axis axis)
+        => axis switch
+        {
+            Axis.xPos => new Vector3I(v.Y, v.Z, v.X),
+            Axis.xNeg => new Vector3I(-v.Y, v.Z, -v.X),
+            Axis.yPos => new Vector3I(-v.X, v.Z, v.Y),
+            Axis.yNeg => new Vector3I(v.X, v.Z, -v.Y),
+            Axis.zPos => new Vector3I(v.X, v.Y, v.Z),
+            Axis.zNeg => new Vector3I(v.X, -v.Y, -v.Z),
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, null)
+        };
+
+    public Vector3I FromRotation(Vector3I v, Rotation r)
+        => r switch
+        {
+            Rotation.none => v,
+            Rotation.right => Rotate90(v),
+            Rotation.down => Rotate180(v),
+            Rotation.left => Rotate270(v),
+            _ => throw new ArgumentOutOfRangeException(nameof(r), r, null)
+        };
+
+    public Vector3I Rotate270(Vector3I v)
+        => Rotate90(Rotate90(Rotate90(v)));
+    public Vector3I Rotate180(Vector3I v)
+        => Rotate90(Rotate90(v));
+
+    public Vector3I Rotate90(Vector3I v)
+        => new (-v.Y, v.X, v.Z);
 
     private void InitializeOrientations()
     {
@@ -227,59 +279,6 @@ public class Solution19 : Solution
 
         return scanners;
     }
-
-    public Vector3I Variation(Vector3I v, Axis axis, Rotation rotation)
-    {
-        return FromRotation(FromAxis(v, axis), rotation);
-    }
-
-    public enum Axis
-    {
-        xPos,
-        xNeg,
-        yPos,
-        yNeg,
-        zPos,
-        ZNeg,
-    }
-
-    public enum Rotation
-    {
-        none,
-        right,
-        down,
-        left,
-    }
-
-    public Vector3I FromAxis(Vector3I v, Axis axis)
-        => axis switch
-        {
-            Axis.xPos => new Vector3I(v.Y, v.Z, v.X),
-            Axis.xNeg => new Vector3I(-v.Y, v.Z, -v.X),
-            Axis.yPos => new Vector3I(-v.X, v.Z, v.Y),
-            Axis.yNeg => new Vector3I(v.X, v.Z, -v.Y),
-            Axis.zPos => new Vector3I(v.X, v.Y, v.Z),
-            Axis.ZNeg => new Vector3I(v.X, -v.Y, -v.Z),
-            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, null)
-        };
-
-    public Vector3I FromRotation(Vector3I v, Rotation r)
-        => r switch
-        {
-            Rotation.none => v,
-            Rotation.right => Rotate90(v),
-            Rotation.down => Rotate180(v),
-            Rotation.left => Rotate270(v),
-            _ => throw new ArgumentOutOfRangeException(nameof(r), r, null)
-        };
-
-    public Vector3I Rotate270(Vector3I v)
-        => Rotate90(Rotate90(Rotate90(v)));
-    public Vector3I Rotate180(Vector3I v)
-        => Rotate90(Rotate90(v));
-
-    public Vector3I Rotate90(Vector3I v)
-        => new (-v.Y, v.X, v.Z);
 
     private ScannerReports ParseScanner(List<string> lines)
     {

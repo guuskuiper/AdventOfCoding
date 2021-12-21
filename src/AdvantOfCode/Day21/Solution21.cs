@@ -15,6 +15,7 @@ public class Solution21 : Solution
     private int[] _players;
     private int[] _score;
     private int[] _sums = GetSumRolls();
+    private int[] _sumFreq = GetSumFreq();
     
     public string Run()
     {
@@ -31,24 +32,33 @@ public class Solution21 : Solution
 
     public class Item
     {
-        public Item(int round, int score, int position)
+        public Item(int round, int score, int position, ulong multiplier)
         {
             Round = round;
             Score = score;
             Position = position;
+            Multiplier = multiplier;
         }
 
         public int Round { get; init; }
         public int Score { get; init; }
         public int Position { get; init; }
-        
+        public ulong Multiplier { get; init; }
     }
 
     private ulong PlayQuantum()
     {
+#if true
         var player0 = CalculatePlayerScores(_players[0]);
         var player1 = CalculatePlayerScores(_players[1]);
-
+#else
+        ulong[,] player0 = new ulong[21, 22];
+        CalculatePlayerScoresRecursive(player0, _players[0], 0, 1, 0);
+        
+        ulong[,] player1 = new ulong[21, 22];
+        CalculatePlayerScoresRecursive(player1, _players[1], 0, 1, 0);
+#endif
+        
         int maxRound = player0.GetLength(0);
 
         ulong universesWins = 0;
@@ -70,52 +80,60 @@ public class Solution21 : Solution
         return universesWins > universesLoses ? universesWins: universesLoses;
     }
 
-    private (ulong win, ulong lose) GetWinLose(int[,] player, int round)
+    private (ulong win, ulong lose) GetWinLose(ulong[,] player, int round)
     {
-        int win = player[round, 21];
-        int lose = 0;
+        ulong win = player[round, 21];
+        ulong lose = 0;
         for (int i = 0; i < 21; i++)
         {
             lose += player[round, i];
         }
 
-        return ((ulong)win, (ulong)lose);
+        return (win, lose);
     }
 
-    private int[,] CalculatePlayerScores(int start)
+    private void CalculatePlayerScoresRecursive(ulong[,] data, int start, int score, ulong multiplier, int round = 0)
+    {
+        for (int i = 3; i < _sumFreq.Length; i++)
+        {
+            ulong freq = (ulong)_sumFreq[i];
+            int newPos = GetPosition(start, i);
+            int newScore = score + newPos;
+            int index = newScore < 21 ? newScore : 21;
+            ulong newMultiplier = multiplier * freq;
+            data[round, index] += newMultiplier;
+            if (newScore < 21)
+            {
+                CalculatePlayerScoresRecursive(data, newPos, newScore, newMultiplier, round + 1);
+            }
+        }
+    }
+
+    private ulong[,] CalculatePlayerScores(int start)
     {
         Queue<Item> queue = new Queue<Item>();
-        int[,] player = new int[21, 22];
-        queue.Enqueue(new Item(-1, 0, start));
-
-        int[,] done = new int[21, 2];
-
-        int options = 0;
+        ulong[,] player = new ulong[21, 22];
+        queue.Enqueue(new Item(0, 0, start, 1));
 
         while (queue.Count > 0)
         {
             var cur = queue.Dequeue();
-            options++;
 
-            var newSpaces = GetPositionOptionsRolls(cur.Position);
-            foreach (var newSpace in newSpaces)
+            for (int i = 3; i < _sumFreq.Length; i++)
             {
-                int round = cur.Round + 1;
-                int newScore = Math.Min(21, cur.Score + newSpace);
-                player[round, newScore] += 1;
+                int round = cur.Round;
+                ulong freq = (ulong)_sumFreq[i];
+                int newPos = GetPosition(cur.Position, i);
+                int newScore = cur.Score + newPos;
+                ulong newMultiplier = cur.Multiplier * freq;
+                int index = newScore < 21 ? newScore : 21;
+                player[round, index] += newMultiplier;
                 if (newScore < 21)
                 {
-                    done[round, 0] += 1;
-                    queue.Enqueue(new Item(round, newScore, newSpace));
-                }
-                else
-                {
-                    done[round, 1] += 1;
+                    queue.Enqueue(new Item(round + 1, newScore, newPos, newMultiplier));
                 }
             }
         }
-
-        Console.WriteLine($"Start {start}, options {options}");
 
         return player;
     }
@@ -192,5 +210,22 @@ public class Solution21 : Solution
         var numbers = Enumerable.Range(1, 3).ToArray();
         var variations = numbers.CombinationsWithRepetition(3);
         return variations.Select(x => x.Sum()).ToArray();
+    }
+
+    private static int[] GetSumFreq()
+    {
+        var sums = GetSumRolls();
+        int[] freq = new int[10];
+        for (int i = 0; i < freq.Length; i++)
+        {
+            for (int j = 0; j < sums.Length; j++)
+            {
+                if (sums[j] == i)
+                {
+                    freq[i]++;
+                }
+            }
+        }
+        return freq;
     }
 }

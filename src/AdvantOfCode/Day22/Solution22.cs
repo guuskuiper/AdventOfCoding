@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace AdventOfCode.Day22;
 
@@ -17,14 +18,28 @@ public class Solution22 : Solution
         public Cube Clone()
         {
             return (Cube)MemberwiseClone();
-            // return new Cube()
-            // {
-            //     On = On,
-            //     Xmin = Xmin,
-            //     Xmax = Xmax,
-            //     Ymin = Ymin,
-            //     Y
-            // };
+        }
+
+        public static Cube Create(int x, int y, int z, int radius)
+        {
+            return new Cube()
+            {
+                On = true,
+                Xmin = x - radius,
+                Xmax = x + radius,
+                Ymin = y - radius,
+                Ymax = y + radius,
+                Zmin = z - radius,
+                Zmax = z + radius,
+            };
+        }
+
+        public long Count()
+        {
+            long xCount = (Xmax - Xmin + 1);
+            long yCount = (Ymax - Ymin + 1);
+            long zCount = (Zmax - Zmin + 1);
+            return xCount * yCount * zCount;
         }
 
         public static Cube Parse(string line)
@@ -46,7 +61,7 @@ public class Solution22 : Solution
                 Zmin = zs[0],
                 Zmax = zs[1],
             };
-        }
+        } 
 
         public override string ToString()
         {
@@ -57,85 +72,152 @@ public class Solution22 : Solution
     private const int OFFSET = 50;
     private bool[,,] _grid = new bool[101, 101, 101];
     private List<Cube> _cubes;
-    private List<Cube> _newCubes = new ();
     private long _onCount = 0;
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
-        ParseLines(lines[..20]);
+
+        ParseLines(lines[0..20]);
+        
         ApplyCubes();
 
-        PreventOverlap();
-        long B = Count();
+        ParseLines(lines);
+        long B = PreventOverlap();
         
-        return _onCount + "\n"+ B;
+        return _onCount + "\n"+ B; 
     }
-
-    private void ApplyCubes()
+    
+    private long PreventOverlap()
     {
-        foreach (var cube in _cubes)
+        List<Cube> results = new();
+        for (int i = 0; i < _cubes.Count; i++)
         {
-            ApplyCube(cube);
+            Cube current = _cubes[i];
+            List<Cube> other = _cubes.GetRange(i + 1, _cubes.Count - i - 1);
+            var split = Alg(current, other);
+            results.AddRange(split);
         }
+        
+        long count = Count(results);
+
+        int off = 0;
+        foreach (Cube result in results)
+        {
+            if (!result.On)
+            {
+                off++;
+            }
+        }
+
+        return count;
     }
 
-    private void PreventOverlap()
+    private static List<Cube> Alg(Cube a, List<Cube> collisions)
     {
-        for (var i = 0; i < _cubes.Count; i++)
+        Queue<Cube> fromA = new();
+        fromA.Enqueue(a);
+        List<Cube> result = new();
+        while (fromA.Count > 0)
         {
-            var a = _cubes[i];
-            bool remove = false;
-            for (var j = i + 1; j < _cubes.Count; j++)
+            var cube = fromA.Dequeue();
+            bool noCollision = true;
+            foreach (var test in collisions)
             {
-                var b = _cubes[j];
-                if(Collides(a, b))
+                bool isSplit = CollidesCore(cube, test, out List<Cube> splitCubes);
+                if (isSplit)
                 {
-                    // will be removed
-                    // so continue to the next a cube
-                    remove = true;
+                    noCollision = false;
+                    foreach (Cube newCube in splitCubes)
+                    {
+                        fromA.Enqueue(newCube);
+                    }
                     break;
                 }
             }
 
-            if (!remove)
+            if (noCollision)
             {
-                _newCubes.Add(a);
+                result.Add(cube);
             }
         }
+        
+        return result;
     }
 
-    private long Count()
+    private static long Count(List<Cube> cubes)
     {
         long total = 0;
-        foreach (var cube in _newCubes)
+        foreach (var cube in cubes)
         {
             if(!cube.On) continue;
 
-            long cubeCount = (cube.Xmax - cube.Xmin + 1) *
-                             (cube.Ymax - cube.Ymin + 1) *
-                             (cube.Zmax - cube.Zmin + 1);
+            long cubeCount = cube.Count();
+            
             total += cubeCount;
         }
 
         return total;
     }
 
-    private bool Collides(Cube a, Cube b)
+    private static bool CollidesCore(Cube a, Cube b, out List<Cube> newCubes)
     {
-        bool remove = false;
-
         bool inRange = InRange(a, b, c => c.Xmin, c => c.Xmax) &&
                        InRange(a, b, c => c.Ymin, c => c.Ymax) &&
                        InRange(a, b, c => c.Zmin, c => c.Zmax);
-        if (!inRange) return false;
-            
-        remove |= CollidesGeneral(a, b, c => c.Xmin, c => c.Xmax, (c, v) => c.Xmin = v, (c, v) => c.Xmax = v);
-        remove |= CollidesGeneral(a, b, c => c.Ymin, c => c.Ymax, (c, v) => c.Ymin = v, (c, v) => c.Ymax = v);
-        remove |= CollidesGeneral(a, b, c => c.Zmin, c => c.Zmax, (c, v) => c.Zmin = v, (c, v) => c.Zmax = v);
-        return remove;
+        if (!inRange)
+        {
+            newCubes = new List<Cube>();
+            return false;
+        }
+        
+        //long beforeCount = Count(new List<Cube> { a });
+
+        List<Cube> result = new();
+        var outX = CollidesGeneral(a, b, c => c.Xmin, c => c.Xmax, (c, v) => c.Xmin = v, (c, v) => c.Xmax = v);
+        foreach (Cube x in outX)
+        {
+            if (!InRange(x, b, c => c.Xmin, c => c.Xmax))
+            {
+                result.Add(x);
+                continue;
+            }
+            var outY = CollidesGeneral(x, b, c => c.Ymin, c => c.Ymax, (c, v) => c.Ymin = v, (c, v) => c.Ymax = v);
+            foreach (var y in outY)
+            {
+                if (!InRange(y, b, c => c.Ymin, c => c.Ymax))
+                {
+                    result.Add(y);
+                    continue;
+                }
+                var outZ = CollidesGeneral(y, b, c => c.Zmin, c => c.Zmax, (c, v) => c.Zmin = v, (c, v) => c.Zmax = v);
+                result.AddRange(outZ);
+            }
+        }
+        
+        // long afterCount = Count(result);
+        //
+        // if (beforeCount != afterCount)
+        // {
+        //     Console.WriteLine("Error");
+        // }
+
+        List<Cube> resultNotSame = new();
+        foreach (Cube r in result)
+        {
+            bool inside = InRange(r, b, c => c.Xmin, c => c.Xmax) &&
+                           InRange(r, b, c => c.Ymin, c => c.Ymax) &&
+                           InRange(r, b, c => c.Zmin, c => c.Zmax);
+            if (!inside)
+            {
+                resultNotSame.Add(r);
+            }
+        }
+
+        newCubes = resultNotSame;
+        return true;
     }
 
-    private bool InRange(Cube a, Cube b, Func<Cube, int> getMin, Func<Cube, int> getMax)
+    private static bool InRange(Cube a, Cube b, Func<Cube, int> getMin, Func<Cube, int> getMax)
     {
         int aMin = getMin(a);
         int aMax = getMax(a);
@@ -145,9 +227,9 @@ public class Solution22 : Solution
         return !(bMax < aMin || bMin > aMax);
     }
 
-    private bool CollidesGeneral(Cube a, Cube b, Func<Cube, int> getMin, Func<Cube, int> getMax, Action<Cube, int> setMin, Action<Cube, int> setMax)
+    private static List<Cube> CollidesGeneral(Cube a, Cube b, Func<Cube, int> getMin, Func<Cube, int> getMax, Action<Cube, int> setMin, Action<Cube, int> setMax)
     {
-        bool add = true;
+        List<Cube> output = new();
         
         int aMin = getMin(a);
         int aMax = getMax(a);
@@ -156,30 +238,66 @@ public class Solution22 : Solution
         
         if (bMin > aMin && bMax < aMax)
         {
-            // split A in 2
+            // B entirely inside A
+            // split A in 3
+            
+            var a1 = a.Clone();
+            setMax(a1, bMin - 1); 
+            output.Add(a1); // aMin --- bMin-1
+            
+            var a0 = a.Clone();
+            setMin(a0, bMin);
+            setMax(a0, bMax);
+            output.Add(a0); // bMin --- bMax
 
             var a2 = a.Clone();
             setMin(a2, bMax + 1);
-            _newCubes.Add(a2);
+            output.Add(a2); // bMax+1 --- aMax
+        }
+        else if (bMin <= aMin && bMax >= aMax)
+        {
+            // B covers A entirely, dont split
+            output.Add(a.Clone());
+        }
+        else if (bMin > aMin && bMin <= aMax && bMax >= aMax)
+        {
+            // B start in between A, B end after A
+            var a1 = a.Clone();
+            setMax(a1, bMin - 1);
+            output.Add(a1); // aMin -- bMin-1
             
-            setMax(a, bMin - 1);
+            var a0 = a.Clone();
+            setMin(a0, bMin);
+            output.Add(a0); // bMin -- aMax
         }
-        else if (bMin < aMin && bMax > aMax)
+        else if(bMin <= aMin && bMax >= aMin && bMax < aMax)
         {
-            // remove A
-            //_cubes.Remove(a);
-            add = false;
+            // B start before A, B end in between A
+            
+            var a0 = a.Clone();
+            setMax(a0, bMax);
+            output.Add(a0); // aMin --- bMax
+            
+            var a1 = a.Clone();
+            setMin(a1, bMax + 1);
+            output.Add(a1); 
         }
-        else if (bMin > aMin && bMin < aMax && bMax > aMax)
+        else
         {
-            setMin(a, bMin + 1);
+            // no overlap, 
+            Debug.Fail("Should not happen");
+            output.Add(a.Clone());
         }
-        else if(bMin < aMin && bMax > aMin && bMax < aMax)
+
+        return output;
+    }
+    
+    private void ApplyCubes()
+    {
+        foreach (var cube in _cubes)
         {
-            setMax(a, bMax - 1);
+            ApplyCube(cube);
         }
-        
-        return add;
     }
 
     private void ApplyCube(Cube cube)
@@ -235,13 +353,13 @@ public class Solution22 : Solution
 
     private bool InRange(int x, int y, int z)
     {
-        return x >= -50 && x <= 50 &&
-               y >= -50 && y <= 50 &&
-               z >= -50 && z <= 50;
+        return x is >= -50 and <= 50 && 
+               y is >= -50 and <= 50 && 
+               z is >= -50 and <= 50;
     }
 
     private void ParseLines(string[] lines)
-    {
+    {        
         _cubes = new();
         foreach (var line in lines)
         {

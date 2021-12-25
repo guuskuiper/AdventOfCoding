@@ -38,6 +38,7 @@ public class DaySolutionTest
     [Fact] public void Day22() => AssertDay("581108", "1325473814582641");
     [Fact] public void Day23() => AssertDay("19160", "47232");
     [Fact] public void Day24() => AssertDay("99893999291967", "34171911181211");
+    [Fact] public void Day25() => AssertDay("582", "");
     
     private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
     {

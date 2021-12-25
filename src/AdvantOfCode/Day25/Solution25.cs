@@ -3,6 +3,7 @@ namespace AdventOfCode.Day25;
 public class Solution25 : Solution
 {
     private char[,] _map;
+    
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
@@ -34,65 +35,53 @@ public class Solution25 : Solution
 
     private bool MoveEast()
     {
-        Queue<(int x, int y, int ynew)> moves = new ();
-        for (int x = 0; x < _map.GetLength(0); x++)
-        {
-            for (int y = 0; y < _map.GetLength(1); y++)
-            {
-                if (_map[x, y] == '>')
-                {
-                    int ytarget = (y + 1) % _map.GetLength(1);
-                    if(_map[x, ytarget] == '.')
-                    {
-                        moves.Enqueue((x, y, ytarget));
-                    }
-                }
-            }
-        }
-
-        bool moved = moves.Count > 0;
-        while (moves.Count > 0)
-        {
-            var move = moves.Dequeue();
-            Swap(ref _map[move.x, move.y], ref _map[move.x, move.ynew]);
-        }
-        
-        return moved;
-    }
-
-    private void Swap(ref char a, ref char b)
-    {
-        (a, b) = (b, a);
+        return MoveGeneral(
+            (x, y) => _map[x, y] == '>' && _map[x, NextY(y)] == '.',
+            (x, y) => Swap(ref _map[x, y], ref _map[x, NextY(y)])
+            );
     }
     
     private bool MoveSouth()
     {
-        Queue<(int x, int xnew, int y)> moves = new ();
+        return MoveGeneral(
+            (x, y) => _map[x, y] == 'v' && _map[NextX(x), y] == '.',
+            (x, y) => Swap(ref _map[x, y], ref _map[NextX(x), y])
+        );
+    }
+    
+    private int NextX(int x) => (x + 1) % _map.GetLength(0);
+    private int NextY(int y) => (y + 1) % _map.GetLength(1);
+    
+    private void Swap(ref char a, ref char b)
+    {
+        (a, b) = (b, a);
+    }
+
+    private bool MoveGeneral(Func<int, int, bool> condition, Action<int, int> move)
+    {
+        Queue<(int x, int y)> moves = new ();
         for (int x = 0; x < _map.GetLength(0); x++)
         {
             for (int y = 0; y < _map.GetLength(1); y++)
             {
-                if (_map[x, y] == 'v')
+                if (condition(x, y))
                 {
-                    int xtarget = (x + 1) % _map.GetLength(0);
-                    if(_map[xtarget, y] == '.')
-                    {
-                        moves.Enqueue((x, xtarget, y));
-                    }
+                    moves.Enqueue((x, y));
                 }
             }
         }
 
         bool moved = moves.Count > 0;
+        
         while (moves.Count > 0)
         {
-            var move = moves.Dequeue();
-            Swap(ref _map[move.x, move.y], ref _map[move.xnew, move.y]);
+            var location = moves.Dequeue();
+            move(location.x, location.y);
         }
-        
+
         return moved;
     }
-
+    
     private void ParseLines(string[] lines)
     {
         _map = new char[lines.Length, lines[0].Length];

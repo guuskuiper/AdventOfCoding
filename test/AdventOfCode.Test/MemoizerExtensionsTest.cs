@@ -16,7 +16,7 @@ public class MemoizerExtensionsTest
     [Fact]
     public void Fib4_ShouldReturn3()
     {
-        int fib = Fib(40);
+        int fib = Fib(4);
         Assert.Equal(3, fib);
     }
     
@@ -37,7 +37,7 @@ public class MemoizerExtensionsTest
         Func<int, int> fib = null;
         fib = MemoizerExtension.Memoize<int, int>(n => Fib(n, fib!));
 
-        int fibResult = fib(40);
+        int fibResult = fib(4);
         
         Assert.Equal(3, fibResult);
     }

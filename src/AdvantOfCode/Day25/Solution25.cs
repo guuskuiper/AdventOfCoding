@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace AdventOfCode.Day25;
 
 public class Solution25 : Solution
@@ -18,7 +20,7 @@ public class Solution25 : Solution
         bool moved;
         do
         {
-            moved = Step();
+            moved = StepInplace();
             step++;
         } while (moved);
 
@@ -31,6 +33,25 @@ public class Solution25 : Solution
         moved |= MoveEast();
         moved |= MoveSouth();
         return moved;
+    }
+
+    private bool StepInplace()
+    {
+        bool moved = false;
+        moved |= MoveInPlaceEast(_map);
+        moved |= MoveInPlaceSouth(_map);
+        return moved;
+    }
+    
+    private string PrintLine(char[,] map, int x = 0)
+    {
+        StringBuilder sb = new();
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            sb.Append(map[x, y]);
+        }
+
+        return sb.ToString();;
     }
 
     private bool MoveEast()
@@ -52,7 +73,7 @@ public class Solution25 : Solution
     private int NextX(int x) => (x + 1) % _map.GetLength(0);
     private int NextY(int y) => (y + 1) % _map.GetLength(1);
     
-    private void Swap(ref char a, ref char b)
+    private static void Swap<T>(ref T a, ref T b)
     {
         (a, b) = (b, a);
     }
@@ -82,9 +103,78 @@ public class Solution25 : Solution
         return moved;
     }
     
+    private static bool MoveInPlaceEast(char[,] map)
+    {
+        bool moved = false;
+        for (int x = 0; x < map.GetLength(0); x++)
+        {
+            int lastY = map.GetLength(1) - 1;
+            char y0 = map[x, 0];
+            char ylast = map[x, lastY];
+            
+            bool prevSwapped = false;
+            for (int y = map.GetLength(1) - 1; y > 0 ; y--)
+            {
+                if (map[x, y - 1] == '>' && map[x, y] == '.' && !prevSwapped)
+                {
+                    moved = true;
+                    Swap(ref map[x, y], ref map[x, y - 1]);
+                    prevSwapped = true;
+                }
+                else
+                {
+                    prevSwapped = false;
+                }
+            }
+
+            if(ylast == '>' && y0 == '.')
+            {
+                moved = true;
+                Swap(ref map[x, lastY], ref map[x, 0]);
+            }
+        }
+
+        return moved;
+    }
+    
+    private static bool MoveInPlaceSouth(char[,] map)
+    {
+        bool moved = false;
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            int lastX = map.GetLength(0) - 1;
+            char x0 = map[0, y];
+            char xlast = map[lastX, y];
+            
+            bool prevSwapped = false;
+            for (int x = map.GetLength(0) - 1; x > 0 ; x--)
+            {
+                if (map[x - 1, y] == 'v' && map[x, y] == '.' && !prevSwapped)
+                {
+                    moved = true;
+                    Swap(ref map[x, y], ref map[x - 1, y]);
+                    prevSwapped = true;
+                }
+                else
+                {
+                    prevSwapped = false;
+                }
+            }
+
+            if(xlast == 'v' && x0 == '.')
+            {
+                moved = true;
+                Swap(ref map[lastX, y], ref map[0, y]);
+            }
+        }
+
+        return moved;
+    }
+    
     private void ParseLines(string[] lines)
     {
         _map = new char[lines.Length, lines[0].Length];
+        // _map2 = new char[lines.Length, lines[0].Length];
 
         for (int x = 0; x < lines.Length; x++)
         {

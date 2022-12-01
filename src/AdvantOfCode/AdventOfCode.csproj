@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -15,38 +15,6 @@
     <Content Include="*/*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Year2021\Day01\input01.txt" />
-    <Content Include="Year2021\Day02\input02.txt" />
-    <Content Include="Year2021\Day03\input03.txt" />
-    <Content Include="Year2021\Day04\input04.txt" />
-    <Content Include="Year2021\Day05\input05.txt" />
-    <Content Include="Year2021\Day06\input06.txt" />
-    <Content Include="Year2021\Day07\input07.txt" />
-    <Content Include="Year2021\Day08\input08.txt" />
-    <Content Include="Year2021\Day09\input09.txt" />
-    <Content Include="Year2021\Day10\input10.txt" />
-    <Content Include="Year2021\Day11\input11.txt" />
-    <Content Include="Year2021\Day12\input12.txt" />
-    <Content Include="Year2021\Day13\input13.txt" />
-    <Content Include="Year2021\Day14\input14.txt" />
-    <Content Include="Year2021\Day15\input15.txt" />
-    <Content Include="Year2021\Day16\input16.txt" />
-    <Content Include="Year2021\Day17\input17.txt" />
-    <Content Include="Year2021\Day18\input18.txt" />
-    <Content Include="Year2021\Day19\example19.txt" />
-    <Content Include="Year2021\Day19\input19.txt" />
-    <Content Include="Year2021\Day20\example20.txt" />
-    <Content Include="Year2021\Day20\input20.txt" />
-    <Content Include="Year2021\Day21\input21.txt" />
-    <Content Include="Year2021\Day22\example22.txt" />
-    <Content Include="Year2021\Day22\input22.txt" />
-    <Content Include="Year2021\Day23\input23.txt" />
-    <Content Include="Year2021\Day24\input24.txt" />
-    <Content Include="Year2021\Day25\input25.txt" />  
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Year2021" />
   </ItemGroup>
 
 </Project>

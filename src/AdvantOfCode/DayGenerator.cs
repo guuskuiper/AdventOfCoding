@@ -5,11 +5,22 @@ namespace AdventOfCode;
 
 public static class DayGenerator
 {
-    public static Solution GetByName(string name)
+    public static Solution GetByName(string name, string middleNamespace)
     {
-        var solutionType = GetSolutionTypes().Find(x => x.Name == name);
-        if (solutionType == null) throw new Exception("Cannot find: " + name);
+        var solutionType = GetSolutionTypes()
+            .Where(x => MatchesNamespace(x, middleNamespace))
+            .Where(x => x.Name == name)
+            .FirstOrDefault();
+        if (solutionType == null) throw new Exception($"Cannot find {middleNamespace}.{name}");
         return CreateInstance(solutionType);
+    }
+
+    private static bool MatchesNamespace(Type t, string name)
+    {
+        var split = t.Namespace?.Split('.') ;
+        if (split?.Length != 3) return false;
+
+        return split[1] == name;
     }
 
     private static List<Type> GetSolutionTypes() => 
@@ -24,15 +35,16 @@ public static class DayGenerator
         return (Activator.CreateInstance(t) as Solution)!;
     }
 
-    public static async Task CreateDirectoriesPerDay(bool force = false)
+    public static async Task CreateDirectoriesPerDay(int year, bool force = false)
     {
+        string yearString = $"Year{year}";
         var sourcePath = GetSourceFilePathName();
         var root = Path.GetDirectoryName(sourcePath);
         Console.WriteLine($"Current: {root}");
         foreach (var day in Enumerable.Range(1, 25))
         {
             var dayString = $"Day{day:D2}";
-            var newDayPath = Path.Combine(root, dayString);
+            var newDayPath = Path.Combine(root, yearString, dayString);
             if (!Directory.Exists(newDayPath))
             {
                 Directory.CreateDirectory(newDayPath);
@@ -43,7 +55,7 @@ public static class DayGenerator
             if(File.Exists(fileName) && !force) continue;
 
             string content = @""
-                             + $"namespace AdventOfCode.{dayString};" + Environment.NewLine
+                             + $"namespace AdventOfCode.{yearString}.{dayString};" + Environment.NewLine
                              + Environment.NewLine
                              + $"public class {className} : Solution" + Environment.NewLine
                              + "{" + Environment.NewLine

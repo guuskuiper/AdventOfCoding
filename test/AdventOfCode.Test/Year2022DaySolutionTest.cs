@@ -9,7 +9,7 @@ public class Year2022DaySolutionTest
     private const string Prefix = "Day";
     private const string Year = "Year2022";
     
-    [Fact] public void Day01() => AssertDay("", "");
+    [Fact] public void Day01() => AssertDay("70369", "203002");
 
     private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
     {

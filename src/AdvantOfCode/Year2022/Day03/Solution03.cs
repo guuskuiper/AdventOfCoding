@@ -2,9 +2,6 @@ namespace AdventOfCode.Year2022.Day03;
 
 public class Solution03 : Solution
 {
-    private HashSet<char> _firstCompartment = new();
-    private HashSet<char> _secondCompartment = new();
-
     public string Run()
     {
         var lines = InputReader.ReadFileLines();
@@ -16,45 +13,24 @@ public class Solution03 : Solution
 
     private long Priorities(List<string> lines)
     {
-        List<char> errorTypes = new();
         long priorities = 0;
         foreach (var line in lines)
         {
              char error = Union(line);
-             errorTypes.Add(error);
+             priorities += Priority(error);
         }
-
-        foreach (var error in errorTypes)
-        {
-            priorities += Priority(error);
-        }
-
         return priorities;
     }
 
     private int Priority(char c) => char.IsUpper(c) ? c - 'A' + 27 : c - 'a' + 1;
 
-    private char Union(ReadOnlySpan<char> line)
+    private char Union(string line)
     {
-        _firstCompartment.Clear();
-        _secondCompartment.Clear();
-
         int half = line.Length / 2;
-        var first = line.Slice(0, half);
-        var second = line.Slice(half);
-
-        foreach (var c in first)
-        {
-            _firstCompartment.Add(c);
-        }
-
-        foreach (var c in second)
-        {
-            _secondCompartment.Add(c);
-        }
-
-        var union = _firstCompartment.Intersect(_secondCompartment).Single();
-        return union;
+        var first = line.Substring(0, half);
+        var second = line.Substring(half);
+        
+        return first.Intersect(second).Single();
     }
     
     private long Badges(List<string> lines)
@@ -74,25 +50,6 @@ public class Solution03 : Solution
 
     private char Group(string[] group)
     {
-        HashSet<char> one = new();
-        HashSet<char> two = new();
-        HashSet<char> three = new();
-
-        foreach (var c in group[0])
-        {
-            one.Add(c);
-        }
-        foreach (var c in group[1])
-        {
-            two.Add(c);
-        }
-        foreach (var c in group[2])
-        {
-            three.Add(c);
-        }
-        
-        var union = one.Intersect(two).Intersect(three).Single();
-        return union;
+        return group[0].Intersect(group[1]).Intersect(group[2]).Single();
     }
-
 }

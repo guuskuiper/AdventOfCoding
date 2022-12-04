@@ -22,7 +22,7 @@ public class Solution03 : Solution
         return priorities;
     }
 
-    private int Priority(char c) => char.IsUpper(c) ? c - 'A' + 27 : c - 'a' + 1;
+    private static int Priority(char c) => char.IsUpper(c) ? c - 'A' + 27 : c - 'a' + 1;
 
     private char Union(string line)
     {
@@ -33,7 +33,7 @@ public class Solution03 : Solution
         return first.Intersect(second).Single();
     }
     
-    private long Badges(List<string> lines)
+    private long Badges(IEnumerable<string> lines)
     {
         long priorities = 0;
 
@@ -48,7 +48,7 @@ public class Solution03 : Solution
         return priorities;
     }
 
-    private char Group(string[] group)
+    private char Group(IReadOnlyList<string> group)
     {
         return group[0].Intersect(group[1]).Intersect(group[2]).Single();
     }

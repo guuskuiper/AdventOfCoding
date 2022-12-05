@@ -2,10 +2,14 @@ namespace AdventOfCode.Year2022.Day05;
 
 public class Solution05 : Solution
 {
+    private const string START = "move ";
+    private const string FROM = " from ";
+    private const string TO = " to ";
+    
     private record Move(int Count, int From, int To);
 
-    private List<Move> moves = new();
-    private List<Stack<char>> stacks = new();
+    private List<Move> _moves = new();
+    private List<Stack<char>> _stacks = new();
     
     public string Run()
     {
@@ -25,7 +29,7 @@ public class Solution05 : Solution
     private string Top()
     {
         string top = "";
-        foreach (Stack<char> stack in stacks)
+        foreach (Stack<char> stack in _stacks)
         {
             top += stack.Peek();
         }
@@ -35,53 +39,60 @@ public class Solution05 : Solution
 
     private void ExecuteB()
     {
-        Stack<char> temp = new Stack<char>();
-        foreach (Move move in moves)
+        foreach (Move move in _moves)
         {
-            for (int i = 0; i < move.Count; i++)
-            {
-                char c = stacks[move.From - 1].Pop();
-                temp.Push(c);
-            }
+            var items = Pop(move.From, move.Count);
+            Push(move.To, items.Reverse());
+        }
+    }
 
-            while (temp.Count > 0)
-            {
-                char c = temp.Pop();
-                stacks[move.To - 1].Push(c);
-            }
+    private void Execute()
+    {
+        foreach (Move move in _moves)
+        {
+            var items = Pop(move.From, move.Count);
+            Push(move.To, items);
         }
     }
     
-    private void Execute()
+    
+    private char Pop(int number) => _stacks[number - 1].Pop();
+
+    private IEnumerable<char> Pop(int number, int count)
     {
-        foreach (Move move in moves)
+        for (int i = 0; i < count; i++)
         {
-            for (int i = 0; i < move.Count; i++)
-            {
-                char c = stacks[move.From - 1].Pop();
-                stacks[move.To - 1].Push(c);
-            }
+            yield return Pop(number);
+        }
+    }
+    private void Push(int number, char c) => _stacks[number - 1].Push(c);
+
+    private void Push(int number, IEnumerable<char> chars)
+    {
+        foreach (var c in chars)
+        {
+            Push(number, c);
         }
     }
 
     private void Parse(Span<string> lines)
     {
-        int split = -1;
+        int emptyLineIndex = -1;
         for (int i = 0; i < lines.Length; i++)
         {
             if (string.IsNullOrEmpty(lines[i]))
             {
-                split = i;
+                emptyLineIndex = i;
                 break;
             }
         }
-        ParseStacks(lines.Slice(0, split));
-        ParseMoves(lines.Slice(split+1));
+        ParseStacks(lines.Slice(0, emptyLineIndex));
+        ParseMoves(lines.Slice(emptyLineIndex+1));
     }
     
     private void ParseStacks(Span<string> lines)
     {
-        stacks = new List<Stack<char>>();
+        _stacks = new List<Stack<char>>();
 
         for (int i = 0; i < 9; i++)
         {
@@ -96,37 +107,34 @@ public class Solution05 : Solution
                     stack.Push(c);
                 }
             }
-            stacks.Add(stack);
+            _stacks.Add(stack);
         }
     }
     
     private void ParseMoves(Span<string> lines)
     {
-        moves = new List<Move>();
+        _moves = new List<Move>();
 
         foreach (var line in lines)
         {
             if (line.Length > 0)
             {
-                moves.Add(ParseMove(line));
+                _moves.Add(ParseMove(line));
             }
         }
     }
 
-    private const string START = "move ";
-    private const string FROM = " from ";
-    private const string TO = " to ";
     private Move ParseMove(ReadOnlySpan<char> line)
     {
         var start = line.Slice(START.Length);
-        var indexOfMiddle = start.IndexOf(" from ");
-        var count = int.Parse(start.Slice(0, indexOfMiddle));
+        var indexOfFrom = start.IndexOf(FROM);
+        var count = int.Parse(start.Slice(0, indexOfFrom));
 
-        var remaining = start.Slice(indexOfMiddle + FROM.Length);
-        var indexOfEnd = remaining.IndexOf(TO);
-        var from = int.Parse(remaining.Slice(0, indexOfEnd));
+        var remaining = start.Slice(indexOfFrom + FROM.Length);
+        var indexOfTo = remaining.IndexOf(TO);
+        var from = int.Parse(remaining.Slice(0, indexOfTo));
 
-        var to = int.Parse(remaining.Slice(indexOfEnd + TO.Length));
+        var to = int.Parse(remaining.Slice(indexOfTo + TO.Length));
         return new Move(count, from, to);
     }
 }

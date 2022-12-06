@@ -15,24 +15,16 @@ public class Solution06 : Solution
 
     private int IndexOfAllDifferent(ReadOnlySpan<char> line, int size)
     {
+        var set = new HashSet<char>(size);
         for (int i = size; i < line.Length; i++)
         {
-            bool same = false;
-            for (int j = 0; j < size; j++)
+            set.Clear();
+            ReadOnlySpan<char> windows = line.Slice(i - size, size);
+            foreach (var c in windows)
             {
-                for (int z = j + 1; z < size; z++)
-                {
-                    if (line[i-j] == line[i-z])
-                    {
-                        same = true;
-                        break;
-                    }
-                }
-                
-                if(same) break;
+                set.Add(c);
             }
-
-            if (!same) return i + 1;
+            if (set.Count == size) return i;
         }
 
         return -1;

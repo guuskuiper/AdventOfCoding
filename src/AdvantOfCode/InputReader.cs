@@ -7,7 +7,17 @@ public static class InputReader
 {
     public static string ReadFile([CallerFilePath] string path = null)
     {
-        return File.ReadAllText(path.Replace("Solution", "input").Replace(".cs", ".txt"));
+        string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
+        if (!File.Exists(inputPath))
+        {
+            string[] split = inputPath.Split(Path.DirectorySeparatorChar);
+            int year = int.Parse(split.Single(s => s.StartsWith("Year")).Substring(4));
+            int day = int.Parse(split.Single(s => s.StartsWith("Day")).Substring(3));
+            string text = AoCClient.DownloadAsync(year, day).Result;
+            File.WriteAllText(inputPath, text);
+            return text;
+        }
+        return File.ReadAllText(inputPath);
     }
 
     private static IEnumerable<string> ReadFileLinesEnumerable(string path)

@@ -10,7 +10,9 @@ public class Solution07 : Solution
     
     private readonly Dictionary<string, int> _dirSize = new ();
     private readonly Stack<string> _path = new ();
-    
+
+    public static List<string> Input() => InputReader.ReadFileLines();
+
     public string Run()
     {
         var lines = InputReader.ReadFileLines();
@@ -23,20 +25,20 @@ public class Solution07 : Solution
 
         int unused = TOTAL_SIZE - _dirSize["/"];
         int toFree = REQUIRED_SIZE - unused;
-        var dirs = _dirSize
+        var smallest = _dirSize
             .Values
             .Where(x => x > toFree)
             .Order()
-            .ToList();
-        
-        return sum + "\n" + dirs[0];
+            .First();
+
+        return sum + "\n" + smallest;
     }
 
     private void Parse(IEnumerable<string> lines)
     {
         foreach (var line in lines)
         {
-            Parse(line);    
+            Parse(line);
         }
     }
 

@@ -18,11 +18,12 @@ public class Year2022DaySolutionTest
     [Fact] public void Day05() => AssertDay("TQRFCBSJJ", "RMHFJNVFP");
     [Fact] public void Day06() => AssertDay("1920", "2334");
     [Fact] public void Day07() => AssertDay("1644735", "1300850");
+    [Fact] public void Day07B() => AssertDay("1644735", "1300850");
     
     private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
     {
-        int day = int.Parse(callerName.Substring(Prefix.Length));
-        string solutionName = $"Solution{day:D2}";
+        string day = callerName.Substring(Prefix.Length);
+        string solutionName = $"Solution{day}";
         Solution current = DayGenerator.GetByName(solutionName, Year);
         var solution = current.Run();
         Assert.Equal(expectedA + "\n" + expectedB, solution);

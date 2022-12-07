@@ -1,3 +1,6 @@
+using static AdventOfCode.Year2021.Day05.Solution05;
+using System.Drawing;
+
 namespace AdventOfCode.Year2022.Day06;
 
 public class Solution06 : Solution

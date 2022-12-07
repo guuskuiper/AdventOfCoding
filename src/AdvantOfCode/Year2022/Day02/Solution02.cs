@@ -97,9 +97,8 @@ public class Solution02 : Solution
         }
     }
 
-    private ERockPaperScissors ChangeRound(Round round)
-    {
-        ERockPaperScissors newResponse = round.Response switch
+    private ERockPaperScissors ChangeRound(Round round) =>
+        round.Response switch
         {
             //X means you need to lose,
             ERockPaperScissors.Rock => round.Opponent.Lose(),
@@ -109,9 +108,6 @@ public class Solution02 : Solution
             ERockPaperScissors.Scissors => round.Opponent.Win(),
             _ => throw new ArgumentOutOfRangeException()
         };
-
-        return newResponse;
-    }
 
     private ERockPaperScissors Parse(string c) =>
         c switch

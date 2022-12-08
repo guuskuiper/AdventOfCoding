@@ -1,29 +1,21 @@
+using AdventOfCode.Extentions;
+
 namespace AdventOfCode.Year2022.Day08;
 
 public class Solution08 : Solution
 {
+    private int[,] _heigths;
+    
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
 
-        int[,] heights = Parse(lines);
-        bool[,] visible = Visible(heights);
+        _heigths = Parse(lines);
+        bool[,] visible = Visible();
 
-        int count = 0;
-        foreach (var b in visible)
-        {
-            if (b) count++;
-        }
+        int count = visible.ToEnumerable().Count(x => x);
 
-        var scores = ScenicScore(heights);
-        int maxScore = 0;
-        foreach (var score in scores)
-        {
-            if (score > maxScore)
-            {
-                maxScore = score;
-            }
-        }
+        int maxScore = MaxScenicScore();
         
         return count + "\n" + maxScore;
     }
@@ -45,127 +37,92 @@ public class Solution08 : Solution
         return heights;
     }
 
-    private int[,] ScenicScore(int[,] heights)
+    private int MaxScenicScore()
     {
-        int[,] scores = new int[heights.GetLength(0), heights.GetLength(1)];
+        int max = -1;
+        int size = _heigths.GetLength(0);
         
-        for (int x = 1; x < heights.GetLength(0)-1; x++)
+        for (int x = 1; x < size - 1; x++)
         {
-            for (int y = 1; y < heights.GetLength(0)-1; y++)
+            for (int y = 1; y < size - 1; y++)
             {
-                scores[x, y] = Score(heights, x, y);
+                int referenceHeight = _heigths[x, y];
+                
+                int score = 1;
+                score *= LeftSteps(x, y, referenceHeight);
+                score *= RightSteps(x, y, size, referenceHeight);
+                score *= TopSteps(x, y, referenceHeight);
+                score *= BottomSteps(x, y, size, referenceHeight);
+ 
+                if (score > max) max = score;
             }
         }
 
-        return scores;
+        return max;
     }
 
-    private int Score(int[,] heights, int cx, int cy)
+    private int BottomSteps(int x, int y, int size, int referenceHeight)
     {
-        int cheight = heights[cx, cy];
-
-        int score = 1;
-
-        int left;
-        for (left = cx - 1; left > 0; left--)
+        int bottom = 0;
+        for (int k = y + 1; k < size; k++)
         {
-            int height = heights[left, cy];
-            if (height >= cheight) break;
+            bottom++;
+            if (_heigths[x, k] >= referenceHeight) break;
         }
-
-        score *= Math.Abs(cx - left);
-
-        int right;
-        for (right = cx + 1; right < heights.GetLength(0) - 1; right++)
-        {
-            int height = heights[right, cy];
-            if (height >= cheight) break;
-        }
-
-        score *= Math.Abs(cx - right);
-    
-        int top;
-        for (top = cy - 1; top > 0; top--)
-        {
-            int height = heights[cx, top];
-            if (height >= cheight) break;
-        }
-
-        score *= Math.Abs(cy - top);
-        
-        int bottom;
-        for (bottom = cy + 1; bottom < heights.GetLength(1) - 1; bottom++)
-        {
-            int height = heights[cx, bottom];
-            if (height >= cheight) break;
-        }
-
-        score *= Math.Abs(cy - bottom);
-
-        return score;
+        return bottom;
     }
 
-    private bool[,] Visible(int[,]  heights)
+    private int TopSteps(int x, int y, int referenceHeight)
     {
-        bool[,] visible = new bool[heights.GetLength(0), heights.GetLength(1)];
+        int top = 0;
+        for (int k = y - 1; k >= 0; k--)
+        {
+            top++;
+            if (_heigths[x, k] >= referenceHeight) break;
+        }
+        return top;
+    }
 
-        // left to right
-        for (int y = 0; y < heights.GetLength(1); y++)
+    private int RightSteps(int x, int y, int size, int referenceHeight)
+    {
+        int right = 0;
+        for (int k = x + 1; k < size; k++)
         {
-            int highest = -1;
-            for (int x = 0; x < heights.GetLength(0); x++)
-            {
-                int current = heights[x, y];
-                if (current > highest)
-                {
-                    highest = current;
-                    visible[x, y] = true;
-                }
-            }
+            right++;
+            if (_heigths[k, y] >= referenceHeight) break;
         }
-        
-        // right to left 
-        for (int y = 0; y < heights.GetLength(1); y++)
+        return right;
+    }
+
+    private int LeftSteps(int x, int y, int referenceHeight)
+    {
+        int left = 0;
+        for (int k = x - 1; k >= 0; k--)
         {
-            int highest = -1;
-            for (int x = heights.GetLength(0)-1; x >= 0; x--)
-            {
-                int current = heights[x, y];
-                if (current > highest)
-                {
-                    highest = current;
-                    visible[x, y] = true;
-                }
-            }
+            left++;
+            if (_heigths[k, y] >= referenceHeight) break;
         }
+        return left;
+    }
+
+    private bool[,] Visible()
+    {
+        bool[,] visible = new bool[_heigths.GetLength(0), _heigths.GetLength(1)];
+
+        int max = _heigths.GetLength(0) - 1;
         
-        // top to bottom
-        for (int x = 0; x < heights.GetLength(0); x++)
+        for (int i = 0; i <= max; i++)
         {
-            int highest = -1;
-            for (int y = 0; y < heights.GetLength(1); y++)
+            int maxLR = -1;
+            int maxRL = -1;
+            int maxTB = -1;
+            int maxBT = -1; 
+            for (int j = 0; j <= max; j++)
             {
-                int current = heights[x, y];
-                if (current > highest)
-                {
-                    highest = current;
-                    visible[x, y] = true;
-                }
-            }
-        }
-        
-        // bottom to top 
-        for (int x = 0; x < heights.GetLength(0); x++)
-        {
-            int highest = -1;
-            for (int y = heights.GetLength(1) - 1; y >= 0; y--)
-            {
-                int current = heights[x, y];
-                if (current > highest)
-                {
-                    highest = current;
-                    visible[x, y] = true;
-                }
+                if(_heigths[i, j] > maxLR) { maxLR = _heigths[i, j]; visible[i, j] = true;}
+                if(_heigths[i, max-j] > maxRL) { maxRL = _heigths[i, max- j]; visible[i, max - j] = true;}
+                if(_heigths[j, i] > maxTB) { maxTB = _heigths[j, i]; visible[j, i] = true;}
+                if(_heigths[max - j, i] > maxBT) { maxBT = _heigths[max - j, i]; visible[max - j, i] = true;}
             }
         }
 

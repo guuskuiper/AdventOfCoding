@@ -19,8 +19,8 @@ public class Solution10 : Solution
     {
         const int Width = 40;
         const int Height = 6;
-        char[,] display = new char[Width, 6];
 
+        StringBuilder sb = new();
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
@@ -30,21 +30,12 @@ public class Solution10 : Solution
                 int spriteMiddlePosition = during[cycle];
                 bool isVisible = pixel >= spriteMiddlePosition - 1 &&
                                  pixel <= spriteMiddlePosition + 1;
-                display[x, y] = isVisible ? '#' : '.';
-            }
-        }
-
-        StringBuilder sb = new();
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                sb.Append(display[x, y]);
+                sb.Append(isVisible ? '#' : '.');
             }
             sb.AppendLine();
         }
-        
-        return sb.ToString()!;
+
+        return sb.ToString();
     }
 
     private int SignalStrengthSum(List<int> during, int start, int increment, int end)

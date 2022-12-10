@@ -5,8 +5,7 @@ namespace AdventOfCode.Test;
 
 public class AoCClientTest
 {
-    //[Fact(Skip = "No session file")]
-    [Fact]
+    [Fact(Skip = "No session file")]
     public async Task<string> Download()
     {
         var response = await AoCClient.DownloadAsync(2022, 5);

@@ -5,7 +5,11 @@ namespace AdventOfCode.Year2022.Day11;
 public class Solution11 : Solution
 {
     private const bool Print = false;
-    private record Monkey(int Id, List<long> WorryLevelItems, Func<long, long> Operation, int DivisibleBy, int TargetTrue, int TargetFalse);
+    private record Monkey(int Id, List<long> Items, Polynomial Operation, int DivisibleBy, int TargetTrue, int TargetFalse);
+    private record Polynomial(int A2, int A1, int A0)
+    {
+        public long Apply(long x) => A2 * x * x + A1 * x + A0;
+    }
 
     private long[] inspects;
     private Func<long, long> func;
@@ -78,13 +82,13 @@ public class Solution11 : Solution
     {
         foreach (Monkey monkey in monkeys)
         {
-            foreach (var item in monkey.WorryLevelItems)
+            foreach (var item in monkey.Items)
             {
                 inspects[monkey.Id] += 1;
                 long result;
                 checked
                 { 
-                    result = monkey.Operation(item);
+                    result = monkey.Operation.Apply(item);
                 }
 
                 long bored = (long)Math.Floor(result / divisor);
@@ -92,9 +96,9 @@ public class Solution11 : Solution
 
                 int target = reduced % monkey.DivisibleBy == 0 ? monkey.TargetTrue : monkey.TargetFalse;
 
-                monkeys[target].WorryLevelItems.Add(reduced);
+                monkeys[target].Items.Add(reduced);
             }
-            monkey.WorryLevelItems.Clear();
+            monkey.Items.Clear();
         }
     }
     
@@ -105,7 +109,7 @@ public class Solution11 : Solution
         {
             int id = ParseId(chunk[0]);
             List<long> items = ParseItems(chunk[1]);
-            Func<long, long> operation = ParseOperation(chunk[2]);
+            Polynomial operation = ParsePolynomial(chunk[2]);
             int divisibleBy = ParseDivisibleBy(chunk[3]);
             int targetTrue = ParseTarget(chunk[4]);
             int targetFalse = ParseTarget(chunk[5]);
@@ -146,37 +150,39 @@ public class Solution11 : Solution
         return id;
     }
 
-    private Func<long, long> ParseOperation(string line)
+    private Polynomial ParsePolynomial(string line)
     {
         string[] split = line.Split("old ");
         split = split[1].Split(' ');
 
         char op = split[0][0];
         string arg = split[1];
-        if (arg == "old")
+
+
+        int a2;
+        int a1;
+        int a0;
+        if (op == '*')
         {
-            if (op == '*')
+            if (arg == "old")
             {
-                func = x => x * x;
+                a2 = 1;
+                a1 = 0;
             }
             else
             {
-                func = x => x + x;
+                a2 = 0;
+                a1 = int.Parse(arg);
             }
+            a0 = 0;
         }
         else
         {
-            int value = int.Parse(arg);
-            if (op == '*')
-            {
-                func = x => x * value;
-            }
-            else
-            {
-                func = x => x + value;
-            }
+            a2 = 0;
+            a1 = 1;
+            a0 = int.Parse(arg);
         }
 
-        return func;
+        return new Polynomial(a2, a1, a0);
     }
 }

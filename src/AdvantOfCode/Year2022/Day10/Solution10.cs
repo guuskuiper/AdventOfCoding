@@ -5,6 +5,10 @@ namespace AdventOfCode.Year2022.Day10;
 
 public class Solution10 : Solution
 {
+    private const char FullBlock = (char)0x2588;
+    private const char VisibleChar = FullBlock;
+    private const char InvisibleChar = ' ';
+    
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
@@ -30,7 +34,7 @@ public class Solution10 : Solution
                 int spriteMiddlePosition = during[cycle];
                 bool isVisible = pixel >= spriteMiddlePosition - 1 &&
                                  pixel <= spriteMiddlePosition + 1;
-                sb.Append(isVisible ? '#' : '.');
+                sb.Append(isVisible ? VisibleChar : InvisibleChar);
             }
             sb.AppendLine();
         }

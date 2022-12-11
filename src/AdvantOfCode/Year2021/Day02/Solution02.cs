@@ -39,7 +39,7 @@ public class Solution02 : Solution
             "forward" => (value, 0),
             "down" => (0, +value),
             "up" => (0, -value),
-            _ => throw new NotImplementedException()
+            _ => throw new ArgumentOutOfRangeException()
         };
         this.horiz += dHoriz;
         this.depth += dDepth;
@@ -54,7 +54,7 @@ public class Solution02 : Solution
             "forward" => (value, this.aim * value, 0),
             "down"    => (0, 0, +value),
             "up"      => (0, 0, -value),
-            _ => throw new NotImplementedException()
+            _ => throw new ArgumentOutOfRangeException()
         };
         this.horiz += dHoriz;
         this.depth += dDepth;

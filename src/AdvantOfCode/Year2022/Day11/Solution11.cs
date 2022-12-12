@@ -11,26 +11,25 @@ public class Solution11 : Solution
         public long Apply(long x) => A2 * x * x + A1 * x + A0;
     }
 
-    private long[] inspects;
-    private Func<long, long> func;
+    private long[] _inspects = Array.Empty<long>();
 
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
         
         List<Monkey> monkeys = Parse(lines);
-        inspects = new long[monkeys.Count];
+        _inspects = new long[monkeys.Count];
         Rounds(monkeys, 20);
 
-        long sum = inspects.OrderByDescending(x => x)
+        long sum = _inspects.OrderByDescending(x => x)
             .Take(2)
             .Aggregate((x, y) => x * y);
         
         monkeys = Parse(lines);
-        inspects = new long[monkeys.Count];
+        _inspects = new long[monkeys.Count];
         Rounds2(monkeys, 10_000);
         
-        long sum2 = inspects.OrderByDescending(x => x)
+        long sum2 = _inspects.OrderByDescending(x => x)
             .Take(2)
             .Aggregate((x, y) => x * y);
         
@@ -44,8 +43,6 @@ public class Solution11 : Solution
             Round(monkeys, 3, long.MaxValue);
         }
     }
-
-
 
     private void Rounds2(List<Monkey> monkeys, int count)
     {
@@ -70,9 +67,9 @@ public class Solution11 : Solution
     private void PrintRound(int round)
     {
         Console.WriteLine($"== After round {round} ==");
-        for (int i = 0; i < inspects.Length; i++)
+        for (int i = 0; i < _inspects.Length; i++)
         {
-            Console.WriteLine($"Monkey {i} inspected items {inspects[i]} times. ");
+            Console.WriteLine($"Monkey {i} inspected items {_inspects[i]} times. ");
         }
 
         Console.WriteLine();
@@ -84,7 +81,7 @@ public class Solution11 : Solution
         {
             foreach (var item in monkey.Items)
             {
-                inspects[monkey.Id] += 1;
+                _inspects[monkey.Id] += 1;
                 long result;
                 checked
                 { 

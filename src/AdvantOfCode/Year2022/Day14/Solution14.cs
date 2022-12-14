@@ -8,27 +8,22 @@ public class Solution14 : Solution
 {
     private class Cave
     {
-        public static readonly Point SandStart = new Point(500, 0);
+        public static readonly Point SandStart = new (500, 0);
 
         private const char Air = '.';
         private const char Rock = '#';
         private const char Sand = 'o';
         private const char SandSpawn = '+';
         
-        
         private readonly int _xmin;
-        private readonly int _xmax;
         private readonly int _ymin;
-        private readonly int _ymax;
         private readonly char[,] _cave; 
 
         public Cave(int xmin, int xmax, int ymin, int ymax)
         {
             _xmin = xmin;
-            _xmax = xmax;
             _ymin = Math.Min(0, ymin);
-            _ymax = ymax;
-            _cave = new char[_xmax - _xmin + 1, _ymax - _ymin + 1];
+            _cave = new char[xmax - _xmin + 1, ymax - _ymin + 1];
         }
 
         public void Initialize()
@@ -65,7 +60,6 @@ public class Solution14 : Solution
         public void Print()
         {
             StringBuilder sb = new();
-            //for(int y = _cave.GetLength(1) - 1; y >= 0; y--)
             for(int y = 0; y < _cave.GetLength(1); y++)
             {
                 for (int x = 0; x < _cave.GetLength(0); x++)
@@ -85,22 +79,23 @@ public class Solution14 : Solution
         }
     }
 
-    private static Size _downOffset = new Size(0, 1);
-    private static Size _leftDownOffset = new Size(-1, 1);
-    private static Size _rightDownOffset = new Size(1, 1);
+    private static readonly Size DownOffset = new (0, 1);
+    private static readonly Size LeftDownOffset = new (-1, 1);
+    private static readonly Size RightDownOffset = new (1, 1);
+    private static readonly Size[] Offsets = { DownOffset, LeftDownOffset, RightDownOffset };
     
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
         var rocks = Parse(lines);
 
-        int xMin = rocks.SelectMany(x => x).Min(p => p.X);
-        int xMax = rocks.SelectMany(x => x).Max(p => p.X);
-        int yMin = rocks.SelectMany(x => x).Min(p => p.Y);
-        int yMax = rocks.SelectMany(x => x).Max(p => p.Y);
+        int xMin = rocks.SelectMany(p => p).Min(p => p.X);
+        int xMax = rocks.SelectMany(p => p).Max(p => p.X);
+        int yMin = rocks.SelectMany(p => p).Min(p => p.Y);
+        int yMax = rocks.SelectMany(p => p).Max(p => p.Y);
         
         int sandCount = PartA(rocks, xMin, xMax, yMin, yMax);
-        int sandCountB = PartB(rocks, xMin, xMax, yMin, yMax);
+        int sandCountB = PartB(rocks, yMax);
         
         return sandCount + "\n" + sandCountB;
     }
@@ -124,12 +119,12 @@ public class Solution14 : Solution
             sandCount++;
         }
         
-        //cave.Print();
+        cave.Print();
 
         return sandCount;
     }
 
-    private int PartB(List<List<Point>> rocks, int xMin, int xMax, int yMin, int yMax)
+    private int PartB(List<List<Point>> rocks, int yMax)
     {
         int yFloor = yMax + 2;
         int xMinB = Cave.SandStart.X - yFloor;
@@ -151,7 +146,6 @@ public class Solution14 : Solution
             sandCount++;
         }
         
-        //caveB.Print();
         return sandCount;
     }
     
@@ -161,25 +155,16 @@ public class Solution14 : Solution
         bool moved = true;
         while (moved)
         {
-            Point down = current + _downOffset;
-            Point downLeft = current + _leftDownOffset;
-            Point downRight = current + _rightDownOffset;
-            
-            if (cave.IsAir(down))
+            moved = false;
+            foreach (Size offset in Offsets)
             {
-                current = down;
-            }
-            else if (cave.IsAir(downLeft))
-            {
-                current = downLeft;
-            }
-            else if (cave.IsAir(downRight))
-            {
-                current = downRight;
-            }
-            else
-            {
-                moved = false;
+                Point target = current + offset;
+                if (cave.IsAir(target))
+                {
+                    current = target;
+                    moved = true;
+                    break;
+                }
             }
         }
 
@@ -194,25 +179,16 @@ public class Solution14 : Solution
         bool moved = true;
         while (moved)
         {
-            Point down = current + _downOffset;
-            Point downLeft = current + _leftDownOffset;
-            Point downRight = current + _rightDownOffset;
-            
-            if (cave.IsAir(down))
+            moved = false;
+            foreach (Size offset in Offsets)
             {
-                current = down;
-            }
-            else if (cave.IsAir(downLeft))
-            {
-                current = downLeft;
-            }
-            else if (cave.IsAir(downRight))
-            {
-                current = downRight;
-            }
-            else
-            {
-                moved = false;
+                Point target = current + offset;
+                if (cave.IsAir(target))
+                {
+                    current = target;
+                    moved = true;
+                    break;
+                }
             }
            
             if (current.Y == yGoal)

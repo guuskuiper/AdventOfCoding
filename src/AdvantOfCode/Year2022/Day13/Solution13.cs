@@ -1,18 +1,71 @@
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace AdventOfCode.Year2022.Day13;
 
 public class Solution13 : Solution
 {
+    private const string Divider2 = "[[2]]";
+    private const string Divider6 = "[[6]]";
+
+    public ref struct DataReader
+    {
+        private readonly ReadOnlySpan<char> _data;
+        private int _position;
+
+        public DataReader(ReadOnlySpan<char> data)
+        {
+            _data = data;
+            _position = 0;
+        }
+
+        public bool Done() => _position >= _data.Length;
+
+        public int ReadInt()
+        {
+            int start = _position;
+            while (char.IsDigit(Peek()))
+            {
+                _position++;
+            }
+
+            var numbers = _data.Slice(start, _position - start);
+            return int.Parse(numbers);
+        }
+
+        public char ReadChar()
+        {
+            return _data[_position++];
+        }
+        
+        public void ReadChar(char expected)
+        {
+            char c = _data[_position++];
+            if(c != expected) throw new Exception($"Incorrect character {c} at position {_position - 1}, expected {expected}");
+        }
+
+        public char Peek()
+        {
+            return _data[_position];
+        }
+    }
+    
     private record Pair(Data Left, Data Right);
     public string Run()
     {
         var lines = InputReader.ReadFileLinesArray();
-        var pairs = Parse(lines);
+
+        string resultCustom = SolveCustomParser(lines);
+        string resultJson = SolveJson(lines);
+        if (resultCustom != resultJson) throw new Exception("Custom and Json result not the same");
         
-        // TODO: parse as Json.
-        JsonNode? root = JsonNode.Parse(lines[0]);
+        return resultCustom;
+    }
+
+    private string SolveCustomParser(IEnumerable<string> lines)
+    {
+        var pairs = Parse(lines);
         
         int sumValidIndices = 0;
         for (var index = 0; index < pairs.Count; index++)
@@ -26,7 +79,7 @@ public class Solution13 : Solution
         }
 
         List<Data> packets = pairs.SelectMany(x => new [] {x.Left, x.Right}).ToList();
-        var divider = ParsePair(new [] {"[[2]]", "[[6]]"});
+        var divider = ParsePair(new [] {Divider2, Divider6});
         packets.Add(divider.Left);
         packets.Add(divider.Right);
         
@@ -40,8 +93,77 @@ public class Solution13 : Solution
         return sumValidIndices + "\n" + key;
     }
 
-    private int ComparePair(Pair pair) => CompareData(pair.Left, pair.Right);
+    private string SolveJson(IEnumerable<string> lines)
+    {
+        JsonNode[] nodes = lines.Select(x => JsonNode.Parse(x)!).ToArray();
+        var pairs = nodes.Chunk(2).ToList();
 
+        int sumValidIndices = 0;
+        for (var index = 0; index < pairs.Count; index++)
+        {
+            JsonNode[] pair = pairs[index];
+            int result = CompareJson(pair[0], pair[1]);
+            if (result < 0)
+            {
+                sumValidIndices += index + 1;
+            }
+        }
+
+        List<JsonNode> packets = nodes.ToList();
+        JsonNode divider2 = JsonNode.Parse(Divider2)!;
+        JsonNode divider6 = JsonNode.Parse(Divider6)!;
+        
+        packets.Add(divider2);
+        packets.Add(divider6);
+        
+        packets.Sort(CompareJson);
+
+        int divider2Index = 1 + packets.IndexOf(divider2);
+        int divider6Index = 1 + packets.IndexOf(divider6);
+
+        int key = divider2Index * divider6Index;
+
+        return sumValidIndices + "\n" + key;
+    }
+    
+    private int CompareJson(JsonNode left, JsonNode right)
+    {
+        if (left is JsonValue li && right is JsonValue ri)
+        {
+            return CompareJson(li, ri);
+        }
+        
+        JsonArray lld = left as JsonArray ?? CreateJsonArray(left);
+        JsonArray rld = right as JsonArray ?? CreateJsonArray(right);
+        return CompareJson(lld, rld);
+    }
+
+    private JsonArray CreateJsonArray(JsonNode value)
+    {
+        JsonValue valueNode = (JsonValue)value;
+        return new JsonArray(JsonValue.Create(valueNode.GetValue<int>()));
+    }
+    
+    private int CompareJson(JsonValue left, JsonValue right)
+    {
+        return left.GetValue<int>().CompareTo(right.GetValue<int>());
+    }
+    
+    private int CompareJson(JsonArray left, JsonArray right)
+    {
+        for (int leftIndex = 0; leftIndex < left.Count; leftIndex++)
+        {
+            if (leftIndex >= right.Count) return +1;
+
+            int result = CompareJson(left[leftIndex]!, right[leftIndex]!);
+            if (result != 0) return result;
+        }
+
+        return left.Count == right.Count ? 0 : -1;
+    }
+
+    private int ComparePair(Pair pair) => CompareData(pair.Left, pair.Right);
+    
     private int CompareData(Data left, Data right)
     {
         if (left is IntegerData li && right is IntegerData ri)
@@ -61,15 +183,15 @@ public class Solution13 : Solution
     
     private int CompareData(ListData left, ListData right)
     {
-        for (int leftIndex = 0; leftIndex < left.Items.Count; leftIndex++)
+        for (int leftIndex = 0; leftIndex < left.Count; leftIndex++)
         {
-            if (leftIndex >= right.Items.Count) return +1;
+            if (leftIndex >= right.Count) return +1;
 
-            int result = CompareData(left.Items[leftIndex], right.Items[leftIndex]);
+            int result = CompareData(left[leftIndex], right[leftIndex]);
             if (result != 0) return result;
         }
 
-        return left.Items.Count == right.Items.Count ? 0 : -1;
+        return left.Count == right.Count ? 0 : -1;
     }
 
     private List<Pair> Parse(IEnumerable<string> lines)
@@ -94,92 +216,71 @@ public class Solution13 : Solution
         return new (left, right);
     }
     
-    private abstract record Data
+    private abstract record Data : IParsable<Data>
     {
-        public static Data Parse(string data)
+        public static Data Parse(string data, IFormatProvider? provider = null)
         {
-            if (char.IsDigit(data[0]))
-            {
-                return IntegerData.Parse(data);
-            }
-
-            return ListData.Parse(data);
+            DataReader reader = new DataReader(data);
+            return Parse(ref reader);
         }
-    }
-    private record IntegerData(int Value) : Data, IParsable<IntegerData>
-    {
-        public override string ToString() => Value.ToString();
 
-        public static IntegerData Parse(string data, IFormatProvider? provider = null) => new (int.Parse(data));
-        public static bool TryParse(string? s, IFormatProvider? provider, out IntegerData result)
+        public static bool TryParse(string? s, IFormatProvider? provider, out Data result)
         {
-            if (int.TryParse(s, provider, out int value))
-            {
-                result = new IntegerData(value);
-            }
-
             result = default!;
             return false;
         }
+
+        protected static Data Parse(ref DataReader reader)
+        {
+            if (char.IsDigit(reader.Peek()))
+            {
+                return IntegerData.ParseData(ref reader);
+            }
+
+            return ListData.ParseData(ref reader);
+        }
+    }
+    private record IntegerData(int Value) : Data
+    {
+        public override string ToString() => Value.ToString();
+
+        public static IntegerData ParseData(ref DataReader reader)
+        {
+            return new IntegerData(reader.ReadInt());
+        }
     }
 
-    private record ListData(List<Data> Items) : Data, IParsable<ListData>
+    private record ListData(List<Data> Items) : Data
     {
+        private List<Data> Items { get; } = Items;
+        
+        public int Count => Items.Count;
+        public Data this[int index] => Items[index];
+        
         public override string ToString() => "[" + string.Join(',', Items) + "]";
 
-        public static bool TryParse(string? s, IFormatProvider? provider, out ListData result)
+        public static ListData ParseData(ref DataReader reader)
         {
-            result = Parse(s!, provider);
-            return true;
-        }
-        
-        public static ListData Parse(string data, IFormatProvider? provider = null)
-        {
-            string removeList = data.Substring(1, data.Length - 2);
-            List<Data> content = new List<Data>();
+            List<Data> content = new();
+            reader.ReadChar('[');
 
-            int depth = 0;
-            int containedListStart = -1;
-            string digits = "";
-
-            for (int i = 0; i < removeList.Length; i++)
+            bool expectComma = false;
+            while (reader.Peek() != ']')
             {
-                char c = removeList[i];
+                if (expectComma)
+                {
+                    reader.ReadChar(',');
+                }
+                else
+                {
+                    Data current = Data.Parse(ref reader);
+                    content.Add(current);
+                }
 
-                if (c == '[')
-                {
-                    if (depth == 0) containedListStart = i;
-                    depth++;
-                }
-                else if (c == ']')
-                {
-                    depth--;
-                }
+                expectComma = !expectComma;
+            }            
             
-                if (depth == 0)
-                {
-                    if(char.IsDigit(c))
-                    {
-                        digits += c;
-                    }
-                    else if (c == ']')
-                    {
-                        int containedListEnd = i;
-                        string innerList = removeList.Substring(containedListStart, containedListEnd - containedListStart + 1);
-                        content.Add(Data.Parse(innerList));
-                    }
-                    else if(digits.Length > 0)
-                    {
-                        content.Add(IntegerData.Parse(digits));
-                        digits = "";
-                    }
-                }
-            }
-
-            if (digits.Length > 0)
-            {
-                content.Add(IntegerData.Parse(digits));
-            }
+            reader.ReadChar(']');
 
             return new ListData(content);
         }

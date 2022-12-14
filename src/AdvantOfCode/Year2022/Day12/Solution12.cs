@@ -95,7 +95,7 @@ public class Solution12 : Solution
             }
         }
 
-        public bool IsPassable(Point from, Point to) => GetHeight(to) - GetHeight(from) <= 1;
+        private bool IsPassable(Point from, Point to) => GetHeight(to) - GetHeight(from) <= 1;
         
         private bool InRange(Point p) => p.X >= 0 && p.X < _width &&
                                          p.Y >= 0 && p.Y < _height;

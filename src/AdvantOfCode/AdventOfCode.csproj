@@ -15,9 +15,9 @@
     <Content Include="*/*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content  Condition="Exists('SESSION')" Include="SESSION">
+    <Content Condition="Exists('SESSION')" Include="SESSION">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
+    </Content>
   </ItemGroup>
 
 </Project>

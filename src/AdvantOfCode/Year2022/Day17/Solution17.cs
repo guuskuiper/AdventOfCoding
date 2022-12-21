@@ -214,7 +214,7 @@ public class Solution17 : Solution
                 states.Add(state, output);
             }
 
-            if (i > 5_000)
+            if (i > 10_000)
             {
                 throw new Exception("Can't find period");
             }

@@ -12,6 +12,7 @@ public ref struct LineReader
     }
 
     public bool IsDone => _position >= _data.Length;
+    public bool IsDigit => char.IsDigit(Peek());
 
     public int ReadInt()
     {

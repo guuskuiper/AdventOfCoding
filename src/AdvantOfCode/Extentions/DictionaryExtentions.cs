@@ -2,7 +2,7 @@
 
 public static class DictionaryExtensions
 {
-    public static void AddOrCreate<T>(this Dictionary<T, long> elements, T key, long value)
+    public static void AddOrCreate<T>(this Dictionary<T, long> elements, T key, long value) where T : notnull
     {
         if (elements.ContainsKey(key))
         {

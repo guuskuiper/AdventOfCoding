@@ -35,4 +35,36 @@ public static class BFS
 
         return from;
     }
+    
+    public static Dictionary<T, T> SearchToGoalFunc<T>(IGraph<T> graph, T start, Func<T, bool> isGoalReached) where T : notnull
+    {
+        var frontier = new AQueue<T>();
+        frontier.Add(start);
+
+        Dictionary<T, T> from = new()
+        {
+            [start] = start
+        };
+
+        while (!frontier.Empty)
+        {
+            var current = frontier.Get();
+
+            if (isGoalReached(current))
+            {
+                break;
+            }
+            
+            foreach (var next in graph.Neighbors(current))
+            {
+                if(!from.ContainsKey(next))
+                {
+                    frontier.Add(next);
+                    from[next] = current;
+                }
+            }
+        }
+
+        return from;
+    }
 }

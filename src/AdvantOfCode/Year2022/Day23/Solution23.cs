@@ -7,11 +7,10 @@ public class Solution23 : Solution
 {
     private class Elf
     {
-        public static Size None = Size.Empty;
-        public static Size North = new Size(0, -1);
-        public static Size South = new Size(0, 1);
-        public static Size West = new Size(-1, 0);
-        public static Size East = new Size(1, 0);
+        public static Size North = new(0, -1);
+        public static Size South = new(0, 1);
+        public static Size West = new(-1, 0);
+        public static Size East = new(1, 0);
         public static Size NW = North + West;
         public static Size NE = North + East;
         public static Size SW = South + West;

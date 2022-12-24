@@ -14,8 +14,6 @@ public class Solution15 : Solution
     
     public string Run()
     {
-        var sw = Stopwatch.StartNew();
-
         var lines = InputReader.ReadFileLinesArray();
         List<Sensor> sensors = Parse(lines);
 
@@ -95,9 +93,6 @@ public class Solution15 : Solution
 
         var target = validPoints[0];
         BigInteger tuning = Tuning(target);
-
-        TimeSpan b = sw.Elapsed;
-        Console.WriteLine("Time: " + b);
 
         return count + "\n" + tuning;
     }

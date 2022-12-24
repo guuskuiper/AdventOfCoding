@@ -27,8 +27,8 @@ public class Solution12 : Solution
         var parents = BFS.SearchFrom(graph, start, end);
         var path = GetPath(parents, start, end);
 
-        var reversedParents = parents.Where(x => path.Contains(x.Key)).ToDictionary(x => x.Value, y => y.Key);
-        GraphDraw.DrawGrid(graph, reversedParents, start, end);
+        var pathParents = parents.Where(x => path.Contains(x.Key)).ToDictionary(x => x.Key, y => y.Value);
+        GraphDraw.DrawGrid(graph, pathParents, start, end);
 
         List<int> lengths = new();
         for (int y = 0; y < lines.Length; y++)

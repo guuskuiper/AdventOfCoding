@@ -1,4 +1,5 @@
 using System.Drawing;
+using AdventOfCode.Extensions;
 using AdventOfCode.Graph;
 
 namespace AdventOfCode.Year2022.Day24;
@@ -89,12 +90,11 @@ public class Solution24 : Solution
             ######.#
             """;
         // string[] lines = example.Split("\r\n");
-        // int lcm = 12; // 6 x 4 / 2
         var lines = InputReader.ReadFileLinesArray();
-        int lcm = 700; // 35 x 100 / 7
+        
         var blizzards = Parse(lines).ToArray();
         Size bounds = new(lines[0].Length - 2, lines.Length - 2);
-        var step1 = Move(blizzards, 1, bounds);
+        int lcm = MathGeneric.LCM(bounds.Width, bounds.Height);
         
         Blizzard[][] blizzardsMoves = new Blizzard[lcm][];
         for (int s = 0; s < lcm; s++)

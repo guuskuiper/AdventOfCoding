@@ -1,4 +1,4 @@
-using AdventOfCode.Extentions;
+using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2021.Day21;
 

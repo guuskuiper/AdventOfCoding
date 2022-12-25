@@ -1,4 +1,5 @@
 using System.Numerics;
+using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day11;
 
@@ -46,7 +47,7 @@ public class Solution11 : Solution
 
     private void Rounds2(List<Monkey> monkeys, int count)
     {
-        long divisors = monkeys.Aggregate(GetMultIdentity<long>(), (x, y) => x * y.DivisibleBy);
+        long divisors = MathGeneric.LCM(monkeys.Select(x => x.DivisibleBy));
         
         foreach (var round in Enumerable.Range(1, count))
         {

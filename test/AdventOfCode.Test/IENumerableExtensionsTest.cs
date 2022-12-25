@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using AdventOfCode.Extentions;
+using AdventOfCode.Extensions;
 using Xunit;
 
 namespace AdventOfCode.Test;
 
-public class IENumerableExtentionsTest
+public class IENumerableExtensionsTest
 {
     [Fact]
     public void Numbers3pow3_SlouldContain27()

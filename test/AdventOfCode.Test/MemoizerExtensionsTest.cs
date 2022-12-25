@@ -1,5 +1,5 @@
 ﻿using System;
-using AdventOfCode.Extentions;
+using AdventOfCode.Extensions;
 using Xunit;
 
 namespace AdventOfCode.Test;

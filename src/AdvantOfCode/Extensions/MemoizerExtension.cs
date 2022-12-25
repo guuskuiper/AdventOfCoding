@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace AdventOfCode.Extentions;
+namespace AdventOfCode.Extensions;
 
 public static class MemoizerExtension
 {

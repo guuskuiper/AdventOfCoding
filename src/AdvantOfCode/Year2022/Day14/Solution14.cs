@@ -1,6 +1,6 @@
 using System.Drawing;
 using System.Text;
-using AdventOfCode.Extentions;
+using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day14;
 

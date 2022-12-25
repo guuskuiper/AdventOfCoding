@@ -1,6 +1,6 @@
-﻿namespace AdventOfCode.Extentions;
+﻿namespace AdventOfCode.Extensions;
 
-public static class EnumerableExtentions
+public static class EnumerableExtensions
 {
     public static IEnumerable<IEnumerable<T>> CombinationsWithRepetition<T>(this IEnumerable<T> input, int length)
     {

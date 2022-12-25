@@ -24,9 +24,17 @@ public class Solution12 : Solution
             }
         }
 
+        (var parentsA, _) = AStar.SearchWithManhattan(graph, start, end);
+        var pathA = GetPath(parentsA, start, end);
+
+        (var parentsD, _) = Dijkstra.SearchFrom(graph, start, end);
+        var pathD = GetPath(parentsD, start, end);
+
         var parents = BFS.SearchFrom(graph, start, end);
         var path = GetPath(parents, start, end);
 
+        if (path.Count != pathD.Count || path.Count != pathA.Count) throw new Exception("BFS / AStar / Dijkstra not same result");
+        
         var pathParents = parents.Where(x => path.Contains(x.Key)).ToDictionary(x => x.Key, y => y.Value);
         GraphDraw.DrawGrid(graph, pathParents, start, end);
 
@@ -64,7 +72,7 @@ public class Solution12 : Solution
         return path;
     }
     
-    private class HillGraph : IRectGrid<Point>
+    private class HillGraph : IRectGrid<Point>, IWeightedGraph<Point, int>
     {
         private readonly string[] _array;
         private readonly int _width;
@@ -107,5 +115,7 @@ public class Solution12 : Solution
             else if (c == 'E') c = 'z';
             return c;
         }
+
+        public int Cost(Point a, Point b) => AStar.DistanceManhattan(a, b);
     }
 }

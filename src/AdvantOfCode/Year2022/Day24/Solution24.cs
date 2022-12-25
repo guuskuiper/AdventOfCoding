@@ -8,7 +8,7 @@ public class Solution24 : Solution
 {
     private record TimePoint(Point Point, int Time);
     private record Blizzard(Point Point, char Direction);
-    private class BlizzardGraph : IGraph<TimePoint>, IRectGrid<Point>
+    private class BlizzardGraph : IGraph<TimePoint>, IRectGrid<Point>, IWeightedGraph<TimePoint, int>
     {
         private static readonly Size Empty = Size.Empty;
         private static readonly Size North = new(0, -1);
@@ -77,6 +77,8 @@ public class Solution24 : Solution
                 yield return timePoint.Point;
             }
         }
+
+        public int Cost(TimePoint a, TimePoint b) => a.Point == b.Point ? 1: AStar.DistanceManhattan(a.Point, b.Point);
     }
 
     public string Run()
@@ -116,6 +118,14 @@ public class Solution24 : Solution
 
         var results = BFS.SearchToGoalFunc(graph, start, ExitFound);
         TimePoint exit = BestEndpoint(results, ExitFound);
+
+        (var resultsA, var distancesA) = AStar.SearchFrom(graph, start, exit, ExitFound, graph.Cost);
+        TimePoint exitA = BestEndpoint(resultsA, ExitFound);
+
+        (var resultsD, var distancesD) = Dijkstra.SearchGoal(graph, start, ExitFound);
+        TimePoint exitD = BestEndpoint(resultsD, ExitFound);
+        
+        if (exit != exitA || exit != exitD) throw new Exception("BFS / AStar / Dijkstra not same result");
 
         var path = TimePoints2Path(results, exit);
         GraphDraw.DrawGrid(graph, path, BlizzardGraph.Start, graph.End);

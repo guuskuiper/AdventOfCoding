@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode.Graph;
+﻿using System.Numerics;
+
+namespace AdventOfCode.Graph;
 
 public interface IGraph<TNode>
 {
@@ -11,7 +13,8 @@ public interface IRectGrid<TNode> : IGraph<TNode>
     int Height { get; }
 }
 
-public interface IWeightedGraph<TNode> : IGraph<TNode>
+public interface IWeightedGraph<TNode, out TCosts> : IGraph<TNode>
+    where TCosts : INumber<TCosts>
 {
-    double Cost(TNode a, TNode b);
+    TCosts Cost(TNode a, TNode b);
 }

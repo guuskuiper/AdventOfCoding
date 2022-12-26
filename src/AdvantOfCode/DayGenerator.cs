@@ -14,6 +14,16 @@ public static class DayGenerator
         if (solutionType == null) throw new Exception($"Cannot find {middleNamespace}.{name}");
         return CreateInstance(solutionType);
     }
+    
+    public static Solution GetDayInfoAttribute(int year, int day)
+    {
+        var solutionType = GetSolutionTypes()
+            .FirstOrDefault(x => x.GetCustomAttribute<DayInfoAttribute>() is DayInfoAttribute dayInfo
+                                 && dayInfo.Year == year 
+                                 && dayInfo.Day == day);
+        if (solutionType == null) throw new Exception($"Cannot find Year {year} Day {day}");
+        return CreateInstance(solutionType);
+    }
 
     private static bool MatchesNamespace(Type t, string name)
     {
@@ -54,18 +64,30 @@ public static class DayGenerator
             var fileName = Path.Combine(newDayPath, $"Solution{day:D2}" + ".cs");
             if(File.Exists(fileName) && !force) continue;
 
-            string content = @""
-                             + $"namespace AdventOfCode.{yearString}.{dayString};" + Environment.NewLine
-                             + Environment.NewLine
-                             + $"public class {className} : Solution" + Environment.NewLine
-                             + "{" + Environment.NewLine
-                             + "    public string Run()" + Environment.NewLine
-                             + "    {" + Environment.NewLine
-                             + "        return \"UNKNOWN\";" + Environment.NewLine
-                             + "    }" + Environment.NewLine
-                             + "}" + Environment.NewLine;
+            string content = FillSolutionTemplate(year, day);
             await File.WriteAllTextAsync(fileName, content);
         }
+    }
+
+    public static string FillSolutionTemplate(int year, int day)
+    {
+        string yearString = $"Year{year}";
+        var dayString = $"Day{day:D2}";
+        var className = $"Solution{day:D2}";
+        string content = $$"""
+                namespace AdventOfCode.{{yearString}}.{{dayString}};
+
+                [DayInfo({{year}}, {{day:D2}})]
+                public class {{className}} : Solution
+                {
+                    public string Run()
+                    {
+                        string[] input = InputReader.ReadFileLinesArray();
+                        return "UNKNOWN";
+                    }
+                }    
+                """;
+        return content;
     }
 
     static string GetSourceFilePathName([CallerFilePath] string? callerFilePath = null) //

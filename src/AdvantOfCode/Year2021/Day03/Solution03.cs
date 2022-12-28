@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day03;
 
+[DayInfo(2021, 03)]
 public class Solution03 : Solution
 {
     private const string Awnser = "4138664\n4273224";

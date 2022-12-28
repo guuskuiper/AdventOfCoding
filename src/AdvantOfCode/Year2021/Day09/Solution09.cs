@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day09;
 
+[DayInfo(2021, 09)]
 public class Solution09 : Solution
 {
     public struct Point

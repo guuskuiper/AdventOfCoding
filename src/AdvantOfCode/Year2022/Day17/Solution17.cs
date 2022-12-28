@@ -3,6 +3,7 @@ using System.Runtime.InteropServices.JavaScript;
 
 namespace AdventOfCode.Year2022.Day17;
 
+[DayInfo(2022, 17)]
 public class Solution17 : Solution
 {
     private const bool Debug = false;

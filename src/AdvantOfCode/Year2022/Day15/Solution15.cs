@@ -7,6 +7,7 @@ using System.Numerics;
 
 namespace AdventOfCode.Year2022.Day15;
 
+[DayInfo(2022, 15)]
 public class Solution15 : Solution
 {
     private const bool ExecuteParallel = true;

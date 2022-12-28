@@ -4,6 +4,7 @@ using AdventOfCode.Graph;
 
 namespace AdventOfCode.Year2022.Day24;
 
+[DayInfo(2022, 24)]
 public class Solution24 : Solution
 {
     private record TimePoint(Point Point, int Time);

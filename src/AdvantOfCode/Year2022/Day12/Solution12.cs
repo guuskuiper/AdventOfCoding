@@ -3,6 +3,7 @@ using AdventOfCode.Graph;
 
 namespace AdventOfCode.Year2022.Day12;
 
+[DayInfo(2022, 12)]
 public class Solution12 : Solution
 {
     public string Run()

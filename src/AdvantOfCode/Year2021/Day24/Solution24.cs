@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day24;
 
+[DayInfo(2021, 24)]
 public class Solution24 : Solution
 {
     public enum InstructionType

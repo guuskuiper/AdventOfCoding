@@ -2,6 +2,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2021.Day21;
 
+[DayInfo(2021, 21)]
 public class Solution21 : Solution
 {
     public class DetermanisticDie

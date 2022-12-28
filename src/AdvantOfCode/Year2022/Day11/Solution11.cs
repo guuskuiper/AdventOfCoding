@@ -3,6 +3,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day11;
 
+[DayInfo(2022, 11)]
 public class Solution11 : Solution
 {
     private const bool Print = false;

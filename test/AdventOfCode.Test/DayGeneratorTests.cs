@@ -7,7 +7,7 @@ public class DayGeneratorTests
     [Fact]
     public void Get202201()
     {
-        Solution solution = DayGenerator.GetDayInfoAttribute(2022, 01);
+        Solution solution = DayGenerator.GetSolutionByDay(2022, 01);
         Assert.NotNull(solution);
     }
 

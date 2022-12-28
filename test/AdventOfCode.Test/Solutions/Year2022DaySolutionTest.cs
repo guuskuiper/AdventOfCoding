@@ -1,15 +1,11 @@
-using System;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace AdventOfCode.Test;
+namespace AdventOfCode.Test.Solutions;
 
-public class Year2022DaySolutionTest
+public class Year2022DaySolutionTest : YearTests
 {
-    private const string Prefix = "Day";
-    private const string Year = "Year2022";
+    public Year2022DaySolutionTest(ITestOutputHelper testOutputHelper) : base(2022, testOutputHelper) {}
     
     [Fact] public void Day01() => AssertDay("70369", "203002");
     [Fact] public void Day02() => AssertDay("11449", "13187");
@@ -18,7 +14,6 @@ public class Year2022DaySolutionTest
     [Fact] public void Day05() => AssertDay("TQRFCBSJJ", "RMHFJNVFP");
     [Fact] public void Day06() => AssertDay("1920", "2334");
     [Fact] public void Day07() => AssertDay("1644735", "1300850");
-    [Fact] public void Day07B() => AssertDay("1644735", "1300850");
     [Fact] public void Day08() => AssertDay("1792", "334880");
     [Fact] public void Day09() => AssertDay("6181", "2386");
     [Fact] public void Day10() => AssertDay("13440", """
@@ -45,20 +40,4 @@ public class Year2022DaySolutionTest
     [Fact] public void Day23() => AssertDay("3766", "954");
     [Fact] public void Day24() => AssertDay("242", "720");
     [Fact] public void Day25() => AssertDay("2=-0=1-0012-=-2=0=01", "");
-    
-    private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
-    {
-        string day = callerName.Substring(Prefix.Length);
-        string solutionName = $"Solution{day}";
-        Solution current = DayGenerator.GetByName(solutionName, Year);
-        var solution = current.Run();
-        if (string.IsNullOrEmpty(expectedB))
-        {
-            Assert.Equal(expectedA, solution.Trim('\n'));
-        }
-        else
-        {
-            Assert.Equal(expectedA + "\n" + expectedB, solution);
-        }
-    }
 }

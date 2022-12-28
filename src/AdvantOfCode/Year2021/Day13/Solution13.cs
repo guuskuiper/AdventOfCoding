@@ -2,6 +2,7 @@ using System.Text;
 
 namespace AdventOfCode.Year2021.Day13;
 
+[DayInfo(2021, 13)]
 public class Solution13 : Solution
 {
     private record Point(int X, int Y);

@@ -28,6 +28,7 @@ public static class ERockPaperScissorsExtentions
     };
 }
 
+[DayInfo(2022, 02)]
 public class Solution02 : Solution
 {
     private record Round(ERockPaperScissors Opponent, ERockPaperScissors Response);

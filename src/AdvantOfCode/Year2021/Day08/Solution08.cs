@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day08;
 
+[DayInfo(2021, 08)]
 public class Solution08 : Solution
 {
     private int[] digitCount = new int[10];

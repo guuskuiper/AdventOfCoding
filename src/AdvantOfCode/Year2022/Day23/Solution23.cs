@@ -3,6 +3,7 @@ using System.Text;
 
 namespace AdventOfCode.Year2022.Day23;
 
+[DayInfo(2022, 23)]
 public class Solution23 : Solution
 {
     private class Elf

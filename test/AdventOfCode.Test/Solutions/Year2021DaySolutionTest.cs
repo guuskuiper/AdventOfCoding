@@ -1,14 +1,14 @@
 using System;
-using System.Runtime.CompilerServices;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace AdventOfCode.Test;
+namespace AdventOfCode.Test.Solutions;
 
-public class Year2021DaySolutionTest
+public class Year2021DaySolutionTest : YearTests
 {
-    private const string Prefix = "Day";
+    public Year2021DaySolutionTest(ITestOutputHelper testOutputHelper) : base(2021, testOutputHelper) {}
     
-    [Fact] public void Day01() => AssertDay("1548", "1589", Prefix + 1);
+    [Fact] public void Day01() => AssertDay("1548", "1589");
     [Fact] public void Day02() => AssertDay("1746616", "1741971043");
     [Fact] public void Day03() => AssertDay("4138664", "4273224");
     [Fact] public void Day04() => AssertDay("31424", "23042");
@@ -39,13 +39,4 @@ public class Year2021DaySolutionTest
     [Fact] public void Day23() => AssertDay("19160", "47232");
     [Fact] public void Day24() => AssertDay("99893999291967", "34171911181211");
     [Fact] public void Day25() => AssertDay("582", "");
-    
-    private void AssertDay(string expectedA, string expectedB, [CallerMemberName] string callerName = "")
-    {
-        int day = int.Parse(callerName.Substring(Prefix.Length));
-        string solutionName = $"Solution{day:D2}";
-        Solution current = DayGenerator.GetByName(solutionName, "Year2021");
-        var solution = current.Run();
-        Assert.Equal(expectedA + "\n" + expectedB, solution);
-    }
 }

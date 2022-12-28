@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day16;
 
+[DayInfo(2021, 16)]
 public class Solution16 : Solution
 {
     private const long ONE = 1;

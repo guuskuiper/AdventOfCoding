@@ -2,7 +2,7 @@
 using AdventOfCode.Extensions;
 using Xunit;
 
-namespace AdventOfCode.Test;
+namespace AdventOfCode.Test.Extensions;
 
 public class MemoizerExtensionsTest
 {
@@ -23,7 +23,7 @@ public class MemoizerExtensionsTest
     [Fact]
     public void Fib3Memoizer_ShouldReturn2()
     {
-        Func<int, int> fib = null;
+        Func<int, int> fib = null!;
         fib = MemoizerExtension.Memoize<int, int>(n => Fib(n, fib!));
 
         int fibResult = fib(3);
@@ -34,7 +34,7 @@ public class MemoizerExtensionsTest
     [Fact]
     public void Fib4Memoizer_ShouldReturn3()
     {
-        Func<int, int> fib = null;
+        Func<int, int> fib = null!;
         fib = MemoizerExtension.Memoize<int, int>(n => Fib(n, fib!));
 
         int fibResult = fib(4);

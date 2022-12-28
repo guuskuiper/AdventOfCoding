@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day10;
 
+[DayInfo(2021, 10)]
 public class Solution10 : Solution
 {
     private const char OPEN_PARENTHESIS = '(';

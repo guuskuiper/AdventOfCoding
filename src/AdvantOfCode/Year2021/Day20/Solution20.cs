@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day20;
 
+[DayInfo(2021, 20)]
 public class Solution20 : Solution
 {
     private const char HIGH = '#';

@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2022.Day19;
 
+[DayInfo(2022, 19)]
 public class Solution19 : Solution
 {
     private const int TimeA = 24;

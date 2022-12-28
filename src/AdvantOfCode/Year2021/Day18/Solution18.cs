@@ -4,6 +4,7 @@ namespace AdventOfCode.Year2021.Day18;
 
 using Pair = Solution18.BinaryTreeNode<int>;
 
+[DayInfo(2021, 18)]
 public class Solution18 : Solution
 {
     public ref struct NumberReader

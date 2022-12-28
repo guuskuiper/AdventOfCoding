@@ -2,6 +2,7 @@ using System.Text;
 
 namespace AdventOfCode.Year2021.Day15;
 
+[DayInfo(2021, 15)]
 public class Solution15 : Solution
 {
     public class Node

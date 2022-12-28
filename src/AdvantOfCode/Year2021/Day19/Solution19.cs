@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day19;
 
+[DayInfo(2021, 19)]
 public class Solution19 : Solution
 {
     public enum Axis

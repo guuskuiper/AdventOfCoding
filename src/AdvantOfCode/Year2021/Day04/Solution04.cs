@@ -2,6 +2,7 @@ using System.Text;
 
 namespace AdventOfCode.Year2021.Day04;
 
+[DayInfo(2021, 04)]
 public class Solution04 : Solution
 {
     public class Board

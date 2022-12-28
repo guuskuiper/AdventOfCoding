@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2022.Day04;
 
+[DayInfo(2022, 04)]
 public class Solution04 : Solution
 {
     private record Range(int Low, int High)

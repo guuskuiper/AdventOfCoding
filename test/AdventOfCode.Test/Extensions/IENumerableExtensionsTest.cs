@@ -2,7 +2,7 @@
 using AdventOfCode.Extensions;
 using Xunit;
 
-namespace AdventOfCode.Test;
+namespace AdventOfCode.Test.Extensions;
 
 public class IENumerableExtensionsTest
 {

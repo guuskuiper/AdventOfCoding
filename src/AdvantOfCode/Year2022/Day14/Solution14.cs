@@ -4,6 +4,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day14;
 
+[DayInfo(2022, 14)]
 public class Solution14 : Solution
 {
     private class Cave

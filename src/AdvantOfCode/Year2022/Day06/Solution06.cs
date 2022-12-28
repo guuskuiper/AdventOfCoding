@@ -3,6 +3,7 @@ using System.Drawing;
 
 namespace AdventOfCode.Year2022.Day06;
 
+[DayInfo(2022, 06)]
 public class Solution06 : Solution
 {
     public string Run()

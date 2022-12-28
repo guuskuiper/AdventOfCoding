@@ -2,6 +2,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day08;
 
+[DayInfo(2022, 08)]
 public class Solution08 : Solution
 {
     private int[,] _heigths;

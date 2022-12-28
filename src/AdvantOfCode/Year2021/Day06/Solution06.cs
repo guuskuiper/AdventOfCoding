@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day06;
 
+[DayInfo(2021, 06)]
 public class Solution06 : Solution
 {
     private List<int> simulation;

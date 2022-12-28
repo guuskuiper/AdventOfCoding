@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day01;
 
+[DayInfo(2021, 01)]
 public class Solution01 : Solution
 {
     public string Run()

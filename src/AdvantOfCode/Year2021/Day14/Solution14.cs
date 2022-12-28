@@ -3,6 +3,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2021.Day14;
 
+[DayInfo(2021, 14)]
 public class Solution14 : Solution
 {
     private readonly string _polymereTemplateInput;

@@ -2,6 +2,7 @@ using System.Drawing;
 
 namespace AdventOfCode.Year2022.Day07;
 
+[DayInfo(2022, 07)]
 public class Solution07B : Solution
 {
     private const int LIMIT1 = 100_000;

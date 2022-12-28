@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 
 namespace AdventOfCode.Year2022.Day13;
 
+[DayInfo(2022, 13)]
 public class Solution13 : Solution
 {
     private const string Divider2 = "[[2]]";

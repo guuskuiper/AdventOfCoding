@@ -2,6 +2,7 @@ using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2022.Day09;
 
+[DayInfo(2022, 09)]
 public class Solution09 : Solution
 {
     private record Move(char Direction, int Steps);

@@ -3,6 +3,7 @@ using System.Numerics;
 
 namespace AdventOfCode.Year2022.Day16;
 
+[DayInfo(2022, 16)]
 public class Solution16 : Solution
 {
     private List<ValveInt> _valves;

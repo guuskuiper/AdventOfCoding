@@ -4,6 +4,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AdventOfCode.Year2022.Day22;
 
+[DayInfo(2022, 22)]
 public class Solution22 : Solution
 {
     public class JungleMap

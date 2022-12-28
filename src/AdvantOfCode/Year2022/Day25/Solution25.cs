@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2022.Day25;
 
+[DayInfo(2022, 25)]
 public class Solution25 : Solution
 {
     private const int SNAFU_BASE = 5;

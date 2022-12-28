@@ -4,7 +4,7 @@ using AdventOfCode.Year2022.Day22;
 using Xunit;
 using static AdventOfCode.Year2022.Day22.Solution22;
 
-namespace AdventOfCode.Test;
+namespace AdventOfCode.Test.Solutions;
 
 public class JungleMapTests
 {

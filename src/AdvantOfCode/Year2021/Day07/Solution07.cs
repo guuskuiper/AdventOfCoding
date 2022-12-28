@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day07;
 
+[DayInfo(2021, 07)]
 public class Solution07 : Solution
 {
     private int _max;

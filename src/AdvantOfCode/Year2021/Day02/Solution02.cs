@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day02;
 
+[DayInfo(2021, 02)]
 public class Solution02 : Solution
 {
     private int horiz = 0;

@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 namespace AdventOfCode.Year2021.Day22;
 
+[DayInfo(2021, 22)]
 public class Solution22 : Solution
 {
     public class Cube

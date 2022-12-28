@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2021.Day05;
 
+[DayInfo(2021, 05)]
 public class Solution05 : Solution
 {
     private int[][]? _oceanFloor;

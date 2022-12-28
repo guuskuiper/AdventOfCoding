@@ -3,6 +3,7 @@ using System.Text;
 
 namespace AdventOfCode.Year2022.Day10;
 
+[DayInfo(2022, 10)]
 public class Solution10 : Solution
 {
     private const char FullBlock = (char)0x2588;

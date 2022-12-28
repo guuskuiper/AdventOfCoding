@@ -1,5 +1,6 @@
 namespace AdventOfCode.Year2022.Day05;
 
+[DayInfo(2022, 05)]
 public class Solution05 : Solution
 {
     private const string START = "move ";

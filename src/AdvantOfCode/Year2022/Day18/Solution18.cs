@@ -2,6 +2,7 @@ using AdventOfCode.Graph;
 
 namespace AdventOfCode.Year2022.Day18;
 
+[DayInfo(2022, 18)]
 public class Solution18 : Solution
 {
     private record Point3(int X, int Y, int Z);

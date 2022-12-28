@@ -110,18 +110,20 @@ public static class DayGenerator
         var dayString = $"Day{day:D2}";
         var className = $"Solution{day:D2}";
         string content = $$"""
-                namespace AdventOfCode.{{yearString}}.{{dayString}};
+using AdventOfCode.Extensions;
 
-                [DayInfo({{year}}, {{day:D2}})]
-                public class {{className}} : Solution
-                {
-                    public string Run()
-                    {
-                        string[] input = InputReader.ReadFileLinesArray();
-                        return "UNKNOWN";
-                    }
-                }    
-                """;
+namespace AdventOfCode.{{yearString}}.{{dayString}};
+
+[DayInfo({{year}}, {{day:D2}})]
+public class {{className}} : Solution
+{
+    public string Run()
+    {
+        string[] input = this.ReadLines();
+        return "UNKNOWN";
+    }
+}    
+""";
         return content;
     }
 

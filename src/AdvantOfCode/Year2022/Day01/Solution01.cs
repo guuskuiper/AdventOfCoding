@@ -1,3 +1,5 @@
+using AdventOfCode.Extensions;
+
 namespace AdventOfCode.Year2022.Day01;
 
 [DayInfo(2022, 01)]
@@ -5,7 +7,7 @@ public class Solution01 : Solution
 {
     public string Run()
     {
-        string[] input = InputReader.ReadFile().Replace("\r\n", "\n").Split('\n');
+        string[] input = this.ReadLines();
 
         List<long> elves = ParseLines(input);
         

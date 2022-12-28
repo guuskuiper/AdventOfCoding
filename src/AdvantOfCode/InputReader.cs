@@ -1,23 +1,28 @@
-﻿using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace AdventOfCode;
 
 public static class InputReader
 {
-    public static string ReadFile([CallerFilePath] string path = null)
+    public static string ReadFile(int year, int day, string inputFilePath)
     {
-        string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
-        if (!File.Exists(inputPath))
+        if (!File.Exists(inputFilePath))
         {
-            string[] split = inputPath.Split(Path.DirectorySeparatorChar);
-            int year = int.Parse(split.Single(s => s.StartsWith("Year")).Substring(4));
-            int day = int.Parse(split.Single(s => s.StartsWith("Day")).Substring(3));
             string text = AoCClient.DownloadAsync(year, day).Result;
-            File.WriteAllText(inputPath, text);
+            File.WriteAllText(inputFilePath, text);
             return text;
         }
-        return File.ReadAllText(inputPath);
+        return File.ReadAllText(inputFilePath);
+    }
+    
+    public static string ReadFile([CallerFilePath] string sourceFilePath = "")
+    {
+        string inputPath = sourceFilePath.Replace("Solution", "input").Replace(".cs", ".txt");
+        string[] split = inputPath.Split(Path.DirectorySeparatorChar);
+        int year = int.Parse(split.Single(s => s.StartsWith("Year")).Substring(4));
+        int day = int.Parse(split.Single(s => s.StartsWith("Day")).Substring(3));
+
+        return ReadFile(year, day, inputPath);
     }
 
     private static IEnumerable<string> ReadFileLinesEnumerable(string path)

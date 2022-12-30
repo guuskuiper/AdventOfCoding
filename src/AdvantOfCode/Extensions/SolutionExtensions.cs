@@ -16,6 +16,6 @@ public static class SolutionExtensions
         string file = dayInfo is not null ? 
             InputReader.ReadFile(dayInfo.Year, dayInfo.Day, inputPath) :
             InputReader.ReadFile(path);
-        return file.Split('\n');
+        return file.Split('\n', StringSplitOptions.RemoveEmptyEntries);
     }
 }

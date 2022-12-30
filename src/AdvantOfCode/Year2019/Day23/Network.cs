@@ -10,27 +10,23 @@ public class Network
     public  Packet FirstPacket;
 
     public Network(IEnumerable<long> instruction, int cpuCount)
-    {   
+    {
+        List<long> cpuInstructions = instruction.ToList();
         computers = new List<NetworkElfComputer> ();
         foreach(var cpuId in Enumerable.Range(0, cpuCount))
         {
-            computers.Add(new NetworkElfComputer(instruction.ToList(), cpuId, Route));
+            computers.Add(new NetworkElfComputer(cpuInstructions, cpuId, Route));
         }
     }
 
     public long Boot()
     {
-        List<Task> tasks = new List<Task>();
         foreach(var computer in  computers)
         {
-            var task = computer.Boot();
-            tasks.Add(task);
+            computer.Boot();
         }
 
-        long value = RunNAT();
-
-        Task.WaitAll(tasks.ToArray());
-        return value;
+        return RunNAT();
     }
 
     public void Route(Packet packet, long destination, long from)
@@ -51,54 +47,34 @@ public class Network
 
     private void RouteToNAT(Packet packet)
     {
-        Console.WriteLine("NAT received " + packet);
+        //Console.WriteLine("NAT received " + packet);
         NATpacket = packet;
         if (FirstPacket is null) FirstPacket = packet;
     }
-
+    
     private long RunNAT()
     {
-        Console.WriteLine("Starting NAT");
         long prevY = long.MaxValue;
-        //return;
-        Task.Run(
-            async () => 
+        while(true)
+        {
+            if(NATpacket != null)
             {
-                while(true)
+                bool idle = true;
+                foreach(var cpu in computers)
                 {
-                    await Task.Delay(1_000);
-                    if(NATpacket != null)
+                    idle &= cpu.IsIdle();
+                }
+                if(idle)
+                {
+                    if(NATpacket.Y == prevY)
                     {
-                        bool idle = true;
-                        foreach(var cpu in computers)
-                        {
-                            idle &= cpu.IsIdle();
-                        }
-                        if(idle)
-                        {
-                            if(NATpacket.Y == prevY)
-                            {
-                                throw new Exception("Done" + prevY);
-                            }
-                            prevY = NATpacket.Y;
-                            Console.WriteLine($"Sending NAT {NATpacket}");
-                            computers[0].Enqueue(NATpacket);
-                            await Task.Yield();
-                        }
-                        else
-                        {
-                            //System.Console.WriteLine("NAT YIELD");
-                            await Task.Yield();
-                        }
+                        return prevY;
                     }
-                    else
-                    {
-                        await Task.Yield();
-                    }
+                    prevY = NATpacket.Y;
+                    //Console.WriteLine($"Sending NAT {NATpacket}");
+                    computers[0].Enqueue(NATpacket);
                 }
             }
-        );
-        return prevY;
+        }
     }
-
 }

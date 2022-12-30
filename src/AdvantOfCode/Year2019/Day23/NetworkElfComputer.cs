@@ -13,6 +13,7 @@ public class NetworkElfComputer
     private Task task;
     private bool useX = true;
     private bool idle = false;
+    private int idleCount = 0;
 
     public NetworkElfComputer(IEnumerable<long> instructions, int id, Action<Packet, long, long> route)
     {
@@ -20,13 +21,12 @@ public class NetworkElfComputer
         Cpu = new ElfComputer(instructions, InputAsyncWrapper, Output);
         NetworkQueue = new ConcurrentQueue<Packet>();
         RouteAction = route;
-        outputs= new List<long>();
+        outputs = new List<long>();
     }
 
     public Task Boot()
     {
-        task = Task.Run( () => Cpu.ProcessInstructions() );
-        return task;
+        return Task.Run( () => Cpu.ProcessInstructions() );
     }
 
     public long Input()
@@ -88,13 +88,19 @@ public class NetworkElfComputer
         if(input == -1)
         {
             idle = true;
+            idleCount++;
             await Task.Yield();
         }
-        return await Task.FromResult<long>(input);
+        else
+        {
+            idleCount = 0;
+        }
+        return await Task.FromResult(input);
     }
 
     public void Output(long output)
     {
+        idleCount = 0;
         idle = false;
         outputs.Add(output);
         if(outputs.Count == 3)
@@ -111,6 +117,6 @@ public class NetworkElfComputer
 
     public bool IsIdle()
     {
-        return NetworkQueue.IsEmpty && idle;
+        return NetworkQueue.IsEmpty && idleCount > 10;
     }
 }

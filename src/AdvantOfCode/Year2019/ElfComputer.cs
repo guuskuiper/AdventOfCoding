@@ -2,7 +2,7 @@
 
 public class ElfComputer
 {
-    public enum Opcodes
+    private enum Opcodes
     {
         Add = 1,
         Multiply = 2,
@@ -17,7 +17,7 @@ public class ElfComputer
         Halt = 99,
     }
 
-    public enum ParameterModes
+    private enum ParameterModes
     {
         Position = 0,
         Immediate = 1,
@@ -46,7 +46,7 @@ public class ElfComputer
 
     public long GetData(int id)
     {
-        if(id < 0) throw new Exception("Negative adress accessed");
+        if(id < 0) throw new Exception("Negative address accessed");
         if(id >= Instructions.Count)
         {
             while(id >= Instructions.Count)
@@ -59,7 +59,7 @@ public class ElfComputer
 
     public void SetData(int id, long value)
     {
-        if(id < 0) throw new Exception("Negative adress accessed");
+        if(id < 0) throw new Exception("Negative address accessed");
         if(id >= Instructions.Count)
         {
             while(id >= Instructions.Count)

@@ -14,7 +14,18 @@ public static class InputReader
         }
         return File.ReadAllText(inputFilePath);
     }
-    
+
+    public static IEnumerable<string> StreamFile(string inputFilePath)
+    {
+        using var fs = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read);
+        using TextReader sr = new StreamReader(fs);
+
+        while (sr.ReadLine() is string line)
+        {
+            yield return line;
+        }
+    }
+
     public static string ReadFile([CallerFilePath] string sourceFilePath = "")
     {
         string inputPath = sourceFilePath.Replace("Solution", "input").Replace(".cs", ".txt");

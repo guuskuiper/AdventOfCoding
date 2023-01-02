@@ -8,7 +8,7 @@ public static class SolutionExtensions
     public static DayInfoAttribute? GetDayInfo(this Solution solution) =>
         solution.GetType().GetCustomAttribute<DayInfoAttribute>();
     
-    public static string[] ReadLines(this Solution solution, [CallerFilePath] string path = "")
+    public static string[] ReadLines(this Solution solution, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries, [CallerFilePath] string path = "")
     {
         string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
         DayInfoAttribute? dayInfo = GetDayInfo(solution);
@@ -16,6 +16,9 @@ public static class SolutionExtensions
         string file = dayInfo is not null ? 
             InputReader.ReadFile(dayInfo.Year, dayInfo.Day, inputPath) :
             InputReader.ReadFile(path);
-        return file.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        return file
+            .ReplaceLineEndings()
+            .Split(Environment.NewLine, options);
     }
 }

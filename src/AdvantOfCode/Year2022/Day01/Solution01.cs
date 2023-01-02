@@ -7,7 +7,7 @@ public class Solution01 : Solution
 {
     public string Run()
     {
-        string[] input = this.ReadLines();
+        string[] input = this.ReadLines(StringSplitOptions.None);
 
         List<long> elves = ParseLines(input);
         

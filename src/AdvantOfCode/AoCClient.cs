@@ -70,14 +70,14 @@ public class AoCClient
     
     public static async Task<string> DownloadAsync(int year, int day)
     {
-        string session = await File.ReadAllTextAsync("SESSION");
+        string session = await GetSessionAsync();
         AoCClient downloader = new AoCClient(session);
         return await downloader.DownloadInputAsync(year, day);
     }
-    
+
     public static async Task<string> UploadAsync(int year, int day, bool part1, string answer)
     {
-        string session = await File.ReadAllTextAsync("SESSION");
+        string session = await GetSessionAsync();
         AoCClient downloader = new AoCClient(session);
         return await downloader.UploadAnswerAsync(year, day, part1, answer);
     }
@@ -98,6 +98,19 @@ public class AoCClient
         Regex stripTags = new Regex("<.*?>");
         string text = stripTags.Replace(noNewLines, string.Empty);
         return text;
+    }
+    
+    private static async Task<string> GetSessionAsync()
+    {
+        string? session = Environment.GetEnvironmentVariable("SESSION");
+        if (session is null)
+        {
+            session = await File.ReadAllTextAsync("SESSION");
+        }
+        
+        ArgumentNullException.ThrowIfNull(session, "No session key defined in SESSION file or environment variable");
+        
+        return session;
     }
     
     // Verify content of the session string.

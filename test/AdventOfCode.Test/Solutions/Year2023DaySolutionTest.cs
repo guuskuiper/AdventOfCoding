@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9,4 +10,5 @@ public class Year2023DaySolutionTest : YearTests
     
     [Fact] public void Day01() => AssertDay("55971", "54719");
     [Fact] public void Day02() => AssertDay("2416", "63307");
+    [Fact] public void Day03() => AssertDay("550064", "85010461");
 }

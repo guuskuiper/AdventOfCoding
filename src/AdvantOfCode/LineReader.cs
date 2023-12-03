@@ -60,11 +60,6 @@ public ref struct LineReader
         }
     }
 
-    public char Peek()
-    {
-        return _data[_position];
-    }
-
     public void Skip(int characters)
     {
         _position += characters;
@@ -76,5 +71,10 @@ public ref struct LineReader
         {
             _position++;
         }
+    }
+    
+    private char Peek()
+    {
+        return _data[_position];
     }
 }

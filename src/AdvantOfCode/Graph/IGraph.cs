@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Drawing;
 
 namespace AdventOfCode.Graph;
 
@@ -17,4 +18,9 @@ public interface IWeightedGraph<TNode, out TCosts> : IGraph<TNode>
     where TCosts : INumber<TCosts>
 {
     TCosts Cost(TNode a, TNode b);
+}
+
+public interface IValueGrid<out TValue>
+{
+    TValue this[Point p] { get; }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using AdventOfCode.Extensions;
+
 namespace AdventOfCode.Graph;
 
 public class SimpleGraph : IGraph<string>
@@ -19,16 +21,38 @@ public class SimpleGraph : IGraph<string>
 
 public class SquareGrid : IRectGrid<Point>
 {
+    public static readonly Size[] SquareNeightbors =
+    {
+        new(1, 0), 
+        new(-1, 0), 
+        new(0, 1), 
+        new(0, -1)
+    };
+    public static readonly Size[] DiagonalNeightbors =
+    {
+        new(-1, -1), 
+        new(0, -1), 
+        new(1, -1), 
+        new(1, 0), 
+        new(1, 1), 
+        new(0, 1), 
+        new(-1, 1), 
+        new(-1, 0)
+    };
+    
     private readonly HashSet<Point> walls;
+    private readonly Size[] neighbors;
 
-    private Size[] neighbors = new[] { new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1) };
-
-    public SquareGrid(int width, int height, IEnumerable<Point> walls)
+    public SquareGrid(int width, int height, IEnumerable<Point> walls, Size[] neighbors)
     {
         Width = width;
         Height = height;
         this.walls = new HashSet<Point>(walls);
+        this.neighbors = neighbors;
     }
+    
+    public SquareGrid(int width, int height, IEnumerable<Point> walls) : this(width, height, walls, SquareNeightbors)
+    { }
 
     public int Width { get; }
     public int Height { get; }
@@ -46,10 +70,27 @@ public class SquareGrid : IRectGrid<Point>
         }
     }
 
-    private bool InRange(Point p) => p.X >= 0 && p.X < Width &&
+    protected bool InRange(Point p) => p.X >= 0 && p.X < Width &&
                                      p.Y >= 0 && p.Y < Height;
 
     public bool IsPassable(Point p) => !walls.Contains(p);
+}
+
+public class RectValueGrid<TValue> : SquareGrid, IValueGrid<TValue>, IStyle<Point>
+{
+    private readonly TValue[,] _grid;
+    
+    public RectValueGrid(TValue[,] grid, Size[]? neightbors = null) 
+        : base(grid.Width(), grid.Heigth(), Enumerable.Empty<Point>(), neightbors ?? SquareNeightbors)
+    {
+        _grid = grid;
+    }
+
+    public TValue this[Point point] => InRange(point) 
+        ? _grid[point.X,point.Y] 
+        : throw new ArgumentOutOfRangeException(nameof(point), $"Point {point} outside grid");
+
+    public string Format(Point p) => this[p]?.ToString() ?? " ";
 }
 
 public class GridWithWeights : SquareGrid, IWeightedGraph<Point, double>
@@ -65,6 +106,6 @@ public class GridWithWeights : SquareGrid, IWeightedGraph<Point, double>
     {
         if (forests.Count == 0) return 1;
         
-        return forests.TryGetValue(b, out double costs) ? costs : 1;
+        return forests.GetValueOrDefault(b, 1);
     }
 }

@@ -5,9 +5,6 @@ namespace AdventOfCode.Extensions;
 
 public static class SolutionExtensions
 {
-    public static DayInfoAttribute? GetDayInfo(this Solution solution) =>
-        solution.GetType().GetCustomAttribute<DayInfoAttribute>();
-    
     public static string[] ReadLines(this Solution solution, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries, [CallerFilePath] string path = "")
     {
         string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
@@ -21,4 +18,7 @@ public static class SolutionExtensions
             .ReplaceLineEndings()
             .Split(Environment.NewLine, options);
     }
+    
+    private static DayInfoAttribute? GetDayInfo(this Solution solution) =>
+        solution.GetType().GetCustomAttribute<DayInfoAttribute>();
 }

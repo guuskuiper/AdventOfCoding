@@ -72,9 +72,11 @@ public ref struct LineReader
             _position++;
         }
     }
-    
+
+    public bool NextEquals(char c) => c == Peek();
+
     private char Peek()
     {
-        return _data[_position];
+        return !IsDone ?  _data[_position] : throw new Exception("Reading / peeking past the end of the line!");
     }
 }

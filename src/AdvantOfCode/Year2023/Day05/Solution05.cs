@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using AdventOfCode.Extensions;
-using AdventOfCode.Year2019.Day12;
 
 namespace AdventOfCode.Year2023.Day05;
 
@@ -7,9 +7,30 @@ namespace AdventOfCode.Year2023.Day05;
 public class Solution05 : Solution
 {
     private record Map(string From, string To, RangeMap[] Ranges);
-    private record RangeMap(long Destination, long Source, long Length);
 
-    private record Range(long Number, long Length);
+    private record RangeMap(long Destination, long Source, long Length)
+    {
+        public long Offset = Destination - Source;
+        public long End = Source + Length;
+    }
+
+    private record Range(long Number, long Length)
+    {
+	    public (Range a, Range b) Split(long position)
+	    {
+            if(position < Number) throw new ArgumentOutOfRangeException(nameof(position) + " before Range: " + ToString());
+            if(position > Number + Length) throw new ArgumentOutOfRangeException(nameof(position) + " after Range: " + ToString());
+
+            Range before = this with { Length = position - Number };
+            Range mapped = new Range(position, Length - before.Length);
+
+            Debug.Assert(Length == before.Length + mapped.Length);
+
+            return (before, mapped);
+	    }
+
+	    public Range Map(long offset) => this with { Number = Number + offset };
+    }
     
     public string Run()
     {
@@ -19,16 +40,16 @@ public class Solution05 : Solution
         Map[] maps = ParseMappings(input);
 
         List<long> locations = seeds
-            .Select(x=> Solve2(x, maps))
+            .Select(x=> Solve(x, maps))
             .ToList();
 
-        var locs = seedRanges.Select(x => Solve3(x, maps)).ToList();
+        var locs = seedRanges.Select(x => Solve(x, maps)).ToList();
         long min = locs.Min(x => x.Min(y => y.Number));
         
         return locations.Min() + "\n"+ min;
     }
     
-    private List<Range> Solve3(Range seed, Map[] maps)
+    private List<Range> Solve(Range seed, Map[] maps)
     {
         List<Range> ranges = new() { seed };
         List<Range> mappedRanges;
@@ -37,55 +58,51 @@ public class Solution05 : Solution
         {
             mappedRanges = new();
 
-            foreach (Range range in ranges)
+            foreach (Range range2 in ranges)
             {
-                Range remaining = range;
-                long remainingEnd = remaining.Number + remaining.Length;
+                Range remaining = range2;
                 foreach (RangeMap rangeMap in map.Ranges)
                 {
+					long remainingEnd = remaining.Number + remaining.Length;
                     long rangeMapEnd = rangeMap.Source + rangeMap.Length;
                     // start inside mapping
-                    if (remaining.Number >= rangeMap.Source && remaining.Number < rangeMap.Source + remaining.Length)
+                    if (remaining.Number >= rangeMap.Source && remaining.Number < rangeMap.Source + rangeMap.Length)
                     {
                         // fully inside
                         if (remainingEnd <= rangeMap.Source + rangeMap.Length)
                         {
-                            Range mapped = remaining with { Number = remaining.Number - rangeMap.Source + rangeMap.Destination };
+                            Range mapped = remaining.Map(rangeMap.Offset);
                             mappedRanges.Add(mapped);
                             remaining = remaining with { Length = 0 };
                             break;
                         }
                         else
                         {
-                            // only start inside
-                            long split = rangeMap.Source + rangeMap.Length;
-                            Range mapped = new Range(range.Number - rangeMap.Source + rangeMap.Destination, split - remaining.Number);
-                            remaining = new Range(split, range.Length - mapped.Length); 
+							// only start inside
+							(Range inside, remaining) = remaining.Split(rangeMap.End);
+							Range mapped = inside.Map(rangeMap.Offset);
                             mappedRanges.Add(mapped);
-                            // split + continue with remaining
-                        }
+						}
                     }
                     // end inside mapping
                     else if (remaining.Number < rangeMap.Source && remainingEnd > rangeMap.Source && remainingEnd < rangeMapEnd)
                     {
-                        long split = rangeMap.Source;
-                        Range before = remaining with { Length = split - remaining.Number };
-                        Range mapped = new Range(rangeMap.Destination, remaining.Length - before.Length);
+                        (Range before, Range inside) = remaining.Split(rangeMap.Source);
+						Range mapped = inside.Map(rangeMap.Offset);
                         mappedRanges.Add(before);
                         mappedRanges.Add(mapped);
                         remaining = remaining with { Length = 0 };
-                        break;
-                        // only end inside
+						break;
                     }
                     // over mapping
                     else if (remaining.Number < rangeMap.Source && remainingEnd > rangeMapEnd)
                     {
-                        Range before = range with { Length = rangeMap.Source - remaining.Number };
-                        Range inside = new Range(rangeMap.Destination, rangeMap.Length);
+	                    (Range before, Range rest) = remaining.Split(rangeMap.Source);
+	                    (Range inside, remaining) = rest.Split(rangeMap.End);
+	                    Range mapped = inside.Map(rangeMap.Offset);
                         mappedRanges.Add(before);
-                        mappedRanges.Add(inside);
-                        remaining = new Range(rangeMap.Source + rangeMap.Length, remaining.Length - before.Length - inside.Length);
-                    }
+                        mappedRanges.Add(mapped);
+					}
                 }
 
                 if (remaining.Length > 0)
@@ -101,43 +118,7 @@ public class Solution05 : Solution
         return ranges;
     }
 
-    // private Map Simplify(Map map)
-    // {
-    //     List<RangeMap> ranges = new();
-    //     long source = 0;
-    //     long length = 0;
-    //     long dest = 0;
-    //     
-    //     for (int i = 1; i < map.Ranges.Length; i++)
-    //     {
-    //         RangeMap r = map.Ranges[i];
-    //         if (r.Source == source + length && r.Destination == dest + length)
-    //         {
-    //             length += r.Length;
-    //         }
-    //         else
-    //         {
-    //             if (length > 0)
-    //             {
-    //                 ranges.Add(new RangeMap(dest, source, length));
-    //             }
-    //
-    //             dest = r.Destination;
-    //             source = r.Source;
-    //             length = r.Length;
-    //         }
-    //     }
-    //
-    //     if (length > 0)
-    //     {
-    //         ranges.Add(new RangeMap(dest, source, length));
-    //     }
-    //
-    //     return map with { Ranges = ranges.ToArray() };
-    // }
-    
-    
-    private long Solve2(long seed, Map[] maps)
+    private long Solve(long seed, Map[] maps)
     {
         long number = seed;
 
@@ -158,7 +139,7 @@ public class Solution05 : Solution
         return number;
     }
 
-    private long Solve(long seed, Map[] maps)
+    private long SolveOld(long seed, Map[] maps)
     {
         string name = "seed";
         long number = seed;

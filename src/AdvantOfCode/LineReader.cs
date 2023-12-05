@@ -28,6 +28,19 @@ public ref struct LineReader
         ReadOnlySpan<char> numbers = _data.Slice(start, _position - start);
         return int.Parse(numbers);
     }
+
+    public long ReadLong()
+    {
+        int start = _position;
+        if (!IsDone && Peek() == '-') _position++;
+        while (!IsDone && IsDigit)
+        {
+            _position++;
+        }
+
+        ReadOnlySpan<char> numbers = _data.Slice(start, _position - start);
+        return long.Parse(numbers);
+    }
     
     public char ReadChar()
     {

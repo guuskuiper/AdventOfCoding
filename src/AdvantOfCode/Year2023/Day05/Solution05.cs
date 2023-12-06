@@ -129,7 +129,7 @@ public class Solution05 : Solution
             {
                 if (number >= range.Source && number < range.Source + range.Length)
                 {
-                    mappedNumber = number - range.Source + range.Destination;
+                    mappedNumber = number + range.Offset;
                     break;
                 }
             }
@@ -153,8 +153,8 @@ public class Solution05 : Solution
             {
                 if (number >= range.Source && number < range.Source + range.Length)
                 {
-                    mappedNumber = number - range.Source + range.Destination;
-                    break;
+                    mappedNumber = number + range.Offset;
+					break;
                 }
             }
             number = mappedNumber;

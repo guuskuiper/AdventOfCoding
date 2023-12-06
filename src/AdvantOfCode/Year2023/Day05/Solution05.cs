@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using AdventOfCode.Extensions;
 
@@ -43,10 +44,36 @@ public class Solution05 : Solution
             .Select(x=> Solve(x, maps))
             .ToList();
 
+        // Enable / disable bruteforce.
+        if (false)
+        {
+            var minNumbers = new ConcurrentBag<long>();
+            
+            // Splitting ranges allows for more cores to process it in parallel.
+            Parallel.ForEach(seedRanges, range =>
+            {
+                long minB = SolveBruteForce(range, maps);
+                minNumbers.Add(minB);
+            });
+            Console.WriteLine(minNumbers.Min());
+        }
+
         var locs = seedRanges.Select(x => Solve(x, maps)).ToList();
         long min = locs.Min(x => x.Min(y => y.Number));
         
         return locations.Min() + "\n"+ min;
+    }
+
+    private long SolveBruteForce(Range range, Map[] maps)
+    {
+        long end = range.Number + range.Length;
+        long min = long.MaxValue;
+        for (long i = range.Number; i < end; i++)
+        {
+            long result = Solve(i, maps);
+            if (result < min) min = result;
+        }
+        return min;
     }
     
     private List<Range> Solve(Range seed, Map[] maps)

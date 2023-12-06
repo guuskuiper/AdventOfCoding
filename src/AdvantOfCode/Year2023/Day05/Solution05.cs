@@ -30,6 +30,23 @@ public class Solution05 : Solution
             return (before, mapped);
 	    }
 
+        public IEnumerable<Range> Chunk(long size)
+        {
+            long remainingLength = Length;
+            long currentNumber = Number;
+            while (remainingLength >= size)
+            {
+                yield return new Range(currentNumber, size);
+                remainingLength -= size;
+                currentNumber += size;
+            }
+
+            if (remainingLength > 0)
+            {
+                yield return new Range(currentNumber, remainingLength);
+            }
+        }
+
 	    public Range Map(long offset) => this with { Number = Number + offset };
     }
     
@@ -44,22 +61,22 @@ public class Solution05 : Solution
             .Select(x=> Solve(x, maps))
             .ToList();
 
+        var locs = seedRanges.Select(x => Solve(x, maps)).ToList();
+        long min = locs.Min(x => x.Min(y => y.Number));
+        
         // Enable / disable bruteforce.
         if (false)
         {
-            var minNumbers = new ConcurrentBag<long>();
+            Range[] chunked = seedRanges.SelectMany(x => x.Chunk(10_000_000)).ToArray();
             
-            // Splitting ranges allows for more cores to process it in parallel.
-            Parallel.ForEach(seedRanges, range =>
-            {
-                long minB = SolveBruteForce(range, maps);
-                minNumbers.Add(minB);
-            });
-            Console.WriteLine(minNumbers.Min());
+            ConcurrentBag<long> minNumbers = new();
+            
+            Parallel.ForEach(chunked, range => minNumbers.Add(SolveBruteForce(range, maps)));
+            
+            long bruteforceMin = minNumbers.Min();
+            Console.WriteLine(bruteforceMin);
+            Debug.Assert(min == bruteforceMin);
         }
-
-        var locs = seedRanges.Select(x => Solve(x, maps)).ToList();
-        long min = locs.Min(x => x.Min(y => y.Number));
         
         return locations.Min() + "\n"+ min;
     }

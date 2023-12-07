@@ -58,8 +58,22 @@ public ref struct LineReader
 
         return _data.Slice(start, _position - start);
     }
-        
-    public void ReadChar(char expected)
+
+    public ReadOnlySpan<char> ReadLettersAndDigits() => ReadWhen(c => char.IsDigit(c) || char.IsLetter(c));
+
+    public ReadOnlySpan<char> ReadWhen(Func<char, bool> func)
+    {
+	    int start = _position;
+
+	    while (!IsDone && func(Peek()))
+	    {
+		    _position++;
+	    }
+
+	    return _data.Slice(start, _position - start);
+    }
+
+	public void ReadChar(char expected)
     {
         char c = _data[_position++];
         if(c != expected) throw new Exception($"Incorrect character {c} at position {_position - 1}, expected {expected}");

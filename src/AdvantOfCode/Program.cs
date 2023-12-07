@@ -1,6 +1,7 @@
-﻿using AdventOfCode;
+﻿using System.Diagnostics;
+using AdventOfCode;
 
-int day = Math.Min(DateTime.Today.Day, 25);
+int day = 5;//Math.Min(DateTime.Today.Day, 25);
 int year = DateTime.Today.Year;
 if(args.Length > 0 && int.TryParse(args[0], out int dayArg)) day = dayArg;
 if(args.Length > 1 && int.TryParse(args[1], out int yearArg)) year = yearArg;
@@ -10,5 +11,7 @@ Solution current = DayGenerator.GetByName(solutionName, yearName);
 
 Console.WriteLine("** AdventOfCode **");
 Console.WriteLine($"* {current.GetType().Name} *");
+long timestamp = Stopwatch.GetTimestamp();
 Console.WriteLine(current.Run());
-
+TimeSpan elapsedTime = Stopwatch.GetElapsedTime(timestamp);
+Console.WriteLine($"Runtime: {elapsedTime}");

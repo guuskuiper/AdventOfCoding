@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AdventOfCode.Extensions;
 using System.Runtime.InteropServices;
 
@@ -21,6 +22,8 @@ public class Solution06 : Solution
         long distance = ParseNoSpace(input[1]);
 
         long wins = RaceWinOptions((time, distance));
+        long wins2 = RaceWinExpression(time, distance);
+        Debug.Assert(wins == wins2);
 
         return optionsMultiplied + "\n" + wins;
     }
@@ -34,15 +37,26 @@ public class Solution06 : Solution
 		    int speed = buttonHold;
 		    long remaining = race.Time - buttonHold;
 		    long distance = speed * remaining;
-
-		    long distance2 = i * (race.Time - i); // -i^2 + t*i => di = -i 2 + t => - 2 * i + t = 0 => t = 2 * i -> i = t / 2
-		    bool isWin = distance > race.Distance;
-		    if (isWin)
+		    if (distance > race.Distance)
 		    {
 			    wins++;
 		    }
 	    }
         return wins;
+    }
+
+    private long RaceWinExpression(long t, long d)
+    {
+		//long maxDistance = t / 2;
+		//distance (i = hold duration, t = time limit): -i^2 + t*i
+		//max distance => ddistance/di = -i * 2 + t => - 2 * i + t = 0 => t = 2 * i -> i = t / 2
+		// -i^2 + t*i = d => i (i - t) = d = > i ^ 2 - t * i + d = 0 => 
+        // i = 1/2 ( t - sqrt(t^2 - 4*d))
+        // i = 1/2 ( sqrt(t^2 - 4*d) + t)
+
+        long start = (long)Math.Ceiling((t - Math.Sqrt(t * t - 4 * d)) / 2);
+        long end = (long)Math.Floor((Math.Sqrt(t * t - 4 * d) + t) / 2);
+		return end - start + 1;
     }
 
     private Entry Parse(string line)

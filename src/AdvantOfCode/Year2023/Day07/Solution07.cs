@@ -20,7 +20,6 @@ public class Solution07 : Solution
 	private record Hand(char[] Cards, int Bid);
 	private record CardGroup(char Card, int Count);
 	private record HandCardGroup(Hand Hand, CardGroup[] Group);
-	private record HandCardJokerGroup(Hand Hand, CardGroup[] Group, int Jokers) : HandCardGroup(Hand, Group);
 
     public string Run()
     {
@@ -30,17 +29,12 @@ public class Solution07 : Solution
 
         List<HandCardGroup> groups = hands.Select(GetCardGroups).ToList();
 		List<HandCardGroup> groupsJokers = groups.Select(ApplyJokers).ToList();
-        List<HandCardJokerGroup> jokerGroups = groups.Select(x =>
-	        new HandCardJokerGroup(x.Hand, x.Group.Where(y => y.Card != 'J').ToArray(),
-		        x.Hand.Cards.Count(x => x == 'J'))).ToList();
 
         groups.Sort(Comparison);
-		groupsJokers.Sort(ComparisonJoker2);
-		jokerGroups.Sort(ComparisonWithJokers);
+		groupsJokers.Sort(ComparisonJokers);
 
 		long sum = CountWinning(groups);
         long sum2 = CountWinning(groupsJokers);
-        long sum3 = CountWinning(jokerGroups);
 
 		return sum + "\n" + sum2;
 	}
@@ -68,66 +62,6 @@ public class Solution07 : Solution
 	    return xInt.CompareTo(yInt);
     }
 
-    private int ComparisonWithJokers(HandCardJokerGroup x, HandCardJokerGroup y)
-    {
-	    HandType xHandType = GetHandTypeJoker(x);
-	    HandType yHandType = GetHandTypeJoker(y);
-
-	    int compare = xHandType.CompareTo(yHandType);
-
-	    if (compare == 0)
-	    {
-		    for (int i = 0; i < 5; i++)
-		    {
-			    compare = ComparisonWithJokers(x.Hand.Cards[i], y.Hand.Cards[i]);
-			    if (compare != 0) break;
-		    }
-	    }
-
-	    return compare;
-    }
-
-    private HandType GetHandTypeJoker(HandCardJokerGroup hand)
-    {
-	    HandType type;
-
-		if (hand.Jokers == 0) type = GetHandType(hand.Group);
-		else if (hand.Jokers == 5) type = HandType.FiveOfAKind;
-		else
-		{
-			// make sure count does not include jokers
-			type = (hand.Group[0].Count, hand.Group.Length > 1 ? hand.Group[1].Count : 0, hand.Jokers) switch
-			{
-				(4, _, 1) => HandType.FiveOfAKind,
-				(3, _, 2) => HandType.FiveOfAKind,
-				(2, _, 3) => HandType.FiveOfAKind,
-				(1, _, 4) => HandType.FiveOfAKind,
-				(3, _, 1) => HandType.FourOfAKind,
-				(2, _, 2) => HandType.FourOfAKind,
-				(1, _, 3) => HandType.FourOfAKind,
-				(2, 2, 1) => HandType.FullHouse,
-				(2, _, 1) => HandType.ThreeOfAKind,
-				(1, 1, 2) => HandType.ThreeOfAKind,
-				(1, _, 1) => HandType.OnePair,
-				_ => throw new ArgumentOutOfRangeException()
-			};
-		}
-
-		if (hand.Jokers == 5)
-		{
-			return HandType.FiveOfAKind;
-		}
-		int maxCountWithJokers = hand.Group[0].Count + hand.Jokers;
-		var group0 = hand.Group[0] with { Count = maxCountWithJokers };
-		CardGroup[] group = hand.Group.ToArray();
-		group[0] = group0;
-
-		HandType type2 = GetHandType(group);
-		Debug.Assert(type == type2);
-
-		return type2;
-    }
-
 	private int Comparison(char x, char y)
     {
 	    const string orderRev = "23456789TJQKA";
@@ -138,7 +72,9 @@ public class Solution07 : Solution
 		return xInt.CompareTo(yInt);
     }
 
-    private int Comparison(HandCardGroup x, HandCardGroup y)
+	private int Comparison(HandCardGroup x, HandCardGroup y) => Comparison(x, y, Comparison);
+	private int ComparisonJokers(HandCardGroup x, HandCardGroup y) => Comparison(x, y, ComparisonWithJokers);
+    private int Comparison(HandCardGroup x, HandCardGroup y, Comparison<char> charComparer)
     {
 	    HandType xHandType = GetHandType(x.Group);
 	    HandType yHandType = GetHandType(y.Group);
@@ -149,7 +85,7 @@ public class Solution07 : Solution
 	    {
 		    for (int i = 0; i < 5; i++)
 		    {
-			    compare = Comparison(x.Hand.Cards[i], y.Hand.Cards[i]);
+			    compare = charComparer(x.Hand.Cards[i], y.Hand.Cards[i]);
 				if(compare != 0) break;
 		    }
 	    }
@@ -157,26 +93,7 @@ public class Solution07 : Solution
 	    return compare;
     }
 
-    private int ComparisonJoker2(HandCardGroup x, HandCardGroup y)
-    {
-	    HandType xHandType = GetHandType(x.Group);
-	    HandType yHandType = GetHandType(y.Group);
-
-	    int compare = xHandType.CompareTo(yHandType);
-
-	    if (compare == 0)
-	    {
-		    for (int i = 0; i < 5; i++)
-		    {
-			    compare = ComparisonWithJokers(x.Hand.Cards[i], y.Hand.Cards[i]);
-			    if (compare != 0) break;
-		    }
-	    }
-
-	    return compare;
-    }
-
-	private HandType GetHandType(CardGroup[] group)
+    private HandType GetHandType(CardGroup[] group)
     {
 	    HandType type = (group[0].Count, group.Length > 1 ? group[1].Count : 0) switch
 	    {
@@ -205,19 +122,12 @@ public class Solution07 : Solution
 	private HandCardGroup ApplyJokers(HandCardGroup hand)
 	{
 		var jokerGroup = hand.Group.FirstOrDefault(x => x.Card == 'J');
-		if (jokerGroup is null) return hand;
+		if (jokerGroup is null || hand.Group.Length == 1) return hand;
 
-		List<CardGroup> nonJokerGroups = hand.Group.Where(x => x.Card != 'J').ToList();
-		if(nonJokerGroups.Count == 0)
-		{
-			nonJokerGroups.Add(jokerGroup); // only jokers
-		}
-		else
-		{
-			nonJokerGroups[0] = nonJokerGroups[0] with { Count = nonJokerGroups[0].Count + jokerGroup.Count };
-		}
+		CardGroup[] nonJokerGroups = hand.Group.Where(x => x.Card != 'J').ToArray();
+		nonJokerGroups[0] = nonJokerGroups[0] with { Count = nonJokerGroups[0].Count + jokerGroup.Count };
 
-		return new HandCardGroup(hand.Hand, nonJokerGroups.ToArray());
+		return hand with { Group = nonJokerGroups };
 	}
 
     private HandCardGroup GetCardGroups(Hand hand)

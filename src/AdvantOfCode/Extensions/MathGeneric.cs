@@ -17,6 +17,6 @@ public static class MathGeneric
     public static T LCM<T>(T a, T b) where T : INumber<T>
         => a / GCD(a, b) * b;
     
-    public static T LCM<T>(IEnumerable<T> values) where T : INumber<T>
+    public static T LCM<T>(this IEnumerable<T> values) where T : INumber<T>
         => values.Aggregate(LCM);
 }

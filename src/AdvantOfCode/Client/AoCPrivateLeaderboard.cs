@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AdventOfCode;
+namespace AdventOfCode.Client;
 
 public class AoCPrivateLeaderboard
 {
@@ -11,7 +11,7 @@ public class AoCPrivateLeaderboard
     public int OwnerId { get; set; }
     
     [JsonPropertyName("members")]
-    public IDictionary<string, AoCMember> Members { get; set; }
+    public IDictionary<int, AoCMember> Members { get; set; }
 
     public static IEnumerable<AocUpdate> ChangesSince(AoCPrivateLeaderboard leaderboard, DateTime timeStamp)
     {
@@ -43,7 +43,7 @@ public class AoCPrivateLeaderboard
     }
 }
 
-public record AocUpdate(string UserName, string Event, string Day, string Part, DateTime Time);
+public record AocUpdate(string UserName, string Event, int Day, string Part, DateTime Time);
 
 public class AoCMember
 {
@@ -66,7 +66,7 @@ public class AoCMember
     public DateTime LastStarTimeStamp { get; set; }
     
     [JsonPropertyName("completion_day_level")]
-    public IDictionary<string,AoCDay> DayCompletion { get; set; }
+    public IDictionary<int,AoCDay> DayCompletion { get; set; }
 }
 
 public class AoCDay

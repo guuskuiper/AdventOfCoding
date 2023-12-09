@@ -2,12 +2,21 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AdventOfCode.Client;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AdventOfCode.Test;
 
 public class AoCClientTest
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public AoCClientTest(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+    
     [Fact]
     public async Task ParseLeaderboard()
     {
@@ -17,6 +26,23 @@ public class AoCClientTest
         {
             string jsonString = await File.ReadAllTextAsync(fileName);
             AoCPrivateLeaderboard leaderboard = AoCClient.ParseLeaderboardJson(jsonString);
+            Assert.NotNull(leaderboard);
+        }
+    }
+
+    [Fact]
+    public async Task GetDayRanking()
+    {
+        var directory = Directory.GetCurrentDirectory();
+        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        foreach (var fileName in fileNames)
+        {
+            string jsonString = await File.ReadAllTextAsync(fileName);
+            AoCPrivateLeaderboard leaderboard = AoCClient.ParseLeaderboardJson(jsonString);
+            AoCPrivateRanking ranking = new(leaderboard);
+            string result = ranking.GetRankingByDay(9);
+            _testOutputHelper.WriteLine(Path.GetFileName(fileName));
+            _testOutputHelper.WriteLine(result);
             Assert.NotNull(leaderboard);
         }
     }

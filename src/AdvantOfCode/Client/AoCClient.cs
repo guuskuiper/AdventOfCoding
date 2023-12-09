@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace AdventOfCode;
+namespace AdventOfCode.Client;
 
 public class AoCClient
 {

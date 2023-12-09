@@ -1,10 +1,54 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AdventOfCode.Test;
 
 public class AoCClientTest
 {
+    [Fact]
+    public async Task ParseLeaderboard()
+    {
+        var directory = Directory.GetCurrentDirectory();
+        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        foreach (var fileName in fileNames)
+        {
+            string jsonString = await File.ReadAllTextAsync(fileName);
+            AoCPrivateLeaderboard leaderboard = AoCClient.ParseLeaderboardJson(jsonString);
+            Assert.NotNull(leaderboard);
+        }
+    }
+    
+    [Fact]
+    public async Task GetLeaderboardUpdates()
+    {
+        var directory = Directory.GetCurrentDirectory();
+        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        foreach (var fileName in fileNames)
+        {
+            string jsonString = await File.ReadAllTextAsync(fileName);
+            AoCPrivateLeaderboard leaderboard = AoCClient.ParseLeaderboardJson(jsonString);
+            DateTime previousCheck = new DateTime(2023, 12, 7);
+            var changes = AoCPrivateLeaderboard
+                .ChangesSince(leaderboard, previousCheck)
+                .OrderByDescending(x => x.Time).ToList();
+            DateTime lastChange = changes.FirstOrDefault()?.Time ?? previousCheck;
+            Assert.NotNull(leaderboard);
+            Assert.True(lastChange > previousCheck);
+        }
+    }
+    
+    [Fact(Skip = "No session file")]
+    public async Task<AoCPrivateLeaderboard> DownloadLeaderboard()
+    {
+        var session = await AoCClient.GetSessionAsync();
+        AoCClient client = new AoCClient(session);
+        var leaderboard = await client.GetLeaderboard("2023", -1);
+        return leaderboard;
+    }
+    
     [Fact(Skip = "No session file")]
     public async Task<string> Download()
     {

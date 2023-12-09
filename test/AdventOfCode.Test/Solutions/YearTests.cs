@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
@@ -29,7 +31,10 @@ public abstract class YearTests
         {
             string className = daySolution.GetType().Name;
             _testOutputHelper.WriteLine($"Found solution: {className}");
+            long timestamp = Stopwatch.GetTimestamp();
             string solution = daySolution.Run();
+            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(timestamp);
+            _testOutputHelper.WriteLine($"Runtime: {elapsedTime}");
             if (string.IsNullOrEmpty(expectedB))
             {
                 Assert.Equal(expectedA, solution.Trim('\n'));

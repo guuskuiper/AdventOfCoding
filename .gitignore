@@ -38,3 +38,4 @@ msbuild.wrn
 
 # AdventOfCode
 SESSION
+test/AdventOfCode.Test/Data/*.json

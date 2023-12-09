@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode;
@@ -8,6 +9,7 @@ public class AoCClient
     private const string UrlDay = "{0}/day/{1}/";
     private const string UrlInput = "input";
     private const string UrlBase = "https://adventofcode.com/";
+    private const string UrlLeaderboard = "{0}/leaderboard/private/view/{1}.json";
     private const string UrlAnswer = "answer";
 
     private readonly HttpClient _client;
@@ -81,6 +83,26 @@ public class AoCClient
         AoCClient downloader = new AoCClient(session);
         return await downloader.UploadAnswerAsync(year, day, part1, answer);
     }
+
+    /// <summary>
+    /// Fetches private leaderboard Json, and return the parsed result.
+    /// </summary>
+    /// <param name="eventName">The year, so "2023" for example, 1ste part of the url to a private group</param>
+    /// <param name="groupCode">Private group number, end of the url</param>
+    /// <returns></returns>
+    public async Task<AoCPrivateLeaderboard> GetLeaderboard(string eventName, int groupCode)
+    {
+        string url = string.Format(UrlLeaderboard, eventName, groupCode);
+        string json = await _client.GetStringAsync(url);
+        return ParseLeaderboardJson(json);
+    }
+
+    public static AoCPrivateLeaderboard ParseLeaderboardJson(string json)
+    {
+        JsonSerializerOptions options = new() { Converters = { new DateTimeConverterForCustomStandardFormatR() } };
+        AoCPrivateLeaderboard leaderboard = JsonSerializer.Deserialize<AoCPrivateLeaderboard>(json, options)!;
+        return leaderboard;
+    }
     
     public static string ParseHtml(ReadOnlySpan<char> html)
     {
@@ -100,7 +122,7 @@ public class AoCClient
         return text;
     }
     
-    private static async Task<string> GetSessionAsync()
+    public static async Task<string> GetSessionAsync()
     {
         string? session = Environment.GetEnvironmentVariable("SESSION");
         if (session is null)
@@ -133,5 +155,18 @@ public class AoCClient
             throw new Exception($"The session value (after the '=' character) should be {ValueLength} characters long, now its {value.Length}");
         }
     }
+    
+    private class DateTimeConverterForCustomStandardFormatR : JsonConverter<DateTime>
+    {
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            long timestamp = reader.GetInt64();
+            return DateTime.UnixEpoch.AddSeconds(timestamp);
+        }
 
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException("Only Deserialize implemented");
+        }
+    }
 }

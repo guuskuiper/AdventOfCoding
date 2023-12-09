@@ -86,15 +86,35 @@ public class AoCClient
 
     /// <summary>
     /// Fetches private leaderboard Json, and return the parsed result.
+    /// Caches the result in ProgramData\AdventOfCode.
+    /// A new request is only performed once ever 900s, otherwise the cached response is used.
     /// </summary>
     /// <param name="eventName">The year, so "2023" for example, 1ste part of the url to a private group</param>
     /// <param name="groupCode">Private group number, end of the url</param>
     /// <returns></returns>
     public async Task<AoCPrivateLeaderboard> GetLeaderboard(string eventName, int groupCode)
     {
-        string url = string.Format(UrlLeaderboard, eventName, groupCode);
-        string json = await _client.GetStringAsync(url);
-        return ParseLeaderboardJson(json);
+        const int CacheTimeSeconds = 900; 
+        string cacheDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "AdventOfCode");
+        Directory.CreateDirectory(cacheDirectory);
+        string cacheJsonFilePath = Path.Combine(cacheDirectory, $"{groupCode}.json");
+
+        string jsonText;
+        FileInfo jsonFile = new FileInfo(cacheJsonFilePath);
+        if(jsonFile.Exists && (DateTime.Now - jsonFile.LastWriteTime).TotalSeconds < CacheTimeSeconds)
+        {
+            jsonText = await File.ReadAllTextAsync(cacheJsonFilePath);
+        }
+        else
+        {
+            string url = string.Format(UrlLeaderboard, eventName, groupCode);
+            jsonText = await _client.GetStringAsync(url);
+            await File.WriteAllTextAsync(cacheJsonFilePath, jsonText);
+        }
+        
+        AoCPrivateLeaderboard leaderboard = ParseLeaderboardJson(jsonText);
+
+        return leaderboard;
     }
 
     public static AoCPrivateLeaderboard ParseLeaderboardJson(string json)

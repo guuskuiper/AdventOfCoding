@@ -39,14 +39,13 @@ public class AoCClientTest
         {
             string jsonString = await File.ReadAllTextAsync(fileName);
             AoCPrivateLeaderboard leaderboard = AoCClient.ParseLeaderboardJson(jsonString);
-            AoCPrivateRanking ranking = new(leaderboard);
-            string result = ranking.GetRankingByDay(9);
-            _testOutputHelper.WriteLine(Path.GetFileName(fileName));
-            _testOutputHelper.WriteLine(result);
+            string name = Path.GetFileNameWithoutExtension(jsonString);
+            OutputLeaderboardRanking(leaderboard, fileName, 9);
             Assert.NotNull(leaderboard);
         }
     }
-    
+
+
     [Fact]
     public async Task GetLeaderboardUpdates()
     {
@@ -71,8 +70,18 @@ public class AoCClientTest
     {
         var session = await AoCClient.GetSessionAsync();
         AoCClient client = new AoCClient(session);
-        var leaderboard = await client.GetLeaderboard("2023", -1);
+        var leaderboard = await client.GetLeaderboard("2023", 1117050);
         return leaderboard;
+    }
+    
+    [Fact(Skip = "No session file")]
+    public async Task UpdateLeaderboard()
+    {
+        string session = await AoCClient.GetSessionAsync();
+        AoCClient client = new AoCClient(session);
+        int groupCode = 1117050;
+        AoCPrivateLeaderboard leaderboard = await client.GetLeaderboard("2023", groupCode);
+        OutputLeaderboardRanking(leaderboard, groupCode.ToString(), DateTime.Now.Day);
     }
     
     [Fact(Skip = "No session file")]
@@ -94,6 +103,14 @@ public class AoCClientTest
     {
         string text = AoCClient.ParseHtml(Html);
         return text;
+    }
+    
+    private void OutputLeaderboardRanking(AoCPrivateLeaderboard leaderboard, string leaderboardName, int day)
+    {
+        AoCPrivateRanking ranking = new(leaderboard);
+        string result = ranking.GetRankingByDay(day);
+        _testOutputHelper.WriteLine($"Group {leaderboardName}");
+        _testOutputHelper.WriteLine(result);
     }
 
     private const string Html = """

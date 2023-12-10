@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,8 +21,7 @@ public class AoCClientTest
     [Fact]
     public async Task ParseLeaderboard()
     {
-        var directory = Directory.GetCurrentDirectory();
-        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        List<string> fileNames = GetTestJsonFileNames();
         foreach (var fileName in fileNames)
         {
             string jsonString = await File.ReadAllTextAsync(fileName);
@@ -33,8 +33,7 @@ public class AoCClientTest
     [Fact]
     public async Task GetDayRanking()
     {
-        var directory = Directory.GetCurrentDirectory();
-        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        List<string> fileNames = GetTestJsonFileNames();
         foreach (var fileName in fileNames)
         {
             string jsonString = await File.ReadAllTextAsync(fileName);
@@ -45,12 +44,10 @@ public class AoCClientTest
         }
     }
 
-
     [Fact]
     public async Task GetLeaderboardUpdates()
     {
-        var directory = Directory.GetCurrentDirectory();
-        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        List<string> fileNames = GetTestJsonFileNames();
         foreach (var fileName in fileNames)
         {
             string jsonString = await File.ReadAllTextAsync(fileName);
@@ -74,6 +71,7 @@ public class AoCClientTest
         return leaderboard;
     }
     
+    //[Fact]
     [Fact(Skip = "No session file")]
     public async Task UpdateLeaderboard()
     {
@@ -103,6 +101,13 @@ public class AoCClientTest
     {
         string text = AoCClient.ParseHtml(Html);
         return text;
+    }
+    
+    private static List<string> GetTestJsonFileNames()
+    {
+        var directory = Directory.GetCurrentDirectory();
+        var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
+        return fileNames;
     }
     
     private void OutputLeaderboardRanking(AoCPrivateLeaderboard leaderboard, string leaderboardName, int day)

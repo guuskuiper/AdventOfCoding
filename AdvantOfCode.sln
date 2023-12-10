@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode", "src\AdvantO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode.Test", "test\AdventOfCode.Test\AdventOfCode.Test.csproj", "{317B4D70-9CCE-4186-BC3F-B6693F1FB2CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode.Client", "src\AdventOfCode.Client\AdventOfCode.Client.csproj", "{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode.MQTT", "src\AdventOfCode.MQTT\AdventOfCode.MQTT.csproj", "{6BC1B025-706C-42FD-94BC-F2AE6F89418B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,14 @@ Global
 		{317B4D70-9CCE-4186-BC3F-B6693F1FB2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{317B4D70-9CCE-4186-BC3F-B6693F1FB2CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{317B4D70-9CCE-4186-BC3F-B6693F1FB2CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BC1B025-706C-42FD-94BC-F2AE6F89418B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BC1B025-706C-42FD-94BC-F2AE6F89418B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BC1B025-706C-42FD-94BC-F2AE6F89418B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BC1B025-706C-42FD-94BC-F2AE6F89418B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -35,5 +47,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{610589F4-7C3A-4E34-A3AF-DA3CAE8F1DB6} = {9C4F03D2-DA49-4494-B351-F091C1B5ED62}
 		{317B4D70-9CCE-4186-BC3F-B6693F1FB2CA} = {FE7F7E2A-564B-41F0-982E-54467036CA4C}
+		{B661C8EA-204E-4CF8-9BE3-7CC41CD202DB} = {9C4F03D2-DA49-4494-B351-F091C1B5ED62}
+		{6BC1B025-706C-42FD-94BC-F2AE6F89418B} = {9C4F03D2-DA49-4494-B351-F091C1B5ED62}
 	EndGlobalSection
 EndGlobal

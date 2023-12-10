@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AdventOfCode.Client.PrivateLeaderboard;
 
 namespace AdventOfCode.Client;
 

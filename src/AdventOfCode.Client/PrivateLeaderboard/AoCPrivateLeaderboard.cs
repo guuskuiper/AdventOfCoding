@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.PrivateLeaderboard;
 
 public class AoCPrivateLeaderboard
 {

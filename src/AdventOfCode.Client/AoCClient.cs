@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using AdventOfCode.Client.PrivateLeaderboard;
 
 namespace AdventOfCode.Client;
 
@@ -149,9 +150,7 @@ public class AoCClient
         {
             session = await File.ReadAllTextAsync("SESSION");
         }
-        
-        ArgumentNullException.ThrowIfNull(session, "No session key defined in SESSION file or environment variable");
-        
+
         return session;
     }
     

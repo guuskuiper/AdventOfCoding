@@ -15,9 +15,10 @@
     <Content Include="*/*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Condition="Exists('SESSION')" Include="SESSION">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdventOfCode.Client\AdventOfCode.Client.csproj" />
   </ItemGroup>
 
 </Project>

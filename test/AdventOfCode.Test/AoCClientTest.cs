@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AdventOfCode.Client;
+using AdventOfCode.Client.PrivateLeaderboard;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,6 +12,8 @@ namespace AdventOfCode.Test;
 
 public class AoCClientTest
 {
+    private static string SkipReason => File.Exists("SESSION") ? "No session string" : string.Empty; 
+    
     private readonly ITestOutputHelper _testOutputHelper;
 
     public AoCClientTest(ITestOutputHelper testOutputHelper)
@@ -62,37 +65,50 @@ public class AoCClientTest
         }
     }
     
-    [Fact(Skip = "No session file")]
+    [SkippableFact]
     public async Task<AoCPrivateLeaderboard> DownloadLeaderboard()
     {
-        var session = await AoCClient.GetSessionAsync();
+        string session = await AoCClient.GetSessionAsync();
+        Skip.If(string.IsNullOrEmpty(session), "No session");
+        
         AoCClient client = new AoCClient(session);
         var leaderboard = await client.GetLeaderboard("2023", 1117050);
         return leaderboard;
     }
     
-    //[Fact]
-    [Fact(Skip = "No session file")]
-    public async Task UpdateLeaderboard()
+    [SkippableTheory]
+    [InlineData(1117050)]
+    [InlineData(1503320)]
+    [InlineData(782191)]
+    public async Task UpdateLeaderboard(int groupCode)
     {
         string session = await AoCClient.GetSessionAsync();
+        Skip.If(string.IsNullOrEmpty(session), "No session");
+
         AoCClient client = new AoCClient(session);
-        int groupCode = 1117050;
         AoCPrivateLeaderboard leaderboard = await client.GetLeaderboard("2023", groupCode);
         OutputLeaderboardRanking(leaderboard, groupCode.ToString(), DateTime.Now.Day);
     }
     
-    [Fact(Skip = "No session file")]
+    [SkippableFact]
     public async Task<string> Download()
     {
-        var response = await AoCClient.DownloadAsync(2022, 5);
+        string session = await AoCClient.GetSessionAsync();
+        Skip.If(string.IsNullOrEmpty(session), "No session");
+        
+        AoCClient client = new AoCClient(session);
+        var response = await client.DownloadInputAsync(2022, 5);
         return response;
     } 
     
-    [Fact(Skip = "No session file")] 
+    [SkippableFact]
     public async Task<string> Upload()
     {
-        var response = await AoCClient.UploadAsync(2022, 1, true, "TQRFCBSJJ");
+        string session = await AoCClient.GetSessionAsync();
+        Skip.If(string.IsNullOrEmpty(session), "No session");
+
+        AoCClient client = new AoCClient(session);
+        var response = await client.UploadAnswerAsync(2022, 1, true, "TQRFCBSJJ");
         return response;
     }
     

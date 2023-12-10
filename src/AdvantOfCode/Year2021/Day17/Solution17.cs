@@ -3,7 +3,7 @@ namespace AdventOfCode.Year2021.Day17;
 [DayInfo(2021, 17)]
 public class Solution17 : Solution
 {
-    public class Range
+    private class Range
     {
         public int Min { get; set; }
         public int Max { get; set; }
@@ -20,7 +20,7 @@ public class Solution17 : Solution
         }
     }
 
-    public class Point
+    private class Point
     {
         public int X { get; set; }
         public int Y { get; set; }

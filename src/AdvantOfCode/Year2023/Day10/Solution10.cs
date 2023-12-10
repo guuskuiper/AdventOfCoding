@@ -1,7 +1,6 @@
 using System.Drawing;
 using AdventOfCode.Graph;
 using AdventOfCode.Extensions;
-using AdventOfCode.Year2021.Day17;
 
 namespace AdventOfCode.Year2023.Day10;
 
@@ -42,7 +41,16 @@ public class Solution10 : Solution
                 {
                     // part of main loop
                     char p = grid[x, y];
-                    output = '.'; //p;
+                    output = p switch
+                    {
+                        '|' => '║',
+                        '-' => '═',
+                        'L' => '╚',
+                        'J' => '╝',                        
+                        '7' => '╗',                        
+                        'F' => '╔',
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
                     bool mainEntry = p switch
                     {
                         '|' => true,

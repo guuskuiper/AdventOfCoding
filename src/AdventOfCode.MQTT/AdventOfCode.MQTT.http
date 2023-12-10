@@ -1,0 +1,6 @@
+@AdventOfCode.MQTT_HostAddress = http://localhost:5087
+
+GET {{AdventOfCode.MQTT_HostAddress}}/mqtt
+Accept: application/json
+
+###

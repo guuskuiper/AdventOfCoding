@@ -9,7 +9,7 @@ string solutionName = $"Solution{day:D2}";
 string yearName = $"Year{year}";
 Solution current = DayGenerator.GetByName(solutionName, yearName);
 
-Console.WriteLine("** AdventOfCode **");
+Console.WriteLine($"** AdventOfCode - {year} **");
 Console.WriteLine($"* {current.GetType().Name} *");
 long timestamp = Stopwatch.GetTimestamp();
 Console.WriteLine(current.Run());

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Runtime.InteropServices.ComTypes;
 using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2023.Day12;
@@ -20,25 +21,50 @@ public class Solution12 : Solution
 
         var conditions = input.Select(ParseLine).ToArray();
 
-        Condition test = conditions[2];
-        int sum0_a = Solve(test);
-        int sum0_b = Solve2(test);
-
-        for (int i = 0; i < conditions.Length; i++)
+        if (false)
         {
-	        Condition cond = conditions[i];
-	        int sum_a = Solve(cond);
-	        int sum_b = Solve2(cond);
-	        if (sum_a != sum_b)
-	        {
+	        Condition test = conditions[2];
+	        int sum0_a = Solve(test);
+	        int sum0_b = Solve2(test);
 
+			for (int i = 0; i < conditions.Length; i++)
+	        {
+		        Condition cond = conditions[i];
+		        int sum_a = Solve(cond);
+		        int sum_b = Solve2(cond);
+		        if (sum_a != sum_b)
+		        {
+			        List<string> solutions = SolveAndReturn(cond);
+			        Console.WriteLine($"{cond.Record} {string.Join(',', cond.Groups)}");
+			        Console.WriteLine(string.Join(Environment.NewLine, solutions));
+		        }
 	        }
         }
 
-        long sum = conditions.Select(Solve).Sum();
-        //long sum = -1;
+        //long sum = conditions.Select(Solve).Sum();
+        long sum = conditions.Select(Solve2).Sum();
 
-        return sum + "\n";
+
+        var conditionsB = conditions.Select(Unfold).ToArray();
+        long sumB = 0;
+        for (int i = 0; i < conditionsB.Length; i++)
+        {
+	        int b = 0; //Solve2(conditionsB[i]);
+			sum += b;
+			//Console.WriteLine(i);
+        }
+
+        //long sumB = conditionsB.Select(Solve2).Sum();
+		//long sum = -1;
+
+		return sum + "\n" + sumB;
+    }
+
+    private Condition Unfold(Condition condition)
+    {
+	    string record = string.Join('?', Enumerable.Repeat(condition.Record, 5));
+	    int[] numbers = Enumerable.Repeat(condition.Groups, 5).SelectMany(x => x).ToArray();
+		return new Condition(record, numbers);
     }
 
     private int Solve2(Condition condition)
@@ -91,7 +117,38 @@ public class Solution12 : Solution
 
 	    Simplify(condition, options);
 
-	    int sum = CreateOutputOptions(options, 0, 0);
+	    for (var index = 0; index < options.Length; index++)
+	    {
+		    PartOption current = options[index];
+			// Dont start a pattern next to a '#'
+
+			int startMin = current.StartMin;
+			if (current.StartMin > 0)
+			{
+				while (condition.Record[startMin - 1] == '#')
+				{
+					startMin++;
+				}
+			}
+
+			int startMax = current.StartMax;
+			if ((current.StartMax + current.Length) < condition.Record.Length)
+			{
+				while (condition.Record[startMax + current.Length] == '#')
+				{
+					startMax--;
+				}
+			}
+
+			options[index] = current with
+			{
+				StartMin = startMin,
+				StartMax = startMax,
+			};
+	    }
+
+	    ReadOnlySpan<char> record = condition.Record;
+	    int sum = CreateOutputOptions(ref record, options, 0, 0);
 
 	    return sum;
 
@@ -116,25 +173,77 @@ public class Solution12 : Solution
 		}
     }
 
-    private int CreateOutputOptions(PartOption[] options, int currentOption, int currentPosition)
+    private int CreateOutputOptions(ref ReadOnlySpan<char> record, PartOption[] options, int currentOption, int currentPosition)
     {
 	    int nextOption = currentOption + 1;
 	    PartOption option = options[currentOption];
 	    int sum = 0;
-	    int start = Math.Max(currentPosition, option.StartMin);
+
+	    // are al options valid? for example: "?.? 1" -> startMin 0, startMax 2 -> 1 not valid
+		// TODO: prevent generating to many '#'s
+
+		int start = Math.Max(currentPosition, option.StartMin);
+		if (record.Slice(currentPosition, start - currentPosition).Contains('#'))
+		{
+			return 0;// invalid, '#' in between 2 groups
+		}
+
 		if (nextOption < options.Length)
 	    {
 		    for (int i = start; i <= option.StartMax; i++)
 		    {
-			    sum += CreateOutputOptions(options, nextOption, i + option.Length + 1);
+			    if (IsValid(record, i, option.Length))
+			    {
+				    sum += CreateOutputOptions(ref record, options, nextOption, i + option.Length + 1);
+			    }
+			    else
+			    {
+				    
+			    }
+
+			    if (record[i] == '#')
+			    {
+				    break;
+					// must start here / include this
+			    }
 		    }
 		}
 	    else
 	    {
-		    sum = option.StartMax - start + 1;
+		    for (int i = start; i <= option.StartMax; i++)
+		    {
+			    if (record.Slice(i + option.Length).Contains('#'))
+			    {
+					if (record[i] == '#') break;
+				    continue;
+			    }
+			    if (IsValid(record, i, option.Length))
+			    {
+				    sum++;
+			    }
+			    else
+			    {
+				    
+			    }
+
+			    if (record[i] == '#')
+			    {
+				    break;
+				    // must start here / include this
+			    }
+			}
 		}
 
 	    return sum;
+    }
+
+    private bool IsValid(ReadOnlySpan<char> record, int start, int length)
+    {
+	    bool validBefore = start == 0 || record[start - 1] != '#';
+		bool validAfter = start + length == record.Length || record[start + length] != '#';
+	    bool validInside = !record.Slice(start, length).Contains('.');
+
+	    return validBefore && validAfter && validInside;
     }
 
     private void Simplify(Condition condition, PartOption[] options)
@@ -186,7 +295,14 @@ public class Solution12 : Solution
         return options.Count;
     }
 
-    private List<string> SolveStep(Condition condition, List<char> chars)
+    private List<string> SolveAndReturn(Condition condition)
+    {
+	    List<char> current = new List<char>();
+
+	    return SolveStep(condition, current);
+    }
+
+	private List<string> SolveStep(Condition condition, List<char> chars)
     {
 	    int pos = chars.Count;
 

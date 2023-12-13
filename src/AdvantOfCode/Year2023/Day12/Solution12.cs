@@ -24,14 +24,14 @@ public class Solution12 : Solution
         if (false)
         {
 	        Condition test = conditions[2];
-	        int sum0_a = Solve(test);
-	        int sum0_b = Solve2(test);
+	        //int sum0_a = Solve(test);
+	        //int sum0_b = Solve3(test);
 
 			for (int i = 0; i < conditions.Length; i++)
 	        {
 		        Condition cond = conditions[i];
 		        int sum_a = Solve(cond);
-		        int sum_b = Solve2(cond);
+		        int sum_b = Solve3(cond);
 		        if (sum_a != sum_b)
 		        {
 			        List<string> solutions = SolveAndReturn(cond);
@@ -42,20 +42,16 @@ public class Solution12 : Solution
         }
 
         //long sum = conditions.Select(Solve).Sum();
-        long sum = conditions.Select(Solve2).Sum();
-
+        long sum = conditions.Select(Solve3).Sum();
+        return sum + "\n";
 
         var conditionsB = conditions.Select(Unfold).ToArray();
         long sumB = 0;
         for (int i = 0; i < conditionsB.Length; i++)
         {
-	        int b = 0; //Solve2(conditionsB[i]);
-			sum += b;
-			//Console.WriteLine(i);
+			sumB += Solve3(conditionsB[i]);
+			Console.WriteLine(i);
         }
-
-        //long sumB = conditionsB.Select(Solve2).Sum();
-		//long sum = -1;
 
 		return sum + "\n" + sumB;
     }
@@ -67,174 +63,79 @@ public class Solution12 : Solution
 		return new Condition(record, numbers);
     }
 
-    private int Solve2(Condition condition)
+    private int Solve3(Condition condition)
     {
-	    string[] parts = condition.Groups.Select(x => new string('#', x)).ToArray();
+	    string record = condition.Record;
+	    int[] groups = condition.Groups;
+	    Func<int, int, int>? cache = null;
 
-	    PartOption[] options = new PartOption[parts.Length];
+	    int sumTotal = CachedOutputOptions(0, 0);
+	    
+	    return sumTotal;
 
-	    for (int p = 0; p < parts.Length; p++)
+	    int CachedOutputOptions(int currentOption, int currentPosition)
 	    {
-			int currentLength = parts[p].Length;
-		    int startMin = Previous(p);
-		    int remaining = Remaining(p);
-			int startMax = condition.Record.Length - remaining - currentLength;
-
-			options[p] = new PartOption(currentLength, startMin, startMax);
-	    }
-
-		Simplify(condition, options);
-
-	    for (var index = 0; index < options.Length; index++)
-	    {
-			PartOption current = options[index];
-			if(current.StartMin == current.StartMax) continue; // cant change
-
-		    if (index > 0)
+		    if (cache is null)
 		    {
-				PartOption previous = options[index - 1];
-				int limit = previous.StartMin + previous.Length + 1;
-				current = current with
-				{
-					StartMin = Math.Max(current.StartMin, limit),
-					StartMax = Math.Max(current.StartMax, limit),
-				};
-		    }
-
-		    if (index < options.Length - 1)
-		    {
-			    PartOption next = options[index + 1];
-			    int limit = next.StartMax - current.Length - 1;
-			    current = current with
+			    cache = MemoizerExtension.Memoize<int, int, int>((group, pos) =>
 			    {
-				    StartMax = Math.Min(current.StartMax, limit),
-				    StartMin = Math.Min(current.StartMin, limit),
-			    };
-			}
+				    if (group >= groups.Length)
+				    {
+					    // done
+					    if (pos <= record.Length && record.AsSpan().Slice(pos).Contains('#'))
+					    {
+						    return 0;
+					    }
+						return 1;
+				    }
 
-		    options[index] = current;
-	    }
+				    if (pos >= record.Length)
+				    {
+					    return 0; // invalid
+				    }
+					int length = groups[group];
 
-	    Simplify(condition, options);
+					if (pos + length > record.Length)
+					{
+						return 0;
+					}
 
-	    for (var index = 0; index < options.Length; index++)
-	    {
-		    PartOption current = options[index];
-			// Dont start a pattern next to a '#'
-
-			int startMin = current.StartMin;
-			if (current.StartMin > 0)
-			{
-				while (condition.Record[startMin - 1] == '#')
-				{
-					startMin++;
-				}
-			}
-
-			int startMax = current.StartMax;
-			if ((current.StartMax + current.Length) < condition.Record.Length)
-			{
-				while (condition.Record[startMax + current.Length] == '#')
-				{
-					startMax--;
-				}
-			}
-
-			options[index] = current with
-			{
-				StartMin = startMin,
-				StartMax = startMax,
-			};
-	    }
-
-	    ReadOnlySpan<char> record = condition.Record;
-	    int sum = CreateOutputOptions(ref record, options, 0, 0);
-
-	    return sum;
-
-	    int Remaining(int partId)
-	    {
-		    int sum = condition.Groups.Length - partId - 1;
-		    for (int p = partId + 1; p < condition.Groups.Length; p++)
-		    {
-			    sum += condition.Groups[p];
-		    }
-		    return sum;
-	    }
-
-	    int Previous(int partId)
-	    {
-		    int sum = partId;
-		    for(int p = 0; p < partId; p++)
-		    {
-			    sum += condition.Groups[p];
-		    }
-		    return sum;
-		}
-    }
-
-    private int CreateOutputOptions(ref ReadOnlySpan<char> record, PartOption[] options, int currentOption, int currentPosition)
-    {
-	    int nextOption = currentOption + 1;
-	    PartOption option = options[currentOption];
-	    int sum = 0;
-
-	    // are al options valid? for example: "?.? 1" -> startMin 0, startMax 2 -> 1 not valid
-		// TODO: prevent generating to many '#'s
-
-		int start = Math.Max(currentPosition, option.StartMin);
-		if (record.Slice(currentPosition, start - currentPosition).Contains('#'))
-		{
-			return 0;// invalid, '#' in between 2 groups
-		}
-
-		if (nextOption < options.Length)
-	    {
-		    for (int i = start; i <= option.StartMax; i++)
-		    {
-			    if (IsValid(record, i, option.Length))
-			    {
-				    sum += CreateOutputOptions(ref record, options, nextOption, i + option.Length + 1);
-			    }
-			    else
-			    {
+				    char c = record[pos];
+				    while (c is '.')
+				    {
+					    // skip '.'s
+					    pos++;
+					    
+					    // impossible to complete
+					    if (pos + length > record.Length) return 0;
+					    
+					    c = record[pos];
+				    }
 				    
-			    }
-
-			    if (record[i] == '#')
-			    {
-				    break;
-					// must start here / include this
-			    }
-		    }
-		}
-	    else
-	    {
-		    for (int i = start; i <= option.StartMax; i++)
-		    {
-			    if (record.Slice(i + option.Length).Contains('#'))
-			    {
-					if (record[i] == '#') break;
-				    continue;
-			    }
-			    if (IsValid(record, i, option.Length))
-			    {
-				    sum++;
-			    }
-			    else
-			    {
+				    int sum = 0;
 				    
-			    }
+				    if(c is '#' or '?')
+				    {
+					    // check if group can be used here
+					    if (IsValid(record, pos, length))
+					    {
+						    // advance to next possible position and increment group
+						    sum += CachedOutputOptions(group + 1, pos + length + 1);
+					    }
+				    }
+				    
+				    if (c is '?')
+				    {
+					    // go to next position
+					    sum += CachedOutputOptions(group, pos + 1);
+				    }
+				    
+				    return sum;
+			    });
+		    }
 
-			    if (record[i] == '#')
-			    {
-				    break;
-				    // must start here / include this
-			    }
-			}
-		}
-
-	    return sum;
+		    return cache(currentOption, currentPosition);
+	    }
     }
 
     private bool IsValid(ReadOnlySpan<char> record, int start, int length)
@@ -245,43 +146,6 @@ public class Solution12 : Solution
 
 	    return validBefore && validAfter && validInside;
     }
-
-    private void Simplify(Condition condition, PartOption[] options)
-    {
-	    for (int p = 0; p < options.Length; p++)
-	    {
-		    PartOption part = options[p];
-		    int startMin = part.StartMin;
-		    int startMax = part.StartMax;
-		    int indexOfDot = 0;
-		    while (indexOfDot >= 0)
-		    {
-			    var slice = condition.Record.AsSpan(startMin, part.Length);
-			    indexOfDot = slice.IndexOf('.');
-			    if (indexOfDot >= 0)
-			    {
-				    startMin += indexOfDot + 1;
-			    }
-		    }
-
-		    int lastIndexOfDot = 0;
-		    while (lastIndexOfDot >= 0)
-		    {
-			    var slice = condition.Record.AsSpan(startMax, part.Length);
-			    lastIndexOfDot = slice.IndexOf('.');
-			    if (lastIndexOfDot >= 0)
-			    {
-				    startMax -= (part.Length - lastIndexOfDot);
-			    }
-		    }
-
-		    options[p] = part with
-		    {
-			    StartMax = startMax,
-			    StartMin = startMin,
-		    };
-	    }
-	}
 
     private int Solve(Condition condition)
     {
@@ -403,5 +267,4 @@ public class Solution12 : Solution
 
         return new Condition(record, numbers.ToArray());
     }
-
 }    

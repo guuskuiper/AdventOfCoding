@@ -19,7 +19,7 @@ public static class MemoizerExtension
         };
     }
     
-    public static Func<T1, TRes> Memoize<T1, TRes>(this Func<T1, TRes> f)
+    public static Func<T1, TRes> Memoize<T1, TRes>(this Func<T1, TRes> f) where T1 : notnull
     {
         ConcurrentDictionary<T1, TRes> cache = new();
         return args1 => cache.GetOrAdd(args1, f(args1));

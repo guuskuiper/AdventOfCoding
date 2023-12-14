@@ -1,6 +1,3 @@
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Runtime.InteropServices.ComTypes;
 using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2023.Day12;
@@ -10,48 +7,15 @@ public class Solution12 : Solution
 {
 	private record Condition(string Record, int[] Groups);
 
-	private record PartOption(int Length, int StartMin, int StartMax)
-	{
-		public int EndMax => StartMax + Length - 1;
-	};
-
     public string Run()
     {
         string[] input = this.ReadLines();
 
-        var conditions = input.Select(ParseLine).ToArray();
+        Condition[] conditions = input.Select(ParseLine).ToArray();
+        long sum = conditions.Select(SolveCached).Sum();
 
-        if (false)
-        {
-	        Condition test = conditions[2];
-	        //int sum0_a = Solve(test);
-	        //int sum0_b = Solve3(test);
-
-			for (int i = 0; i < conditions.Length; i++)
-	        {
-		        Condition cond = conditions[i];
-		        int sum_a = Solve(cond);
-		        int sum_b = Solve3(cond);
-		        if (sum_a != sum_b)
-		        {
-			        List<string> solutions = SolveAndReturn(cond);
-			        Console.WriteLine($"{cond.Record} {string.Join(',', cond.Groups)}");
-			        Console.WriteLine(string.Join(Environment.NewLine, solutions));
-		        }
-	        }
-        }
-
-        //long sum = conditions.Select(Solve).Sum();
-        long sum = conditions.Select(Solve3).Sum();
-        return sum + "\n";
-
-        var conditionsB = conditions.Select(Unfold).ToArray();
-        long sumB = 0;
-        for (int i = 0; i < conditionsB.Length; i++)
-        {
-			sumB += Solve3(conditionsB[i]);
-			Console.WriteLine(i);
-        }
+        Condition[] conditionsB = conditions.Select(Unfold).ToArray();
+        long sumB = conditionsB.Select(SolveCached).Sum();
 
 		return sum + "\n" + sumB;
     }
@@ -63,79 +27,83 @@ public class Solution12 : Solution
 		return new Condition(record, numbers);
     }
 
-    private int Solve3(Condition condition)
+    private record CacheKey(int Group, int Position);
+    private long SolveCached(Condition condition)
     {
-	    string record = condition.Record;
 	    int[] groups = condition.Groups;
-	    Func<int, int, int>? cache = null;
+	    int[] remaining = Enumerable.Range(0, groups.Length).Select(x => Remaining(x, groups)).ToArray();
+	    Dictionary<CacheKey, long> cache = new();
 
-	    int sumTotal = CachedOutputOptions(0, 0);
-	    
-	    return sumTotal;
+	    long totalSum = CreateOptions(condition.Record, new CacheKey(0, 0));
 
-	    int CachedOutputOptions(int currentOption, int currentPosition)
+	    return totalSum;
+
+	    long CreateOptions(ReadOnlySpan<char> line, CacheKey key)
 	    {
-		    if (cache is null)
+		    if (cache.TryGetValue(key, out long sum))
 		    {
-			    cache = MemoizerExtension.Memoize<int, int, int>((group, pos) =>
+			    return sum;
+		    }
+		    
+		    if (key.Group >= groups.Length)
+		    {
+			    // done
+			    if (key.Position <= line.Length && line.Slice(key.Position).Contains('#'))
 			    {
-				    if (group >= groups.Length)
-				    {
-					    // done
-					    if (pos <= record.Length && record.AsSpan().Slice(pos).Contains('#'))
-					    {
-						    return 0;
-					    }
-						return 1;
-				    }
+				    return 0;
+			    }
 
-				    if (pos >= record.Length)
-				    {
-					    return 0; // invalid
-				    }
-					int length = groups[group];
-
-					if (pos + length > record.Length)
-					{
-						return 0;
-					}
-
-				    char c = record[pos];
-				    while (c is '.')
-				    {
-					    // skip '.'s
-					    pos++;
-					    
-					    // impossible to complete
-					    if (pos + length > record.Length) return 0;
-					    
-					    c = record[pos];
-				    }
-				    
-				    int sum = 0;
-				    
-				    if(c is '#' or '?')
-				    {
-					    // check if group can be used here
-					    if (IsValid(record, pos, length))
-					    {
-						    // advance to next possible position and increment group
-						    sum += CachedOutputOptions(group + 1, pos + length + 1);
-					    }
-				    }
-				    
-				    if (c is '?')
-				    {
-					    // go to next position
-					    sum += CachedOutputOptions(group, pos + 1);
-				    }
-				    
-				    return sum;
-			    });
+			    return 1;
 		    }
 
-		    return cache(currentOption, currentPosition);
+		    if (key.Position >= line.Length 
+		        || key.Position + remaining[key.Group] > line.Length)
+		    {
+			    return 0;
+		    }
+		    
+		    // Logic
+		    char c = line[key.Position];
+
+		    int length = groups[key.Group];
+		    if (key.Position + length > line.Length)
+		    {
+			    return 0;
+		    }
+
+		    long insert = 0;
+		    if(c is '#' or '?')
+		    {
+			    // check if group can be used here
+			    if (IsValid(line, key.Position, length))
+			    {
+				    // advance to next possible position and increment group
+				    insert = CreateOptions(line, new CacheKey(key.Group + 1, key.Position + length + 1));
+			    }
+		    }
+
+		    long skip = 0;
+		    if (c is '?' or '.')
+		    {
+			    // go to next position
+			    skip = CreateOptions(line, key with {Position = key.Position + 1});
+		    }
+
+		    // Add to cache and return
+		    sum = insert + skip;
+		    cache[key] = sum;
+		    return sum;
 	    }
+    }
+    
+    int Remaining(int partId, int[] groups)
+    {
+	    int sum = groups.Length - partId - 1;
+	    for (int p = partId; p < groups.Length; p++)
+	    {
+		    sum += groups[p];
+	    }
+	    return sum;
     }
 
     private bool IsValid(ReadOnlySpan<char> record, int start, int length)
@@ -149,20 +117,14 @@ public class Solution12 : Solution
 
     private int Solve(Condition condition)
     {
-		//ImmutableArray<char> chars = [];
-		//var c2 = chars.Add('a');
-
 		List<char> current = new List<char>();
-
         List<string> options = SolveStep(condition, current);
-
         return options.Count;
     }
 
     private List<string> SolveAndReturn(Condition condition)
     {
 	    List<char> current = new List<char>();
-
 	    return SolveStep(condition, current);
     }
 

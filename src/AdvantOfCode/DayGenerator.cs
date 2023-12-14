@@ -110,8 +110,6 @@ public static class DayGenerator
         var dayString = $"Day{day:D2}";
         var className = $"Solution{day:D2}";
         string content = $$"""
-using AdventOfCode.Extensions;
-
 namespace AdventOfCode.{{yearString}}.{{dayString}};
 
 [DayInfo({{year}}, {{day:D2}})]

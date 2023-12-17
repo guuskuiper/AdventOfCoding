@@ -68,7 +68,7 @@ public class AoCClientTest
     [SkippableFact]
     public async Task<AoCPrivateLeaderboard> DownloadLeaderboard()
     {
-        string session = await AoCClient.GetSessionAsync();
+        string? session = await AoCClient.GetSessionAsync();
         Skip.If(string.IsNullOrEmpty(session), "No session");
         
         AoCClient client = new AoCClient(session);
@@ -82,7 +82,7 @@ public class AoCClientTest
     [InlineData(782191)]
     public async Task UpdateLeaderboard(int groupCode)
     {
-        string session = await AoCClient.GetSessionAsync();
+        string? session = await AoCClient.GetSessionAsync();
         Skip.If(string.IsNullOrEmpty(session), "No session");
 
         AoCClient client = new AoCClient(session);
@@ -93,7 +93,7 @@ public class AoCClientTest
     [SkippableFact]
     public async Task<string> Download()
     {
-        string session = await AoCClient.GetSessionAsync();
+        string? session = await AoCClient.GetSessionAsync();
         Skip.If(string.IsNullOrEmpty(session), "No session");
         
         AoCClient client = new AoCClient(session);
@@ -104,7 +104,7 @@ public class AoCClientTest
     [SkippableFact]
     public async Task<string> Upload()
     {
-        string session = await AoCClient.GetSessionAsync();
+        string? session = await AoCClient.GetSessionAsync();
         Skip.If(string.IsNullOrEmpty(session), "No session");
 
         AoCClient client = new AoCClient(session);

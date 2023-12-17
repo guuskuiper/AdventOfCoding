@@ -73,14 +73,14 @@ public class AoCClient
     
     public static async Task<string> DownloadAsync(int year, int day)
     {
-        string session = await GetSessionAsync();
+        string? session = await GetSessionAsync();
         AoCClient downloader = new AoCClient(session);
         return await downloader.DownloadInputAsync(year, day);
     }
 
     public static async Task<string> UploadAsync(int year, int day, bool part1, string answer)
     {
-        string session = await GetSessionAsync();
+        string? session = await GetSessionAsync();
         AoCClient downloader = new AoCClient(session);
         return await downloader.UploadAnswerAsync(year, day, part1, answer);
     }
@@ -143,10 +143,10 @@ public class AoCClient
         return text;
     }
     
-    public static async Task<string> GetSessionAsync()
+    public static async Task<string?> GetSessionAsync()
     {
         string? session = Environment.GetEnvironmentVariable("SESSION");
-        if (session is null)
+        if (session is null && File.Exists("SESSION"))
         {
             session = await File.ReadAllTextAsync("SESSION");
         }

@@ -21,11 +21,27 @@ public class Solution17 : Solution
             min = endCosts.Min();
         }
 
+        UltraCrucibleGrid ultraCrucibleGrid = new(grid);
         double minB;
+        bool aStar = true;
+        if (aStar)
         {
-            UltraCrucibleGrid crucibleGrid = new(grid);
-            (Dictionary<CruciblePoint, CruciblePoint> path, Dictionary<CruciblePoint, double> costs) =
-                Dijkstra.SearchGoal(crucibleGrid, start, point => point.P == end);
+            (Dictionary<CruciblePoint, CruciblePoint> _,  Dictionary<CruciblePoint, double> costsAStar) 
+                = AStar.SearchFrom(ultraCrucibleGrid, 
+                    start, 
+                    new CruciblePoint(end, new(0, 0)), 
+                    point => point.P == end, 
+                    (a, b) => AStar.DistanceManhattan(a.P, b.P));
+            var endsA = costsAStar.Keys.Where(p => p.P == end).ToArray();
+            var endCostsA = endsA.Select(x => costsAStar[x]).ToArray();
+            minB = endCostsA.Min();
+        }
+        else
+        {
+            (Dictionary<CruciblePoint, CruciblePoint> _, Dictionary<CruciblePoint, double> costs) =
+                Dijkstra.SearchGoal(ultraCrucibleGrid, 
+                    start, 
+                    point => point.P == end);
             var ends = costs.Keys.Where(p => p.P == end).ToArray();
             var endCosts = ends.Select(x => costs[x]).ToArray();
             minB = endCosts.Min();

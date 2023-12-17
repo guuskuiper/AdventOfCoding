@@ -122,6 +122,11 @@ public class AoCClientTest
     private static List<string> GetTestJsonFileNames()
     {
         var directory = Directory.GetCurrentDirectory();
+        var dataDir = Path.Combine(directory, "Data");
+        if (!Directory.Exists(dataDir))
+        {
+            return [];
+        }
         var fileNames = Directory.EnumerateFiles(directory + "\\Data", "*.json").ToList();
         return fileNames;
     }

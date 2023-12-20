@@ -52,43 +52,39 @@ public class Solution20 : Solution
 		        }
 	        }
         }
+		
+		// find output "rx"
+		Module toRX = FindProducer(modules, "rx");
+		Module[] sources = FindProducers(modules, toRX.Name).ToArray();
+		
 
 		string mermaid = ExportMermaid(modules);
-        long sum = PulseSum(moduleMap, 1000);
+        long sum = PulseSum(moduleMap, 1000, sources.Select(x => x.Name).ToHashSet(), out long part2);
 
-        return sum + "\n";
+        return sum + "\n" + part2;
     }
 
-	private string ExportMermaid(Module[] modules)
-	{
-		StringBuilder sb = new();
-		sb.AppendLine("flowchart TD");
-
-		foreach (var module in modules)
-		{
-			foreach (var moduleOutput in module.Outputs)
-			{
-				sb.AppendLine($"{module.Name}[{module.Type.ToString().Trim()}{module.Name}] --> {moduleOutput}");
-			}
-		}
-
-		return sb.ToString();
-	}
 
 	private record Pulse(string Source, string Destination, bool Value);
 
-	private long PulseSum(Dictionary<string, Module> modules, int buttonPresses)
+	private long PulseSum(Dictionary<string, Module> modules, int buttonPresses, HashSet<string> part2Destinations, out long largeNumber)
 	{
 		long lowPulses = 0;
 		long highPulses = 0;
+
+		Dictionary<string, int> firstPulse = new();
+		Dictionary<string, int> pulsePeriod = new();
+
+		bool part1Done = false;
 
 		Module button = new Module("button", ' ', ["broadcaster"]);
 
 		Queue<Pulse> pulses = [];
 
-
-		for (int i = 0; i < buttonPresses; i++)
+		for (int i = 0; i < 25_000; i++)
 		{
+			if (i >= buttonPresses) part1Done = true;
+			
 			SendPulse(new Pulse(button.Name, button.Outputs[0], false));
 
 			while (pulses.Count > 0)
@@ -100,19 +96,35 @@ public class Solution20 : Solution
 					var outputs = ProcessModule(current, p.Value, p.Source);
 					foreach (Pulse output in outputs)
 					{
-						if (output.Destination == "rx")
+						if(!output.Value && part2Destinations.Contains(output.Destination))
 						{
-							if (!output.Value)
+							string outputName = output.Destination;
+							if(!firstPulse.TryGetValue(outputName, out int first))
 							{
-								Console.WriteLine($"Part 2: {i}");
-								return 0;
+								firstPulse[outputName] = i;
 							}
+							else
+							{
+								if (!pulsePeriod.ContainsKey(outputName))
+								{
+									pulsePeriod[outputName] = i - first;
+									if (pulsePeriod.Count >= part2Destinations.Count)
+									{
+										largeNumber = pulsePeriod.Values.Aggregate(1L, (acc, val) => acc * val); 
+										return lowPulses * highPulses;
+									}
+								}
+							}
+							//Console.WriteLine($"Part 2 {output.Destination}: {i}");
 						}
 						SendPulse(output);
 					}
 				}
 			}
 		}
+
+		largeNumber = -1;
+		return lowPulses * highPulses;
 
 		void SendPulse(Pulse p)
 		{
@@ -123,6 +135,8 @@ public class Solution20 : Solution
 
 		void AddPulse(bool pulse)
 		{
+			if(part1Done) return;
+			
 			if (pulse)
 			{
 				highPulses++;
@@ -132,8 +146,6 @@ public class Solution20 : Solution
 				lowPulses++;
 			}
 		}
-
-		return lowPulses * highPulses;
 	}
 
 	private IEnumerable<Pulse> ProcessModule(Module current, bool inputPulse, string source)
@@ -169,6 +181,48 @@ public class Solution20 : Solution
 		{
 			yield return new Pulse(current.Name, output, outputPulse);
 		}
+	}
+	
+	private Module FindProducer(Module[] modules, string destination)
+	{
+		Module? source = null;
+		foreach (Module module in modules)
+		{
+			if (module.Outputs.Contains(destination))
+			{
+				source = module;
+				break;
+			}
+		}
+		ArgumentNullException.ThrowIfNull(source, nameof(destination));
+		return source;
+	}
+	
+	private IEnumerable<Module> FindProducers(Module[] modules, string destination)
+	{
+		foreach (Module module in modules)
+		{
+			if (module.Outputs.Contains(destination))
+			{
+				yield return module;
+			}
+		}
+	}
+
+	private string ExportMermaid(Module[] modules)
+	{
+		StringBuilder sb = new();
+		sb.AppendLine("flowchart TD");
+
+		foreach (var module in modules)
+		{
+			foreach (var moduleOutput in module.Outputs)
+			{
+				sb.AppendLine($"{module.Name}[{module.Type.ToString().Trim()}{module.Name}] --> {moduleOutput}");
+			}
+		}
+
+		return sb.ToString();
 	}
 
 	private Module ParseLine(string line)

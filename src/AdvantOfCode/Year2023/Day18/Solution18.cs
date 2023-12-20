@@ -23,7 +23,7 @@ public class Solution18 : Solution
 
 		long areaB = AreaB(digPlan);
 
-		return area + "\n" + areaB; // 32953 too low
+		return area + "\n" + areaB;
 	}
 
     private long AreaB(Dig[] digPlan)
@@ -71,6 +71,8 @@ public class Solution18 : Solution
 
 		double area = Clipper.Area(solution);
 
+		double areaSelf = Area(offsetPoints);
+
 		return (long) (area / (SCALE * SCALE));
     }
 
@@ -105,20 +107,26 @@ public class Solution18 : Solution
 	/// </summary>
 	/// <param name="points"></param>
 	/// <returns></returns>
-    private long Area(List<Point> points)
+    private double Area(List<Point> points)
     {
-	    long area = 0;
+	    double area = 0;
 
-	    for (int i = 1; i < points.Count; i++)
+	    Point prev = points[points.Count - 1];
+		for (int i = 0; i < points.Count; i++)
 	    {
-		    Point prev = points[i - 1];
 		    Point curr = points[i];
 
-            long det = prev.X * curr.Y - prev.Y * curr.X;
-            area += det;
+			// Trapezoid formula 
+		    //double det = ((double)curr.X + prev.X) * ((double)curr.Y - prev.Y);
+
+			// Triangle formula
+		    double det = (double)prev.X * curr.Y - (double)prev.Y * curr.X;
+		    area += det;
+
+			prev = curr;
 	    }
 
-	    return area >> 1;
+	    return area * 0.5;
     }
 
     private Dig ParseLine(string line)

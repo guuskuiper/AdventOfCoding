@@ -20,16 +20,50 @@ public class Solution21 : Solution
     private long Step2(char[,] grid, Point start, int steps)
     {
         InfiniteGardenGrid graph = new(grid);
+        int rockCount = grid.Find('#').Count();
+        int oddStepRockCount = grid.Find('#').Count(p => (p.X + p.Y) % 2 != 0);
+        int tiles = grid.Width() * grid.Heigth();
 
         for (int i = 0; i < 100; i++)
         {
             List<Point> points = Offset(start, i).ToList();
             long count = points.Count;
             long validPoints = points.Count(p => graph[p] != '#');
-            Console.WriteLine($"{i}:{count} - {validPoints}");
+            //Console.WriteLine($"{i}:{count} - {validPoints}");
         }
-        return 0;
+
+        long upperBound = 0;
+        for (int i = 1; i <= steps; i += 2)
+        {
+            upperBound += OffsetCount(i);
+        }
+
+        long upperBoundNoRocks = 0;
+        for (int i = 1; i <= steps; i += 2)
+        {
+	        break;
+            upperBoundNoRocks += ValidOffsetCount(graph, start, i);
+        }
+
+        return upperBound;
     }
+
+    private long ValidOffsetCount(InfiniteGardenGrid graph, Point start, int radius)
+    {
+        long count = 0;
+
+        foreach (var point in Offset(start, radius))
+        {
+            if (graph[point] != '#')
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private int OffsetCount(int radius) => 4 * radius; // ignoring 1 for radius == 0
 
     private IEnumerable<Point> Offset(Point start, int radius)
     {
@@ -39,7 +73,7 @@ public class Solution21 : Solution
             yield return new Point(start.X + radius - i, start.Y + i);
             yield return new Point(start.X - i, start.Y + radius - i);
             yield return new Point(start.X - radius + i, start.Y - i);
-            yield return new Point(start.X + i, start.Y - radius - i);
+            yield return new Point(start.X + i, start.Y - radius + i);
         }
     }
     

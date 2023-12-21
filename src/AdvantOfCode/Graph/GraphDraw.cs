@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Text;
+﻿using System.Text;
 
 namespace AdventOfCode.Graph;
 
@@ -13,6 +12,11 @@ public static class GraphDraw
     public static void Draw<T>(this RectValueGrid<T> g)
     {
         DrawGridStyles(g, g);
+    }
+    
+    public static void Draw<T>(this IRectGrid<Point> g, IStyle<Point> s)
+    {
+        DrawGridStyles(g, s);
     }
     
     public static void DrawGrid(this IRectGrid<Point> g, Dictionary<Point, Point> parents, Point start, Point goal) 

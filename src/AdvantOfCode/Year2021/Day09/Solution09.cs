@@ -3,7 +3,7 @@ namespace AdventOfCode.Year2021.Day09;
 [DayInfo(2021, 09)]
 public class Solution09 : Solution
 {
-    public struct Point
+    private struct Point
     {
         public Point(int x, int y)
         {
@@ -55,7 +55,7 @@ public class Solution09 : Solution
         }
     }
 
-    public HashSet<Point> GetBasin(Point point)
+    private HashSet<Point> GetBasin(Point point)
     {
         HashSet<Point> basin = new HashSet<Point>();
         var lowestHeight = GetHeight(point);
@@ -105,7 +105,7 @@ public class Solution09 : Solution
         }
     }
 
-    public char GetHeight(Point point) => lines[point.X][point.Y];
+    private char GetHeight(Point point) => lines[point.X][point.Y];
 
     private void FindLowest()
     {

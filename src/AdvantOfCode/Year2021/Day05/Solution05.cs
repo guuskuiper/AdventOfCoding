@@ -7,13 +7,13 @@ public class Solution05 : Solution
     private List<Line> _oceanlines = new ();
     private bool onlyHorizontalVertical = true;
 
-    public class Line
+    private class Line
     {
         public Point From { get; set; }
         public Point To { get; set; }
     }
     
-    public struct Point
+    private struct Point
     {
         public int X { get; set; }
         public int Y { get; set; }

@@ -17,6 +17,23 @@ public static class ArrayExtensions
             yield return item;
     }
 
+    public static IEnumerable<Point> Find<T>(this T[,] target, T value)
+    {
+        int width = target.Width();
+        int height = target.Heigth();
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                T current = target[x, y];
+                if(EqualityComparer<T>.Default.Equals(current, value))
+                {
+                    yield return new Point(x, y);
+                }
+            }
+        }
+    }
+
     public static char[,] ToGrid(this string[] lines) => ToGrid(lines, Identity);
 
     public static RectValueGrid<char> ToRecGrid(this string[] lines, Size[]? neightbors = null) => ToRecGrid<char>(lines, Identity, neightbors);

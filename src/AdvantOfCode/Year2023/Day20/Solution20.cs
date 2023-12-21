@@ -54,9 +54,8 @@ public class Solution20 : Solution
         }
 		
 		// find output "rx"
-		Module toRX = FindProducer(modules, "rx");
+		Module toRX = FindProducers(modules, "rx").Single();
 		Module[] sources = FindProducers(modules, toRX.Name).ToArray();
-		
 
 		string mermaid = ExportMermaid(modules);
         long sum = PulseSum(moduleMap, 1000, sources.Select(x => x.Name).ToHashSet(), out long part2);
@@ -181,21 +180,6 @@ public class Solution20 : Solution
 		{
 			yield return new Pulse(current.Name, output, outputPulse);
 		}
-	}
-	
-	private Module FindProducer(Module[] modules, string destination)
-	{
-		Module? source = null;
-		foreach (Module module in modules)
-		{
-			if (module.Outputs.Contains(destination))
-			{
-				source = module;
-				break;
-			}
-		}
-		ArgumentNullException.ThrowIfNull(source, nameof(destination));
-		return source;
 	}
 	
 	private IEnumerable<Module> FindProducers(Module[] modules, string destination)

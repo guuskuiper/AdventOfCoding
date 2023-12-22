@@ -23,9 +23,84 @@ public class Solution21 : Solution
         Point start = grid.Find('S').Single();
 
         long options = Step(grid, start, 64);
-        long part2 = Step2(grid, start, 26501365);
+        bool fast = true;
+        long part2;
+        if (fast)
+        {
+            part2 = Step2Fast(grid, start, 26501365);
+        }
+        else
+        {
+            part2 = Step2(grid, start, 26501365);
+        }
         
         return options + "\n" + part2;
+    }
+    
+       private long Step2Fast(char[,] grid, Point start, int steps)
+    {
+        int tileRadius = steps / grid.Width();
+        int tileRemainder = steps % grid.Width();
+        
+        int width = grid.Width();
+        int radius = (width - 1) / 2;
+        Debug.Assert(tileRemainder == radius);
+        
+        int cornerSteps = (steps - (radius + 1)) % width;
+        int middleSteps = (steps - (radius + 1)) % width;
+        int quarterSteps = cornerSteps - radius - 1;
+        int threeQuarterSteps = cornerSteps - radius - 1 + width;
+
+        Point[] middles = [LeftMiddle, RightMiddle, TopMiddle, BottomMiddle];
+        Point[] quarters = [TopLeft, TopRight, BottomLeft, BottomRight];
+        Point[] threeQuarters = [TopLeft, TopRight, BottomLeft, BottomRight];
+        HashSet<Point> allStates = StepFast(grid, start); // fill entire tile
+        long evenFullOptions = StepFaster(allStates, start, radius * 2);
+        long oddFullOptions = StepFaster(allStates, start, radius * 2- 1);
+        
+        long middleOptions = 0;
+        foreach (Point corner in middles)
+        {
+            long options = StepFaster(allStates, corner, middleSteps);
+            //DrawFast(grid, allStates, corner, middleSteps);
+            middleOptions += options;
+        }
+        long quortersOptions = 0;
+        foreach (Point corner in quarters)
+        {
+            long options = StepFaster(allStates, corner, quarterSteps);
+            quortersOptions += options;
+        }
+        long threeQuartersOptions = 0;
+        foreach (Point corner in threeQuarters)
+        {
+            long options = StepFaster(allStates, corner, threeQuarterSteps);
+            threeQuartersOptions += options;
+        }
+
+        long oddTileCount = 0;
+        long evenTileCount = 0;
+        for (int i = 0; i < tileRadius; i += 1)
+        {
+            bool isOdd = i % 2 == 0;
+            int tileCount = OffsetCount(i);
+            if (isOdd)
+            {
+                oddTileCount += tileCount;
+            }
+            else
+            {
+                evenTileCount += tileCount;
+            }
+        }        
+        long total = middleOptions + 
+                     tileRadius * quortersOptions + 
+                     (tileRadius - 1) * threeQuartersOptions
+                     + evenTileCount * evenFullOptions
+                     + oddTileCount * oddFullOptions
+                     ;
+        
+        return total;
     }
 
     private long Step2(char[,] grid, Point start, int steps)
@@ -107,6 +182,51 @@ public class Solution21 : Solution
             yield return new Point(start.X + i, start.Y - radius + i);
         }
     }
+
+    private long StepFaster(HashSet<Point> visited, Point start, int steps)
+    {
+        bool odd = steps % 2 == 1;
+        odd ^= IsOdd(start);
+        return visited.Count(p => IsOddDistanceMax(p, start, odd, steps));
+    }
+    
+    bool IsOddDistanceMax(Point p, Point start, bool odd, int distance)
+    {
+        if (!IsOdd(p) == odd) return false;
+        return AStar.DistanceManhattan(p, start) <= distance;
+    }
+        
+    bool IsOdd(Point p) => (p.X + p.Y) % 2 == 1;
+
+    private void DrawFast(char[,] grid, HashSet<Point> visited, Point start, int steps)
+    {
+        bool odd = steps % 2 == 1;
+        GardenGrid graph = new(grid);
+        GardenStyleFast oddStyle = new GardenStyleFast(grid, visited.Where(p => IsOddDistanceMax(p, start, odd, steps)).ToHashSet());
+        graph.Draw<Point>(oddStyle);
+    }
+    
+    private HashSet<Point> StepFast(char[,] grid, Point start)
+    {
+        GardenGrid graph = new(grid);
+
+        AQueue<Point> frontier = [start];
+        HashSet<Point> visited = [start];
+
+        while (!frontier.Empty)
+        {
+            Point current = frontier.Get();
+
+            foreach (Point next in graph.Neighbors(current))
+            {
+                if (visited.Contains(next)) continue;
+                frontier.Add(next);
+                visited.Add(next);
+            }
+        }
+
+        return visited;
+    }
     
     private long Step(char[,] grid, Point start, int steps, bool draw = false)
     {
@@ -161,6 +281,24 @@ public class Solution21 : Solution
         public string Format(Point p)
         {
             if (_states.Contains(new State(p, Step))) return "O";
+            return _grid[p.X, p.Y].ToString() ?? " ";
+        }
+    }
+    
+    private class GardenStyleFast : IStyle<Point>
+    {
+        private readonly char[,] _grid ;
+        private readonly HashSet<Point> _states;
+
+        public GardenStyleFast(char[,] grid, HashSet<Point> states)
+        {
+            _grid = grid;
+            _states = states;
+        }
+        
+        public string Format(Point p)
+        {
+            if (_states.Contains(p)) return "O";
             return _grid[p.X, p.Y].ToString() ?? " ";
         }
     }

@@ -1,8 +1,19 @@
+using System.Diagnostics;
+
 namespace AdventOfCode.Year2023.Day21;
 
 [DayInfo(2023, 21)]
 public class Solution21 : Solution
 {
+    private static readonly Point TopLeft = new Point(0, 0);
+    private static readonly Point TopMiddle = new Point(65, 0);
+    private static readonly Point TopRight = new Point(130, 0);
+    private static readonly Point LeftMiddle = new Point(0, 65);
+    private static readonly Point RightMiddle = new Point(130, 65);
+    private static readonly Point BottomLeft = new Point(0, 130);
+    private static readonly Point BottomMiddle = new Point(65, 130);
+    private static readonly Point BottomRight = new Point(130, 130);
+    
     private record State(Point P, int Step);
     
     public string Run()
@@ -12,25 +23,67 @@ public class Solution21 : Solution
         Point start = grid.Find('S').Single();
 
         long options = Step(grid, start, 64);
-        Step2(grid, start, 26501365);
+        long part2 = Step2(grid, start, 26501365);
         
-        return options + "\n";
+        return options + "\n" + part2;
     }
 
     private long Step2(char[,] grid, Point start, int steps)
     {
-        InfiniteGardenGrid graph = new(grid);
-        int rockCount = grid.Find('#').Count();
-        int oddStepRockCount = grid.Find('#').Count(p => (p.X + p.Y) % 2 != 0);
-        int tiles = grid.Width() * grid.Heigth();
+        int tileRadius = steps / grid.Width();
+        int tileRemainder = steps % grid.Width();
+        
+        int width = grid.Width();
+        int radius = (width - 1) / 2;
+        Debug.Assert(tileRemainder == radius);
+        
+        int cornerSteps = (steps - (radius + 1)) % width;
+        int middleSteps = (steps - (radius + 1)) % width;
+        int quarterSteps = cornerSteps - radius - 1;
+        int threeQuarterSteps = cornerSteps - radius - 1 + width;
 
-        for (int i = 0; i < 100; i++)
+        Point[] middles = [LeftMiddle, RightMiddle, TopMiddle, BottomMiddle];
+        Point[] quarters = [TopLeft, TopRight, BottomLeft, BottomRight];
+        Point[] threeQuarters = [TopLeft, TopRight, BottomLeft, BottomRight];
+        long oddFullOptions = Step(grid, start, radius * 2 - 1);
+        long evenFullOptions = Step(grid, start, radius * 2);
+        long middleOptions = 0;
+        foreach (Point corner in middles)
         {
-            List<Point> points = Offset(start, i).ToList();
-            long count = points.Count;
-            long validPoints = points.Count(p => graph[p] != '#');
-            //Console.WriteLine($"{i}:{count} - {validPoints}");
+            middleOptions += Step(grid, corner, middleSteps);
         }
+        long quortersOptions = 0;
+        foreach (Point corner in quarters)
+        {
+            quortersOptions += Step(grid, corner, quarterSteps);
+        }
+        long threeQuartersOptions = 0;
+        foreach (Point corner in threeQuarters)
+        {
+            threeQuartersOptions += Step(grid, corner, threeQuarterSteps);
+        }
+
+        long oddTileCount = 0;
+        long evenTileCount = 0;
+        for (int i = 0; i < tileRadius; i += 1)
+        {
+            bool isOdd = i % 2 == 0;
+            int tileCount = OffsetCount(i);
+            if (isOdd)
+            {
+                oddTileCount += tileCount;
+            }
+            else
+            {
+                evenTileCount += tileCount;
+            }
+        }        
+        long total = middleOptions + 
+                     tileRadius * quortersOptions + 
+                     (tileRadius - 1) * threeQuartersOptions
+                     + evenTileCount * evenFullOptions
+                     + oddTileCount * oddFullOptions
+                     ;
 
         long upperBound = 0;
         for (int i = 1; i <= steps; i += 2)
@@ -38,32 +91,10 @@ public class Solution21 : Solution
             upperBound += OffsetCount(i);
         }
 
-        long upperBoundNoRocks = 0;
-        for (int i = 1; i <= steps; i += 2)
-        {
-	        break;
-            upperBoundNoRocks += ValidOffsetCount(graph, start, i);
-        }
-
-        return upperBound;
+        return total;
     }
 
-    private long ValidOffsetCount(InfiniteGardenGrid graph, Point start, int radius)
-    {
-        long count = 0;
-
-        foreach (var point in Offset(start, radius))
-        {
-            if (graph[point] != '#')
-            {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    private int OffsetCount(int radius) => 4 * radius; // ignoring 1 for radius == 0
+    private int OffsetCount(int radius) => radius == 0 ? 1 : 4 * radius;
 
     private IEnumerable<Point> Offset(Point start, int radius)
     {
@@ -77,7 +108,7 @@ public class Solution21 : Solution
         }
     }
     
-    private long Step(char[,] grid, Point start, int steps)
+    private long Step(char[,] grid, Point start, int steps, bool draw = false)
     {
         GardenGrid graph = new(grid);
 
@@ -101,19 +132,16 @@ public class Solution21 : Solution
                 visited.Add(newState);
             }
         }
-
-
-        GardenStyle style = new GardenStyle(grid, visited);
-        for (int i = 0; i < 10; i++)
+        
+        if(draw)
         {
-            break;
-            style.Step = i;
+            GardenStyle style = new GardenStyle(grid, visited);
             graph.Draw<Point>(style);
-            long stepOptions = visited.Count(x => x.Step == i);
-            Console.WriteLine($"Options {i}: {stepOptions}");
+            long stepOptions = visited.Count(x => x.Step == steps);
+            Console.WriteLine($"Options {steps}: {stepOptions}");
         }
         
-        long options = visited.Count(x => x.Step == 64);
+        long options = visited.Count(x => x.Step == steps);
         return options;
     }
     

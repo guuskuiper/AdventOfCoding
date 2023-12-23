@@ -118,7 +118,7 @@ public class {{className}} : Solution
     public string Run()
     {
         string[] input = this.ReadLines();
-        return "UNKNOWN";
+        return "1" + "\n";
     }
 }    
 """;

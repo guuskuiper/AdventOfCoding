@@ -27,7 +27,7 @@ public static class TopologicalSort
         return stack.ToList();
     }
 
-    private static HashSet<T> Nodes<T>(IGraph<T> graph, T start)
+    public static HashSet<T> Nodes<T>(IGraph<T> graph, T start)
     {
         AQueue<T> frontier = [start];
         HashSet<T> nodes = [start];

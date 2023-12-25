@@ -31,4 +31,5 @@ public class Year2023DaySolutionTest : YearTests
     [Fact] public void Day22() => AssertDay("443", "69915");
     [Fact] public void Day23() => AssertDay("2254", "6394");
     [Fact] public void Day24() => AssertDay("26611", "684195328708898");
+    [Fact] public void Day25() => AssertDay("568214", "");
 }

@@ -12,9 +12,9 @@ to run the solution for the 5th of December.
 
 Automatically download the input using the `AoCClient` in `src\AdventOfCode.Client`.
 
-The client required a session key.
+The client requires a session key.
 Either create a `SESSION` environment variable or a file `SESSION` in `src\AdventOfCode.Client`.
-The content should start with: `session=` and after that, the raining content should be 128 characters.
+The content should start with: `session=` and after that, the remaining content should be 128 characters.
 
 The client can also download and parse private leaderboard statistics.  
 

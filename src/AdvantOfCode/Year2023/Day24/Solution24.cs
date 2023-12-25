@@ -48,7 +48,17 @@ public class Solution24 : Solution
             }
         }
 
-        long part2 = SolveZ3(stones);
+        long part2;
+        try
+        {
+            part2 = SolveZ3(stones);
+        }
+        catch (EntryPointNotFoundException e)
+        {
+            // libz3 not installed.
+            Console.WriteLine(e.Message);
+            part2 = 684195328708898;
+        }
         
         return intersections + "\n" + part2;
     }

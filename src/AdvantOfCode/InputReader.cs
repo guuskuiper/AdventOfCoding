@@ -9,7 +9,9 @@ public static class InputReader
     {
         if (!File.Exists(inputFilePath))
         {
-            string text = AoCClient.DownloadAsync(year, day).Result;
+            string? session = AoCClient.GetSessionAsync().Result;
+            AoCClient downloader = new AoCClient(session);
+            string text = downloader.DownloadInputAsync(year, day).Result;
             File.WriteAllText(inputFilePath, text);
             return text;
         }

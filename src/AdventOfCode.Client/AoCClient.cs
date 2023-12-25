@@ -7,32 +7,60 @@ namespace AdventOfCode.Client;
 
 public class AoCClient
 {
+    private const int CacheTimeSeconds = 900; 
     private const string UrlDay = "{0}/day/{1}/";
     private const string UrlInput = "input";
     private const string UrlBase = "https://adventofcode.com/";
     private const string UrlLeaderboard = "{0}/leaderboard/private/view/{1}.json";
     private const string UrlAnswer = "answer";
+    private const string AdventofcodeFolder = "AdventOfCode";
 
     private readonly HttpClient _client;
 
+    /// <summary>
+    /// Creates a client based on a session string.
+    /// The session content is verified (offline), and should start with `session=` and contain 128 character after the '='.
+    /// Throws and <see cref="Exception"/> when the session content does not pass the offline verification.
+    /// </summary>
+    /// <param name="session"></param>
     public AoCClient(string session)
     {
         VerifySession(session);
-        _client = new HttpClient(new HttpClientHandler());
-        _client.BaseAddress = new Uri(UrlBase);
+        _client = new HttpClient(new HttpClientHandler())
+        {
+            BaseAddress = new Uri(UrlBase),
+        };
 
         _client.DefaultRequestHeaders.Add("Cookie", session);
-        _client.DefaultRequestHeaders.Add("User-Agent", "C#");
+        _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "github.com/guuskuiper/AdventtOfCoding");
     }
 
+    /// <summary>
+    /// Download an input.
+    /// The input text is cached forever in ProgramData\AdventOfCode.
+    /// </summary>
+    /// <param name="year"></param>
+    /// <param name="day"></param>
+    /// <returns></returns>
     public async Task<string> DownloadInputAsync(int year, int day)
     {
-        string dayUrl = string.Format(UrlDay, year, day);
+        var cacheDirectory = GetCacheEventPath(year.ToString());
+        string cachedInputPath = Path.Combine(cacheDirectory, $"input{day:D2}.txt");
 
-        string input = await _client.GetStringAsync(dayUrl + UrlInput);
-        return input;
+        string dayUrl = string.Format(UrlDay, year, day);
+        string inputText = await RequestOrCacheAsync(dayUrl + UrlInput, cachedInputPath, -1);
+
+        return inputText;
     }
    
+    /// <summary>
+    /// Upload an answer and return the response.
+    /// </summary>
+    /// <param name="year"></param>
+    /// <param name="day"></param>
+    /// <param name="part1"></param>
+    /// <param name="answer"></param>
+    /// <returns></returns>
     public async Task<string> UploadAnswerAsync(int year, int day, bool part1, string answer)
     {
         string dayUrl = string.Format(UrlDay, year, day);
@@ -48,42 +76,6 @@ public class AoCClient
         string text = ParseHtml(html);
         return text;
     }
-    
-    public string UploadAnswer(int year, int day, bool part1, string answer)
-    {
-        string dayUrl = string.Format(UrlDay, year, day);
-        
-        KeyValuePair<string, string>[] data =
-        {
-            new ("answer", answer),
-            new ("level", part1 ? "1" : "2")
-        };
-        
-        HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, dayUrl + UrlAnswer)
-        {
-            Content = new FormUrlEncodedContent(data)
-        };
-        
-        var response = _client.Send(message);
-        using var reader = new StreamReader(response.Content.ReadAsStream());
-        string html = reader.ReadToEnd();
-        string text = ParseHtml(html);
-        return text;
-    }
-    
-    public static async Task<string> DownloadAsync(int year, int day)
-    {
-        string? session = await GetSessionAsync();
-        AoCClient downloader = new AoCClient(session);
-        return await downloader.DownloadInputAsync(year, day);
-    }
-
-    public static async Task<string> UploadAsync(int year, int day, bool part1, string answer)
-    {
-        string? session = await GetSessionAsync();
-        AoCClient downloader = new AoCClient(session);
-        return await downloader.UploadAnswerAsync(year, day, part1, answer);
-    }
 
     /// <summary>
     /// Fetches private leaderboard Json, and return the parsed result.
@@ -95,29 +87,22 @@ public class AoCClient
     /// <returns></returns>
     public async Task<AoCPrivateLeaderboard> GetLeaderboard(string eventName, int groupCode)
     {
-        const int CacheTimeSeconds = 900; 
-        string cacheDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "AdventOfCode");
-        Directory.CreateDirectory(cacheDirectory);
+        var cacheDirectory = GetCacheEventPath(eventName);
         string cacheJsonFilePath = Path.Combine(cacheDirectory, $"{groupCode}.json");
-
-        string jsonText;
-        FileInfo jsonFile = new FileInfo(cacheJsonFilePath);
-        if(jsonFile.Exists && (DateTime.Now - jsonFile.LastWriteTime).TotalSeconds < CacheTimeSeconds)
-        {
-            jsonText = await File.ReadAllTextAsync(cacheJsonFilePath);
-        }
-        else
-        {
-            string url = string.Format(UrlLeaderboard, eventName, groupCode);
-            jsonText = await _client.GetStringAsync(url);
-            await File.WriteAllTextAsync(cacheJsonFilePath, jsonText);
-        }
+        
+        string url = string.Format(UrlLeaderboard, eventName, groupCode);
+        string jsonText = await RequestOrCacheAsync(url, cacheJsonFilePath, CacheTimeSeconds);
         
         AoCPrivateLeaderboard leaderboard = ParseLeaderboardJson(jsonText);
 
         return leaderboard;
     }
 
+    /// <summary>
+    /// Parses the json into <see cref="AoCPrivateLeaderboard"/>
+    /// </summary>
+    /// <param name="json"></param>
+    /// <returns></returns>
     public static AoCPrivateLeaderboard ParseLeaderboardJson(string json)
     {
         JsonSerializerOptions options = new() { Converters = { new DateTimeConverterForCustomStandardFormatR() } };
@@ -154,9 +139,14 @@ public class AoCClient
         return session;
     }
     
-    // Verify content of the session string.
-    // Only based on the structure of the string.
-    // Doesnt call any API to verify whether the session is valid.
+
+    /// <summary>
+    /// Verify content of the session string.
+    /// Only based on the structure of the string.
+    /// Doesnt call any API to verify whether the session is valid.
+    /// </summary>
+    /// <param name="session"></param>
+    /// <exception cref="Exception"></exception>
     private void VerifySession(ReadOnlySpan<char> session)
     {
         const string Session = "session=";
@@ -175,6 +165,36 @@ public class AoCClient
         }
     }
     
+    private async Task<string> RequestOrCacheAsync(string url, string cacheFilePath, int cacheExpiration = -1)
+    {
+        string text;
+        FileInfo cacheFile = new FileInfo(cacheFilePath);
+        DirectoryInfo? cacheFileDirectory = cacheFile.Directory;
+        ArgumentNullException.ThrowIfNull(cacheFileDirectory, nameof(cacheFilePath));
+        
+        if (!cacheFileDirectory.Exists)
+        {
+            cacheFileDirectory.Create();
+        }
+        
+        if(cacheFile.Exists && (cacheExpiration < 0 || (DateTime.Now - cacheFile.LastWriteTime).TotalSeconds < CacheTimeSeconds))
+        {
+            text = await File.ReadAllTextAsync(cacheFilePath);
+        }
+        else
+        {
+            text = await _client.GetStringAsync(url);
+            await File.WriteAllTextAsync(cacheFilePath, text);
+        }
+        return text;
+    }
+    
+    private static string GetCacheEventPath(string eventName) =>
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            AdventofcodeFolder,
+            eventName);
+
     private class DateTimeConverterForCustomStandardFormatR : JsonConverter<DateTime>
     {
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

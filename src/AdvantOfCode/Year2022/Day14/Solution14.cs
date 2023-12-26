@@ -120,7 +120,7 @@ public class Solution14 : Solution
             sandCount++;
         }
         
-        cave.Print();
+        //cave.Print();
 
         return sandCount;
     }

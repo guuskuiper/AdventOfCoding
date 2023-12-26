@@ -20,7 +20,7 @@ public class Solution21 : Solution
         rootMonkey.Simplify(monkeyDict, out _, out string toSolve);
         long humnValue = rootMonkey.MakeEqual(monkeyDict);
         long equal = rootMonkey.Result(monkeyDict);
-        Console.WriteLine(toSolve);
+        //Console.WriteLine(toSolve);
         
         return value + "\n" + humnValue;
     }

@@ -118,7 +118,7 @@ public class Solution16 : Solution
             var currentStates = statesSet.Where(x => x.MinutesLow == i + 1 || x.MinutesHigh == i + 1).ToList();
             var max = currentStates.Count > 0 ? currentStates.Max(x => x.Pressure) : 0;
             totalMax = Math.Max(totalMax, max);
-            Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
+            //Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
         }
 
         return totalMax;
@@ -238,7 +238,7 @@ public class Solution16 : Solution
             var currentStates = statesSet.Where(x => x.Minutes == i + 1).ToList();
             var max = currentStates.Count > 0 ? currentStates.Max(x => x.Pressure) : 0;
             totalMax = Math.Max(totalMax, max);
-            Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
+            //Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
         }
 
         return totalMax;
@@ -300,7 +300,7 @@ public class Solution16 : Solution
             nextStatesSet.Clear();
             var max = statesSet.Count > 0 ? statesSet.Max(x => x.Pressure) : 0;
             totalMax = Math.Max(totalMax, max);
-            Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
+            //Console.WriteLine($"Round{i} - {statesSet.Count}, round max {max} - total {totalMax}");
         }
 
         return totalMax;
@@ -394,7 +394,7 @@ public class Solution16 : Solution
                 nodes.Remove(remove);
             }
 
-            Console.WriteLine($"Simplified {edgeCount}->{edges.Count}, {nodeCount}->{nodes.Count}");
+            //Console.WriteLine($"Simplified {edgeCount}->{edges.Count}, {nodeCount}->{nodes.Count}");
         }
 
         Dictionary<string, int> renumberValves = new();

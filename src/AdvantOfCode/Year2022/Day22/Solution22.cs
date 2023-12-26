@@ -454,7 +454,7 @@ public class Solution22 : Solution
             isMove = !isMove;
         }
 
-        jungle.Print();
+        //jungle.Print();
 
         int password = jungle.Password();
         return password;

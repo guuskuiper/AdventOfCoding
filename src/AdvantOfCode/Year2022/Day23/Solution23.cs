@@ -169,7 +169,7 @@ public class Solution23 : Solution
         int sizeX = maxX - minX + 1;
         int sizeY = maxY - minY + 1;
 
-        Print(elves);
+        //Print(elves);
 
         int totalSize = sizeX * sizeY;
 

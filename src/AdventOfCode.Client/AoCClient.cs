@@ -32,7 +32,7 @@ public class AoCClient
         };
 
         _client.DefaultRequestHeaders.Add("Cookie", session);
-        _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "github.com/guuskuiper/AdventtOfCoding");
+        _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "github.com/guuskuiper/AdventOfCoding");
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ public class Solution12 : Solution
 {
     public string Run()
     {
-        string input = InputReader.ReadFile();
+        string input = string.Join(Environment.NewLine, this.ReadLines());
         string pattern = @"<x=(?'x'.+), y=(?'y'.+), z=(?'z'.+)>";
 
         List<IVector3> bodies = new List<IVector3>();

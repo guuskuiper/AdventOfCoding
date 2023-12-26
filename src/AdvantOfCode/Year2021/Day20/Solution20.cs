@@ -13,7 +13,7 @@ public class Solution20 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         _imageEnhancementAlgorithm = lines[0];
         _image = lines[1..];
         

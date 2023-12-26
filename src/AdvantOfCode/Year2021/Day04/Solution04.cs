@@ -22,7 +22,7 @@ public class Solution04 : Solution
 
     public string Run()
     {
-        List<string> input = InputReader.ReadFileLines();
+        string[] input = this.ReadLines();
 
         List<int> drawNumbers = input[0].Split(',',StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 

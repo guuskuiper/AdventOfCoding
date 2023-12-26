@@ -28,7 +28,7 @@ public class Solution10 : Solution
 
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         
         ParseLines(lines);
         int A = GetSyntaxSore();
@@ -37,7 +37,7 @@ public class Solution10 : Solution
         return A + "\n" + B;
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(IEnumerable<string> lines)
     {
         _lineNumber = -1;
 

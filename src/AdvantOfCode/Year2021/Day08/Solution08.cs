@@ -10,14 +10,14 @@ public class Solution08 : Solution
     
     public string Run()
     {
-        var input = InputReader.ReadFileLines();
+        string[] input = this.ReadLines();
 
         ParseLines(input);
         var A = digitCount[1] + digitCount[4] + digitCount[7] + digitCount[8];
         return A + "\n" + valueSum;
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(IEnumerable<string> lines)
     {
         foreach (var line in lines)
         {

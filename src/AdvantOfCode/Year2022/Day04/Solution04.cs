@@ -25,7 +25,7 @@ public class Solution04 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         var pairs = lines.Select(Pair.Parse).ToArray();
         var countAnyOverlap = pairs.Count(x => AnyOverlapContained(x.First, x.Last) || AnyOverlapContained(x.Last, x.First));
         var countFullyContained = pairs.Count(x => FullyContained(x.First, x.Last) || FullyContained(x.Last, x.First));

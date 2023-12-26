@@ -12,11 +12,9 @@ public class Solution07 : Solution
     private readonly Dictionary<string, int> _dirSize = new ();
     private readonly Stack<string> _path = new ();
 
-    public static List<string> Input() => InputReader.ReadFileLines();
-
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         Parse(lines);
 
         var sum = _dirSize

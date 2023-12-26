@@ -12,7 +12,7 @@ public class Solution10 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         List<int?> instructions = Parse(lines);
         List<int> during = Cycles(instructions);
         int sum = SignalStrengthSum(during, 20, 40, 220);

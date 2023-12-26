@@ -1,2 +1,1 @@
-Player 1 starting position: 7
-Player 2 starting position: 10
+C:/Users/zane/git/AdventOfCoding/input/2021/input21.txt

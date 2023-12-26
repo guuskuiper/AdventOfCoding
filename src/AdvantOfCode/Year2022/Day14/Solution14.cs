@@ -87,7 +87,7 @@ public class Solution14 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var rocks = Parse(lines);
 
         int xMin = rocks.SelectMany(p => p).Min(p => p.X);

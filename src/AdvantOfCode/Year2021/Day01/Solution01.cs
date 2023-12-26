@@ -5,7 +5,7 @@ public class Solution01 : Solution
 {
     public string Run()
     {
-        List<string> input = InputReader.ReadFileLines();
+        string[] input = this.ReadLines();
 
         List<int> numbers = input.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
         List<int> window = GetSliding3Window(numbers).ToList();

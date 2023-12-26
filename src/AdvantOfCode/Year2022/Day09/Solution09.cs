@@ -47,7 +47,7 @@ public class Solution09 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var moves = Parse(lines);
         Rect bounds = BoundPoint(moves);
         int visited = Simulate(moves, bounds);

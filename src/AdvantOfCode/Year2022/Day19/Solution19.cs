@@ -33,7 +33,7 @@ public class Solution19 : Solution
         Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
         """;
         //var lines = example.Split("\r\n");
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var blueprints = Parse(lines).ToList();
 
         //int sumA = 1418;

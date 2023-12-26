@@ -148,7 +148,7 @@ public class Solution23 : Solution
             ..............
             """;
         //string[] lines = example.Split("\r\n");
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         List<Elf> elves = Parse(lines).ToList();
         Rounds(elves, 10);
         int emptyGround = FindArea(elves);

@@ -7,7 +7,7 @@ public class Solution25 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var values = Convert(lines).ToArray();
         long sum = values.Sum();
         string result = SNAFU(sum);

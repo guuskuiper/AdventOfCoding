@@ -5,14 +5,14 @@ public class Solution03 : Solution
 {
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
 
         var priorities = Priorities(lines);
         var badges = Badges(lines);
         return priorities + "\n" + badges;
     }
 
-    private long Priorities(List<string> lines)
+    private long Priorities(IEnumerable<string> lines)
     {
         long priorities = 0;
         foreach (var line in lines)

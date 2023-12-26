@@ -31,7 +31,7 @@ public class Solution17 : Solution
     public string Run()
     {
         const string example = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>";
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         _jets = lines[0];
 
         Reset();

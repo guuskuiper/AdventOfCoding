@@ -43,7 +43,7 @@ public class Solution16 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         string line = lines[0];
         var binaryString = Hex2BitString(line);
 

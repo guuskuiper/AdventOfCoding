@@ -43,7 +43,7 @@ public class Solution17 : Solution
     
     public string Run()
     {
-        var line = InputReader.ReadFileLines()[0];
+        string line = this.ReadLines()[0];
         ParseLine(line);
 
         int A = SimulateRange();

@@ -12,7 +12,7 @@ public class JungleMapTests
 
     public JungleMapTests()
     {
-        var lines = Solution22.GetInput();
+        var lines = new Solution22().GetInput();
         jungle = new JungleMap(lines.AsSpan(0, 200).ToArray());
     }
 

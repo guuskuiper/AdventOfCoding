@@ -374,7 +374,7 @@ public class Solution22 : Solution
         private bool IsWrap(Point p) => !InRange(p) || _tiles[p.Y][p.X] == ' ';
     }
 
-    public static string[] GetInput() => InputReader.ReadFileLinesArray();
+    public string[] GetInput() => this.ReadLines();
 
     public string Run()
     {
@@ -395,7 +395,7 @@ public class Solution22 : Solution
             10R5L5R10L4R5L5
             """;
         //string[] lines = example.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
 
         var mapLines = lines.AsSpan().Slice(0, lines.Length - 1).ToArray();
 

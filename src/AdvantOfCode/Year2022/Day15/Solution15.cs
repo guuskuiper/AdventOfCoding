@@ -15,7 +15,7 @@ public class Solution15 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         List<Sensor> sensors = Parse(lines);
 
         int xMin = int.MaxValue;

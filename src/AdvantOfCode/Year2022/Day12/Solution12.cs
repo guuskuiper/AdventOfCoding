@@ -8,7 +8,7 @@ public class Solution12 : Solution
 {
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
 
         HillGraph graph = new HillGraph(lines);
 

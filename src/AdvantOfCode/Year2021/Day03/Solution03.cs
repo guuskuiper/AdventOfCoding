@@ -7,7 +7,7 @@ public class Solution03 : Solution
 
     public string Run()
     {
-        List<string> lines = InputReader.ReadFileLines();
+        List<string> lines = this.ReadLines().ToList();
 
         int bitCount = lines[0].Length;
 

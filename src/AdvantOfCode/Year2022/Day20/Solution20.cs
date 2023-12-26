@@ -7,7 +7,7 @@ public class Solution20 : Solution
 {
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         long[] input = lines.Select(long.Parse).ToArray();
         //long[] input = { 1, 2, -3, 3, -2, 0, 4 };
         LinkedList<long> linkedList = new LinkedList<long>(input);

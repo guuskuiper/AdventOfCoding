@@ -55,7 +55,7 @@ public class Solution13 : Solution
     private record Pair(Data Left, Data Right);
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
 
         string resultCustom = SolveCustomParser(lines);
         string resultJson = SolveJson(lines);

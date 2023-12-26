@@ -93,7 +93,7 @@ public class Solution24 : Solution
             ######.#
             """;
         // string[] lines = example.Split("\r\n");
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         
         var blizzards = Parse(lines).ToArray();
         Size bounds = new(lines[0].Length - 2, lines.Length - 2);

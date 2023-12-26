@@ -39,7 +39,7 @@ public class Solution24 : Solution
 
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         ParseLines(lines);
         string A = ReturnIfCorrect(new [] { 9, 9, 8, 9, 3, 9, 9, 9, 2, 9, 1, 9, 6, 7 });
         string B = ReturnIfCorrect(new [] { 3, 4, 1, 7, 1, 9, 1, 1, 1, 8, 1, 2, 1, 1 });
@@ -123,7 +123,7 @@ public class Solution24 : Solution
         };
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(string[] lines)
     {
         foreach (var line in lines)
         {

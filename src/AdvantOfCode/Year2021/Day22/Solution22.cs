@@ -75,7 +75,7 @@ public class Solution22 : Solution
     private long _onCount = 0;
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
 
         ParseLines(lines[0..20]);
         

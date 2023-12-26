@@ -20,7 +20,7 @@ public class Solution15 : Solution
 
     public Solution15()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         cave = new int[lines.Length,lines[0].Length];
         nodes = new Node[lines.Length,lines[0].Length];
         for (int x = 0; x < lines.Length; x++)

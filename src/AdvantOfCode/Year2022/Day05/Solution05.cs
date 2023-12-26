@@ -14,7 +14,7 @@ public class Solution05 : Solution
     
     public string Run()
     {
-        string[] input = InputReader.ReadFile().Replace("\r\n", "\n").Split('\n');
+        string[] input = this.ReadLines(StringSplitOptions.None);
 
         Parse(input);
         Execute();

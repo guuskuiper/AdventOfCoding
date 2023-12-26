@@ -71,7 +71,7 @@ public class Solution19 : Solution
 
     public Solution19()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         _scanners = ParseLines(lines);
         InitializeOrientations();
     }
@@ -259,7 +259,7 @@ public class Solution19 : Solution
         }
     }
 
-    private List<ScannerReports> ParseLines(List<string> lines)
+    private List<ScannerReports> ParseLines(string[] lines)
     {
         List<ScannerReports> scanners = new();
         List<string> scannerLine = new();

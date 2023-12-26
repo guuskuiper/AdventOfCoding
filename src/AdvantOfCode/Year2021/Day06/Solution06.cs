@@ -7,7 +7,7 @@ public class Solution06 : Solution
     private long[] bins;
     public string Run()
     {
-        string input = InputReader.ReadFile();
+        string input = this.ReadLines()[0];
 
         simulation = input.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
         bins = Bins(simulation);

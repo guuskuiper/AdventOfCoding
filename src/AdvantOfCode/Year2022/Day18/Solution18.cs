@@ -9,7 +9,7 @@ public class Solution18 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var points = Parse(lines);
         var grid = BuildGrid(points);
         long count = Count(grid);

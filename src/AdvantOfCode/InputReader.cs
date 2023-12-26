@@ -35,7 +35,7 @@ public static class InputReader
         }
     }
 
-    public static string ReadFile([CallerFilePath] string sourceFilePath = "")
+    private static string ReadFile([CallerFilePath] string sourceFilePath = "")
     {
         string inputPath = sourceFilePath.Replace("Solution", "input").Replace(".cs", ".txt");
         string[] split = inputPath.Split(Path.DirectorySeparatorChar);
@@ -50,12 +50,12 @@ public static class InputReader
         return ReadFile(path).Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
     }
 
-    public static List<string> ReadFileLines([CallerFilePath] string path = null)
+    private static List<string> ReadFileLines([CallerFilePath] string path = null)
     {
         return ReadFileLinesEnumerable(path).ToList();
     }
     
-    public static string[] ReadFileLinesArray([CallerFilePath] string path = null)
+    private static string[] ReadFileLinesArray([CallerFilePath] string path = null)
     {
         return ReadFileLinesEnumerable(path).ToArray();
     }

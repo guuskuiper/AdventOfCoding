@@ -62,7 +62,7 @@ public class Solution12 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         ParseLines(lines);
         
         FindAllPaths(new PathBase());
@@ -107,7 +107,7 @@ public class Solution12 : Solution
         }
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(string[] lines)
     {
         foreach (var line in lines)
         {

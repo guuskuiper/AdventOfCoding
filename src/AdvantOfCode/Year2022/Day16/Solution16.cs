@@ -22,7 +22,7 @@ public class Solution16 : Solution
             Valve JJ has flow rate=21; tunnel leads to valve II
             """;
         //string[] lines = example.Split("\r\n");
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         _valves = Parse(lines);
 
         var max = SolveA();

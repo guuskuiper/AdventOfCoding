@@ -21,7 +21,7 @@ public class Solution05 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         ParseLines(lines);
         
         int overlapCountA = Solve(true);
@@ -38,7 +38,7 @@ public class Solution05 : Solution
         return CountOverlap();
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(IEnumerable<string> lines)
     {
         foreach (var line in lines)
         {

@@ -17,7 +17,7 @@ public class Solution11 : Solution
 
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         
         List<Monkey> monkeys = Parse(lines);
         _inspects = new long[monkeys.Count];

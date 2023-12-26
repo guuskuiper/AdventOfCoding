@@ -20,7 +20,7 @@ public class Solution21 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        List<string> lines = this.ReadLines().ToList();
 
         ParsePlayers(lines);
         long A = Play();

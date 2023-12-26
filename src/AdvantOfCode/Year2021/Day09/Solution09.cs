@@ -24,7 +24,7 @@ public class Solution09 : Solution
     
     public string Run()
     {
-        lines = InputReader.ReadFileLines();
+        lines = this.ReadLines().ToList();
         FindLowest();
         FindAllBasins();
         int B = FindLargestBasins(3);

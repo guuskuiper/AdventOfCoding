@@ -13,7 +13,7 @@ public class Solution14 : Solution
 
     public Solution14()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         _polymereTemplateInput = lines[0];
         _polymereTemplate = lines[0];
         ParsePairs(lines[1..]);

@@ -5,7 +5,7 @@ public class Solution21 : Solution
 {
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         var monkeys = Parse(lines).ToArray();
         var monkeyDict = monkeys.ToDictionary(x => x.Name, x => x);
 

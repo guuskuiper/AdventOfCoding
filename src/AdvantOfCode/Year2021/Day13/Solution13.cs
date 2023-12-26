@@ -17,7 +17,7 @@ public class Solution13 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
 
         ParseLines(lines);
         CreatePaper();
@@ -80,7 +80,7 @@ public class Solution13 : Solution
         }
     }
 
-    private void ParseLines(List<string> lines)
+    private void ParseLines(string[] lines)
     {
         foreach (var line in lines)
         {

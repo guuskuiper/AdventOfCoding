@@ -9,7 +9,7 @@ public class Solution25 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
         ParseLines(lines);
         int A = Steps();        
         return A + "\n";

@@ -9,7 +9,7 @@ public class Solution02 : Solution
 
     public string Run()
     {
-        List<string> lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
 
         string a = Parse(lines, this.ParseLineA);
         string b = Parse(lines, this.ParseLineB);
@@ -17,7 +17,7 @@ public class Solution02 : Solution
         return a + "\n" + b;
     }
 
-    private string Parse(List<string> lines, Action<string> func)
+    private string Parse(IEnumerable<string> lines, Action<string> func)
     {
         this.depth = 0;
         this.horiz = 0;

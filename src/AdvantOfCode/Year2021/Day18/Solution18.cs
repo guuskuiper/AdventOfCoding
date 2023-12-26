@@ -117,7 +117,7 @@ public class Solution18 : Solution
 
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        List<string> lines = this.ReadLines().ToList();
 
         long A = AdditionsMagnitude(lines);
         long B = LargestCombination(lines);

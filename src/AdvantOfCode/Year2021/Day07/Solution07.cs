@@ -6,7 +6,7 @@ public class Solution07 : Solution
     private int _max;
     public string Run()
     {
-        var input = InputReader.ReadFile();
+        var input = this.ReadLines()[0];
         var numbers =  input.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
         _max = numbers.Max();
 

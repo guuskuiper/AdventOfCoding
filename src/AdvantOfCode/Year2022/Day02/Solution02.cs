@@ -35,7 +35,7 @@ public class Solution02 : Solution
 
     public string Run()
     {
-        List<string> lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         IEnumerable<Round> rounds = Parse(lines);
 
         long score = Scores(rounds);

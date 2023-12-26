@@ -11,7 +11,7 @@ public class Solution07B : Solution
     
     public string Run()
     {
-        var lines = Solution07.Input();
+        string[] lines = this.ReadLines();
         Parse(lines);
 
         RecurseTree(_root);

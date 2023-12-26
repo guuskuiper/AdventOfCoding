@@ -21,7 +21,7 @@ public class Solution11 : Solution
 
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         Parse(lines);
         
         Steps(100);
@@ -146,7 +146,7 @@ public class Solution11 : Solution
                j is >= 0 and < Cave.SIZE;
     }
 
-    private void Parse(List<string> input)
+    private void Parse(string[] input)
     {
         for (int i = 0; i < Cave.SIZE; i++)
         {

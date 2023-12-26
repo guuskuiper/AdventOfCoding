@@ -9,7 +9,7 @@ public class Solution08 : Solution
     
     public string Run()
     {
-        var lines = InputReader.ReadFileLinesArray();
+        string[] lines = this.ReadLines();
 
         _heigths = Parse(lines);
         bool[,] visible = Visible();

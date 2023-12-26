@@ -8,7 +8,7 @@ public class Solution06 : Solution
 {
     public string Run()
     {
-        var lines = InputReader.ReadFileLines();
+        string[] lines = this.ReadLines();
         var line = lines[0];
 
         int index = IndexOfAllDifferent(line, 4);

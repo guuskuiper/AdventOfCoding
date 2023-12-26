@@ -26,7 +26,7 @@ public class Solution11 : Solution
 		long sum100 = pairs.Select(p => Distance(p, emptyColumn, emptyRows, 100)).Sum();
 		long sum1m = pairs.Select(p => Distance(p, emptyColumn, emptyRows, 1_000_000)).Sum();
 
-		if (true)
+		if (false)
 		{
 			RectValueGrid<char> rectGrid = new RectValueGrid<char>(grid);
 			rectGrid.Draw();

@@ -31,7 +31,7 @@ public class Solution25 : Solution
         for (int i = 0; i < 3; i++)
         {
             Connection mostUsed = Busiest(wiringMap);
-            Console.WriteLine($"Removing {mostUsed}");
+            //Console.WriteLine($"Removing {mostUsed}");
 
             wiringMap[mostUsed.Low].Connection.Remove(mostUsed.High);
             wiringMap[mostUsed.High].Connection.Remove(mostUsed.Low);

@@ -129,7 +129,7 @@ public class Solution24 : Solution
         if (exit != exitA || exit != exitD) throw new Exception("BFS / AStar / Dijkstra not same result");
 
         var path = TimePoints2Path(results, exit);
-        GraphDraw.DrawGrid(graph, path, BlizzardGraph.Start, graph.End);
+        //GraphDraw.DrawGrid(graph, path, BlizzardGraph.Start, graph.End);
 
         bool EntranceFound(TimePoint timePoint) => timePoint.Point == BlizzardGraph.Start;
         var resultsBack = BFS.SearchToGoalFunc(graph, exit, EntranceFound);

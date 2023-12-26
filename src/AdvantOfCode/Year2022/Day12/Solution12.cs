@@ -37,7 +37,7 @@ public class Solution12 : Solution
         if (path.Count != pathD.Count || path.Count != pathA.Count) throw new Exception("BFS / AStar / Dijkstra not same result");
         
         var pathParents = parents.Where(x => path.Contains(x.Key)).ToDictionary(x => x.Key, y => y.Value);
-        GraphDraw.DrawGrid(graph, pathParents, start, end);
+        //GraphDraw.DrawGrid(graph, pathParents, start, end);
 
         List<int> lengths = new();
         for (int y = 0; y < lines.Length; y++)

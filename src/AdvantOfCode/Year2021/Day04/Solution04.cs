@@ -44,7 +44,7 @@ public class Solution04 : Solution
                 MarkBoard(board, number);
                 if (CheckWinner(board))
                 {
-                    Console.WriteLine(Board2String(board));
+                    //Console.WriteLine(Board2String(board));
                     return GetScore(board, number);
                 }
             }
@@ -67,7 +67,7 @@ public class Solution04 : Solution
                     board.Win = true;
                     if(winners == boards.Count)
                     {
-                        Console.WriteLine(Board2String(board));
+                        //Console.WriteLine(Board2String(board));
                         return GetScore(board, number);
                     }
                 }

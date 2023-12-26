@@ -156,7 +156,7 @@ public class Solution19 : Solution
 
             if (match)
             {
-                Console.WriteLine($"Match {reference.Id} - {other.Id} => {axis} {rotation} {offset}");
+                //Console.WriteLine($"Match {reference.Id} - {other.Id} => {axis} {rotation} {offset}");
                 other.Offset = offset;
                 other.Beacons = transformedBeacons.Select(x => x + offset).ToHashSet();
                 other.Found = true;

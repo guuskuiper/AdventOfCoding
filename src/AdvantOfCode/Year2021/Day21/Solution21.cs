@@ -68,9 +68,9 @@ public class Solution21 : Solution
         for (int round = 0; round < maxRound; round++)
         {
             (ulong p0win, ulong p0notWin) = GetWinLose(player0, round);
-            Console.WriteLine($"Round {round} P0 Win {p0win:D3}-{p0notWin:D3} of {p0win + p0notWin:D3}");
+            //Console.WriteLine($"Round {round} P0 Win {p0win:D3}-{p0notWin:D3} of {p0win + p0notWin:D3}");
             (ulong p1win, ulong p1notWin) = GetWinLose(player1, round);
-            Console.WriteLine($"Round {round} P1 Win {p1win:D3}-{p1notWin:D3} of {p1win + p1notWin:D3}");
+            //Console.WriteLine($"Round {round} P1 Win {p1win:D3}-{p1notWin:D3} of {p1win + p1notWin:D3}");
 
             universesWins += p0win * previousUniversesP1;
             universesLoses += p1win * p0notWin;

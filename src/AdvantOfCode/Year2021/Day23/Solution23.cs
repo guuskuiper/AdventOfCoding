@@ -7,7 +7,7 @@ public class Solution23 : Solution
     {
         long A = PartA();
         long B = PartB();
-        Console.WriteLine(_path);
+        //Console.WriteLine(_path);
         return A + "\n" + B; // B: > 47200 and < 47236 (not 47230)
     }
 

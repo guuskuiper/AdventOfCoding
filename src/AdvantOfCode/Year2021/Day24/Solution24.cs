@@ -58,7 +58,7 @@ public class Solution24 : Solution
     
     private long ALU(int[] code)
     {
-        Console.WriteLine(string.Join("", code));
+        //Console.WriteLine(string.Join("", code));
         input = code;
         inputPos = 0;
         x = 0;
@@ -73,7 +73,7 @@ public class Solution24 : Solution
             {
                 if (instructionId > 0)
                 {
-                    Console.WriteLine($"x={x} y={y} z={z} w={w}, pos={inputPos - 1} val={input[inputPos - 1]}");
+                    //Console.WriteLine($"x={x} y={y} z={z} w={w}, pos={inputPos - 1} val={input[inputPos - 1]}");
                 }
             }
             Execute(instruction);

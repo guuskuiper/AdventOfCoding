@@ -71,7 +71,7 @@ public class Solution08 : Solution
             sb.AppendLine();
         }
 
-        Console.WriteLine(sb);
+        //Console.WriteLine(sb);
 
         return result + "\n" + sb;
     }

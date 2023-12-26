@@ -22,7 +22,7 @@ public class DonutMaze
         for (int y = 0; y < height; y++)
         {
             var line = input[y];
-            Console.WriteLine(line);
+            //Console.WriteLine(line);
             for (int x = 0; x < width; x++)
             {
                 grid[x,y] = line[x];
@@ -86,10 +86,10 @@ public class DonutMaze
         foreach(var kvp in insidePortals)
         {
             var outside = outsidePortals[kvp.Key];
-            Console.WriteLine($"Portal inside: {kvp.Key}@{kvp.Value} <-> {outside}");
+            //Console.WriteLine($"Portal inside: {kvp.Key}@{kvp.Value} <-> {outside}");
         }
-        Console.WriteLine($"Start: AA@{outsidePortals["AA"]}");
-        Console.WriteLine($"End: ZZ@{outsidePortals["ZZ"]}");
+        //Console.WriteLine($"Start: AA@{outsidePortals["AA"]}");
+        //Console.WriteLine($"End: ZZ@{outsidePortals["ZZ"]}");
 
         void Add(string portal, (int x, int y) location)
         {
@@ -97,7 +97,7 @@ public class DonutMaze
             {
                 if(outsidePortals.ContainsKey(portal))
                 {
-                    Console.WriteLine("DupO: " + portal);
+                    //Console.WriteLine("DupO: " + portal);
                     return;
                 }
                 outsidePortals.Add(portal, location);
@@ -106,7 +106,7 @@ public class DonutMaze
             {
                 if(insidePortals.ContainsKey(portal))
                 {
-                    Console.WriteLine("DupI: " + portal);
+                    //Console.WriteLine("DupI: " + portal);
                     return;
                 }
                 insidePortals.Add(portal, location);
@@ -332,7 +332,7 @@ public class DonutMaze
             }
         }
 
-        Console.WriteLine("Max level: " + maxLevel);
+        //Console.WriteLine("Max level: " + maxLevel);
 
         return pathLength;
     }

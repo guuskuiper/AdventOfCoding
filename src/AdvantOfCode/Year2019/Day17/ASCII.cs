@@ -166,7 +166,7 @@ class ASCII
                 {
                     endX = x;
                     endY = y;
-                    Console.WriteLine($"End at {x},{y}");
+                    //Console.WriteLine($"End at {x},{y}");
                     //return;
                 }
                     
@@ -254,7 +254,7 @@ class ASCII
             sb.Append(',');
         }
 
-        Console.WriteLine("Final: " + sb);
+        //Console.WriteLine("Final: " + sb);
     }
 
     private bool DirectionPosition(int x, int y, Direction directory, out int x2, out int y2)

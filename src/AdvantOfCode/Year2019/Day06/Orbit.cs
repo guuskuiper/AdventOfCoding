@@ -30,7 +30,7 @@ public class Orbit
 
         if(Name == target)
         {
-            Console.WriteLine(string.Join(')', newList.Select(x => x.Name)));
+            //Console.WriteLine(string.Join(')', newList.Select(x => x.Name)));
             return newList;
         }
 

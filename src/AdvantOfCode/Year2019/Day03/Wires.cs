@@ -146,8 +146,8 @@ namespace AdventOfCode.Year2019.Day03
                 curPos = Check(curPos, wire);
             }
 
-            Console.WriteLine("Manhattan: " + MinManhattanDist);
-            Console.WriteLine("Total: " + MinTotDist);
+            //Console.WriteLine("Manhattan: " + MinManhattanDist);
+            //Console.WriteLine("Total: " + MinTotDist);
         }
 
         private Pos2 Draw(Pos2 from, Wire wirePart)

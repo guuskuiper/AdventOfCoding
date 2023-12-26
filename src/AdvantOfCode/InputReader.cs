@@ -9,6 +9,12 @@ public static class InputReader
     {
         if (!File.Exists(inputFilePath))
         {
+            string directory = Path.GetDirectoryName(inputFilePath)!;
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            
             string? session = AoCClient.GetSessionAsync().Result;
             AoCClient downloader = new AoCClient(session);
             string text = downloader.DownloadInputAsync(year, day).Result;

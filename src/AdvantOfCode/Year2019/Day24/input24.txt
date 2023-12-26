@@ -1,5 +1,1 @@
-....#
-#..#.
-##..#
-#.###
-.####
+C:/Users/zane/git/AdventOfCoding/input/2019/input24.txt

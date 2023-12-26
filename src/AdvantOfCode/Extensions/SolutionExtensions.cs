@@ -8,11 +8,19 @@ public static class SolutionExtensions
     public static string[] ReadLines(this Solution solution, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries, [CallerFilePath] string path = "")
     {
         string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
-        DayInfoAttribute? dayInfo = GetDayInfo(solution);
 
-        string file = dayInfo is not null ? 
-            InputReader.ReadFile(dayInfo.Year, dayInfo.Day, inputPath) :
-            InputReader.ReadFile(path);
+        DayInfoAttribute? dayInfo = GetDayInfo(solution);
+        ArgumentNullException.ThrowIfNull(dayInfo, "No DayInfo attribute found on solution");
+
+        string newInputPath = Path.GetFullPath(
+            Path.Combine(CallingFilePath(), "..", "..", "..", "input", dayInfo.Year.ToString(),
+            $"input{dayInfo.Day:D2}.txt"));
+        string file = InputReader.ReadFile(dayInfo.Year, dayInfo.Day, newInputPath);
+
+        if (!File.Exists(inputPath))
+        {
+            File.CreateSymbolicLink(inputPath, newInputPath);
+        }
 
         return file
             .ReplaceLineEndings()
@@ -21,4 +29,6 @@ public static class SolutionExtensions
     
     private static DayInfoAttribute? GetDayInfo(this Solution solution) =>
         solution.GetType().GetCustomAttribute<DayInfoAttribute>();
+    
+    private static string CallingFilePath([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;
 }

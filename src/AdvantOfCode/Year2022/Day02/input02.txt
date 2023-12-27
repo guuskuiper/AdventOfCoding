@@ -1,1 +1,1 @@
-C:/Users/zane/git/AdventOfCoding/input/2022/input02.txt
+../../../../input/2022/input02.txt

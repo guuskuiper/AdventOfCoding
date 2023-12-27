@@ -12,14 +12,16 @@ public static class SolutionExtensions
         DayInfoAttribute? dayInfo = GetDayInfo(solution);
         ArgumentNullException.ThrowIfNull(dayInfo, "No DayInfo attribute found on solution");
 
-        string newInputPath = Path.GetFullPath(
-            Path.Combine(CallingFilePath(), "..", "..", "..", "input", dayInfo.Year.ToString(),
-            $"input{dayInfo.Day:D2}.txt"));
-        string file = InputReader.ReadFile(dayInfo.Year, dayInfo.Day, newInputPath);
+        string inputFileName = $"input{dayInfo.Day:D2}.txt";
 
+        string root = RelativeToRoot(path);
+        string relativePath = Path.Combine(root, "input", dayInfo.Year.ToString(), inputFileName);
+        string newInputPath = Path.Combine(Path.GetDirectoryName(path)!, relativePath);
+        string file = InputReader.ReadFile(dayInfo.Year, dayInfo.Day, newInputPath);
+        
         if (!File.Exists(inputPath))
         {
-            File.CreateSymbolicLink(inputPath, newInputPath);
+            File.CreateSymbolicLink(inputPath, relativePath);
         }
 
         return file
@@ -29,6 +31,16 @@ public static class SolutionExtensions
     
     private static DayInfoAttribute? GetDayInfo(this Solution solution) =>
         solution.GetType().GetCustomAttribute<DayInfoAttribute>();
-    
-    private static string CallingFilePath([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;
+
+    private static string RelativeToRoot(string fromPath)
+    {
+        var directoryInfo = Directory.GetParent(fromPath);
+        int up = 1;
+        while (directoryInfo!.Name != "src")
+        {
+            up++;
+            directoryInfo = directoryInfo.Parent;
+        }
+        return Path.Combine(Enumerable.Repeat("..", up).ToArray());
+    }
 }

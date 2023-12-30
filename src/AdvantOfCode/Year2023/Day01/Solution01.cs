@@ -1,5 +1,4 @@
 using System.Buffers;
-using AdventOfCode.Extensions;
 
 namespace AdventOfCode.Year2023.Day01;
 

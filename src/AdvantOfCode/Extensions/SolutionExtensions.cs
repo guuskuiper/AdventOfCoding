@@ -7,8 +7,6 @@ public static class SolutionExtensions
 {
     public static string[] ReadLines(this Solution solution, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries, [CallerFilePath] string path = "")
     {
-        string inputPath = path.Replace("Solution", "input").Replace(".cs", ".txt");
-
         DayInfoAttribute? dayInfo = GetDayInfo(solution);
         ArgumentNullException.ThrowIfNull(dayInfo, "No DayInfo attribute found on solution");
 
@@ -18,10 +16,11 @@ public static class SolutionExtensions
         string relativePath = Path.Combine(root, "input", dayInfo.Year.ToString(), inputFileName);
         string newInputPath = Path.Combine(Path.GetDirectoryName(path)!, relativePath);
         string file = InputReader.ReadFile(dayInfo.Year, dayInfo.Day, newInputPath);
+        string symlinkPath = Path.Combine(Path.GetDirectoryName(path)!, inputFileName);
         
-        if (!File.Exists(inputPath))
+        if (!File.Exists(symlinkPath))
         {
-            File.CreateSymbolicLink(inputPath, relativePath);
+            File.CreateSymbolicLink(symlinkPath, relativePath);
         }
 
         return file

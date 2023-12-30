@@ -6,10 +6,10 @@ namespace AdventOfCode.Year2023.Day18;
 [DayInfo(2023, 18)]
 public class Solution18 : Solution
 {
-	private Size North = new(0, -1);
-	private Size West = new(-1, 0);
-	private Size South = new(0, 1);
-	private Size East = new(1, 0);
+	private Size North = Sizes.Up;
+	private Size West = Sizes.Left;
+	private Size South = Sizes.Down;
+	private Size East = Sizes.Right;
 
 	private record Dig(char Direction, int Depth, string RGB);
 

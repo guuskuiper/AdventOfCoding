@@ -5,10 +5,10 @@ namespace AdventOfCode.Year2023.Day16;
 [DayInfo(2023, 16)]
 public class Solution16 : Solution
 {
-    private Size North = new(0, -1);
-    private Size West = new(-1, 0);
-    private Size South = new(0, 1);
-    private Size East = new(1, 0);
+    private Size North = Sizes.Up;
+    private Size West = Sizes.Left;
+    private Size South = Sizes.Down;
+    private Size East = Sizes.Right;
     
     private char[,] grid;
     
@@ -16,7 +16,7 @@ public class Solution16 : Solution
     {
         string[] input = this.ReadLines();
         grid = input.ToGrid();
-        int sum = RunBeam(new Beam(new (0,0), new(1, 0)));
+        int sum = RunBeam(new Beam(new (0,0), Sizes.Right));
 
         List<Beam> starts = [];
         for (int y = 0; y < grid.Heigth(); y++)

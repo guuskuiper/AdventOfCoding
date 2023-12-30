@@ -6,10 +6,10 @@ public class Solution14 : Solution
 	private const int MAX_CYCLE_COUNT = 200;
 	private const int MAX_PERIOD = 100;
 
-	private Size North = new(0, -1);
-	private Size West = new(-1, 0);
-	private Size South = new(0, 1);
-	private Size East = new(1, 0);
+	private Size North = Sizes.Up;
+	private Size West = Sizes.Left;
+	private Size South = Sizes.Down;
+	private Size East = Sizes.Right;
 
     public string Run()
     {

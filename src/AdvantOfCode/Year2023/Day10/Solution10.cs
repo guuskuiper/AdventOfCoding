@@ -108,12 +108,12 @@ public class Solution10 : Solution
         private readonly char[,] _grid;
         private readonly Dictionary<char, Size[]> pipeConnections = new()
         {
-            { '|', [new(0, 1), new(0, -1)] },
-            { '-', [new(1, 0), new(-1, 0)] },
-            { 'L', [new(1, 0), new(0, -1)] },
-            { 'J', [new(-1, 0), new(0, -1)] },
-            { '7', [new(-1, 0), new(0, 1)] },
-            { 'F', [new(1, 0), new(0, 1)] },
+            { '|', [Sizes.Down, Sizes.Up] },
+            { '-', [Sizes.Right, Sizes.Left] },
+            { 'L', [Sizes.Right, Sizes.Up] },
+            { 'J', [Sizes.Left, Sizes.Up] },
+            { '7', [Sizes.Left, Sizes.Down] },
+            { 'F', [Sizes.Right, Sizes.Down] },
             { '.', [] },
             { 'S', [] }, // unknown
         };

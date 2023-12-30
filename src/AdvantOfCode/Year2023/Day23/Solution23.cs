@@ -295,10 +295,10 @@ public class Solution23 : Solution
             char c = this[hill];
             Size direction = c switch
             {
-                '>' => new Size(1, 0),
-                '<' => new Size(-1, 0),
-                '^' => new Size(0, -1),
-                'v' => new Size(0, 1),
+                '>' => Sizes.Right,
+                '<' => Sizes.Left,
+                '^' => Sizes.Up,
+                'v' => Sizes.Down,
                 _ => Size.Empty
             };
             Point hillResult = hill + direction;

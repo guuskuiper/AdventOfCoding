@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -8,6 +9,7 @@ public class Year2023DaySolutionTest : YearTests
     public Year2023DaySolutionTest(ITestOutputHelper testOutputHelper) : base(2023, testOutputHelper) {}
     
     [Fact] public void Day01() => AssertDay("55971", "54719");
+    //[Fact] public Task Day01() => AssertDayAsync("55971", "54719");
     [Fact] public void Day02() => AssertDay("2416", "63307");
     [Fact] public void Day03() => AssertDay("550064", "85010461");
     [Fact] public void Day04() => AssertDay("28538", "9425061");

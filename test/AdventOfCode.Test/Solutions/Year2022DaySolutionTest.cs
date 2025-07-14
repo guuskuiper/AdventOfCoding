@@ -17,14 +17,14 @@ public class Year2022DaySolutionTest : YearTests
     [Fact] public void Day08() => AssertDay("1792", "334880");
     [Fact] public void Day09() => AssertDay("6181", "2386");
     [Fact] public void Day10() => AssertDay("13440", """
-    ███  ███  ████  ██  ███   ██  ████  ██  
-    █  █ █  █    █ █  █ █  █ █  █    █ █  █ 
-    █  █ ███    █  █    █  █ █  █   █  █  █ 
-    ███  █  █  █   █ ██ ███  ████  █   ████ 
-    █    █  █ █    █  █ █ █  █  █ █    █  █ 
-    █    ███  ████  ███ █  █ █  █ ████ █  █ 
-    
-    """);
+                                                     ███  ███  ████  ██  ███   ██  ████  ██  
+                                                     █  █ █  █    █ █  █ █  █ █  █    █ █  █ 
+                                                     █  █ ███    █  █    █  █ █  █   █  █  █ 
+                                                     ███  █  █  █   █ ██ ███  ████  █   ████ 
+                                                     █    █  █ █    █  █ █ █  █  █ █    █  █ 
+                                                     █    ███  ████  ███ █  █ █  █ ████ █  █ 
+
+                                                     """);
     [Fact] public void Day11() => AssertDay("182293", "54832778815");
     [Fact] public void Day12() => AssertDay("380", "375");
     [Fact] public void Day13() => AssertDay("5806", "23600");

@@ -14,6 +14,15 @@ public static class DayGenerator
         return CreateInstance(solutionType);
     }
     
+    public static SolutionAsync GetAsyncByName(string name, string middleNamespace)
+    {
+        var solutionType = GetSolutionAsyncTypes()
+            .Where(x => MatchesNamespace(x, middleNamespace))
+            .FirstOrDefault(x => x.Name == name);
+        if (solutionType == null) throw new Exception($"Cannot find {middleNamespace}.{name}");
+        return CreateInstance<SolutionAsync>(solutionType);
+    }
+    
     public static Solution GetSolutionByDay(int year, int day)
     {
         var solutionType = GetSolutionTypes()
@@ -35,6 +44,18 @@ public static class DayGenerator
             yield return CreateInstance(solutionType);
         }
     }
+    
+    public static IEnumerable<SolutionAsync> GetSolutionAsyncByDay(int year, int day)
+    {
+        var solutionTypes = GetSolutionAsyncTypes()
+            .Where(x => x.GetCustomAttribute<DayInfoAttribute>() is DayInfoAttribute dayInfo
+                        && dayInfo.Year == year 
+                        && dayInfo.Day == day);
+        foreach (Type solutionType in solutionTypes)
+        {
+            yield return CreateInstance<SolutionAsync>(solutionType);
+        }
+    }
 
     private static bool MatchesNamespace(Type t, string name)
     {
@@ -50,10 +71,22 @@ public static class DayGenerator
             .Where(x => x.IsAssignableTo(typeof(Solution)) && !x.IsAbstract)
             .OrderBy(x => x.Name)
             .ToList();
+    
+    private static List<Type> GetSolutionAsyncTypes() => 
+        Assembly.GetAssembly(typeof(Program))!
+            .ExportedTypes
+            .Where(x => x.IsAssignableTo(typeof(SolutionAsync)) && !x.IsAbstract)
+            .OrderBy(x => x.Name)
+            .ToList();
 
     private static Solution CreateInstance(Type t)
     {
         return (Activator.CreateInstance(t) as Solution)!;
+    }
+    
+    private static T CreateInstance<T>(Type t) where T : class
+    {
+        return (Activator.CreateInstance(t) as T)!;
     }
 
     public static async Task AddDayInfoAttribute(int year)
@@ -113,11 +146,11 @@ public static class DayGenerator
 namespace AdventOfCode.{{yearString}}.{{dayString}};
 
 [DayInfo({{year}}, {{day:D2}})]
-public class {{className}} : Solution
+public class {{className}} : SolutionAsync
 {
-    public string Run()
+    public Task<string> RunAsync()
     {
-        string[] input = this.ReadLines();
+        string[] input = await this.ReadLinesAsync();
         return "1" + "\n";
     }
 }    

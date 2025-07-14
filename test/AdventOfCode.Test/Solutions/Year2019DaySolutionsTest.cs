@@ -15,25 +15,25 @@ public class Year2019DaySolutionsTest : YearTests
     [Fact] public void Day06() => AssertDay("162439", "367");
     [Fact] public void Day07() => AssertDay("844468", "4215746");
     [Fact] public void Day08() => AssertDay("1935", """ 
- ██  ████ █    █  █ █    
-█  █ █    █    █  █ █    
-█    ███  █    █  █ █    
-█    █    █    █  █ █    
-█  █ █    █    █  █ █    
- ██  █    ████  ██  ████ 
+                                                     ██  ████ █    █  █ █    
+                                                    █  █ █    █    █  █ █    
+                                                    █    ███  █    █  █ █    
+                                                    █    █    █    █  █ █    
+                                                    █  █ █    █    █  █ █    
+                                                     ██  █    ████  ██  ████ 
 
-""");
+                                                    """);
     [Fact] public void Day09() => AssertDay("2436480432", "45710");
     [Fact] public void Day10() => AssertDay("319", "517");
     [Fact] public void Day11() => AssertDay("2415", """ 
- ███  ████ ███  █  █ ████ █  █ ███   ██    
- █  █ █    █  █ █  █    █ █  █ █  █ █  █   
- ███  ███  █  █ █  █   █  █  █ █  █ █      
- █  █ █    ███  █  █  █   █  █ ███  █      
- █  █ █    █    █  █ █    █  █ █    █  █   
- ███  █    █     ██  ████  ██  █     ██    
+                                                     ███  ████ ███  █  █ ████ █  █ ███   ██    
+                                                     █  █ █    █  █ █  █    █ █  █ █  █ █  █   
+                                                     ███  ███  █  █ █  █   █  █  █ █  █ █      
+                                                     █  █ █    ███  █  █  █   █  █ ███  █      
+                                                     █  █ █    █    █  █ █    █  █ █    █  █   
+                                                     ███  █    █     ██  ████  ██  █     ██    
 
-""");
+                                                    """);
 
     [Fact] public void Day12() => AssertDay("12053", "320380285873116");
     [Fact] public void Day13() => AssertDay("239", "12099");

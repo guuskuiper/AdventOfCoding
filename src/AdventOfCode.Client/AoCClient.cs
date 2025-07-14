@@ -52,6 +52,17 @@ public class AoCClient
 
         return inputText;
     }
+    
+    public string DownloadInput(int year, int day)
+    {
+        var cacheDirectory = GetCacheEventPath(year.ToString());
+        string cachedInputPath = Path.Combine(cacheDirectory, $"input{day:D2}.txt");
+
+        string dayUrl = string.Format(UrlDay, year, day);
+        string inputText = RequestOrCache(dayUrl + UrlInput, cachedInputPath, -1);
+
+        return inputText;
+    }
    
     /// <summary>
     /// Upload an answer and return the response.
@@ -139,6 +150,16 @@ public class AoCClient
         return session;
     }
     
+    public static string? GetSession()
+    {
+        string? session = Environment.GetEnvironmentVariable("SESSION");
+        if (session is null && File.Exists("SESSION"))
+        {
+            session = File.ReadAllText("SESSION");
+        }
+
+        return session;
+    }
 
     /// <summary>
     /// Verify content of the session string.
@@ -185,6 +206,33 @@ public class AoCClient
         {
             text = await _client.GetStringAsync(url);
             await File.WriteAllTextAsync(cacheFilePath, text);
+        }
+        return text;
+    }
+    
+    private string RequestOrCache(string url, string cacheFilePath, int cacheExpiration = -1)
+    {
+        string text;
+        FileInfo cacheFile = new FileInfo(cacheFilePath);
+        DirectoryInfo? cacheFileDirectory = cacheFile.Directory;
+        ArgumentNullException.ThrowIfNull(cacheFileDirectory, nameof(cacheFilePath));
+        
+        if (!cacheFileDirectory.Exists)
+        {
+            cacheFileDirectory.Create();
+        }
+        
+        if(cacheFile.Exists && (cacheExpiration < 0 || (DateTime.Now - cacheFile.LastWriteTime).TotalSeconds < CacheTimeSeconds))
+        {
+            text = File.ReadAllText(cacheFilePath);
+        }
+        else
+        {
+            HttpRequestMessage request = new(HttpMethod.Get, url);
+            HttpResponseMessage response = _client.Send(request);
+            using var reader = new StreamReader(response.Content.ReadAsStream());
+            text = reader.ReadToEnd();
+            File.WriteAllText(cacheFilePath, text);
         }
         return text;
     }

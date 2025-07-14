@@ -15,48 +15,33 @@ public static class InputReader
                 Directory.CreateDirectory(directory);
             }
             
-            string? session = AoCClient.GetSessionAsync().Result;
+            string? session = AoCClient.GetSession();
+            ArgumentNullException.ThrowIfNull(session);
             AoCClient downloader = new AoCClient(session);
-            string text = downloader.DownloadInputAsync(year, day).Result;
+            string text = downloader.DownloadInput(year, day);
             File.WriteAllText(inputFilePath, text);
             return text;
         }
         return File.ReadAllText(inputFilePath);
     }
 
-    public static IEnumerable<string> StreamFile(string inputFilePath)
+    public static async Task<string> ReadFileAsync(int year, int day, string inputFilePath)
     {
-        using var fs = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read);
-        using TextReader sr = new StreamReader(fs);
-
-        while (sr.ReadLine() is string line)
+        if (!File.Exists(inputFilePath))
         {
-            yield return line;
+            string directory = Path.GetDirectoryName(inputFilePath)!;
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            
+            string? session = await AoCClient.GetSessionAsync();
+            ArgumentNullException.ThrowIfNull(session);
+            AoCClient downloader = new(session);
+            string text = await downloader.DownloadInputAsync(year, day);
+            await File.WriteAllTextAsync(inputFilePath, text);
+            return text;
         }
-    }
-
-    private static string ReadFile([CallerFilePath] string sourceFilePath = "")
-    {
-        string inputPath = sourceFilePath.Replace("Solution", "input").Replace(".cs", ".txt");
-        string[] split = inputPath.Split(Path.DirectorySeparatorChar);
-        int year = int.Parse(split.Single(s => s.StartsWith("Year")).Substring(4));
-        int day = int.Parse(split.Single(s => s.StartsWith("Day")).Substring(3));
-
-        return ReadFile(year, day, inputPath);
-    }
-
-    private static IEnumerable<string> ReadFileLinesEnumerable(string path)
-    {
-        return ReadFile(path).Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-    }
-
-    private static List<string> ReadFileLines([CallerFilePath] string path = null)
-    {
-        return ReadFileLinesEnumerable(path).ToList();
-    }
-    
-    private static string[] ReadFileLinesArray([CallerFilePath] string path = null)
-    {
-        return ReadFileLinesEnumerable(path).ToArray();
+        return await File.ReadAllTextAsync(inputFilePath);
     }
 }

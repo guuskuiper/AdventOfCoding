@@ -21,3 +21,11 @@ The client can also download and parse private leaderboard statistics.
 - Outbound calls are throttled to every 15 minutes in (`GetLeaderboard()`)
 - Once inputs are downloaded, they are cached locally (`RequestOrCacheAsync()`)
 - The User-Agent header in `AoCClient` is set to this Github repository, where issues can be added.
+
+## CI/CD
+
+The Actions uses a secret environment variable to access the personal input's. The Personal Access Token (PAT) does expire.
+
+Create / refresh the PAT on https://github.com/settings/personal-access-tokens for [the repository](https://github.com/guuskuiper/AdventOfCoding-Input).
+
+Set the Token in the CI_SECRET: https://github.com/guuskuiper/AdventOfCoding/settings/secrets/actions
